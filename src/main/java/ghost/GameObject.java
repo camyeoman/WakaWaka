@@ -20,6 +20,10 @@ public class GameObject {
 		this.type = type;
 	}
 
+	public static void loadSprites(App app) {
+		sprites.put(Types.fruit, Utilities.pathLoad(app,"fruit"));
+	}
+
 	public PImage getSprite() {
 		return sprites.get(type);
 	}

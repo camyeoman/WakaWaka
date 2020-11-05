@@ -6,23 +6,33 @@ import java.util.*;
 
 public class Player extends Agent {
 	// Sprites
-	static Map<Direction, PImage> sprites = new HashMap<>();
-	static PImage closed;
+	private static Map<Direction, PImage> sprites;
+	private static PImage closed;
 
 	protected Direction directionQued;
 	private boolean open = true;
-	private int counter = 0;
 	int points;
 
-	public Player(int x, int y, boolean[][] map)
+	public Player(int x, int y)
 	{
-		super(x, y, map);
+		super(x, y);
 		this.directionQued = Direction.right;
+	}
+
+	public static void loadSprites(App app) {
+		sprites = new HashMap<>();
+		String[] files = new String[]{"Up", "Left", "Right", "Down"};
+		for (int i=0; i < 4; i++) {
+			PImage sprite = Utilities.pathLoad(app, "player" + files[i]);
+			Player.sprites.put(Direction.values()[i], sprite);
+		}
+
+		closed = Utilities.pathLoad(app, "playerClosed");
 	}
 
 	public void tic(PApplet app, int counter)
 	{
-		app.image(getSprite(), displayX(), displayY());
+		app.image(getSprite(counter), displayX(), displayY());
 
 		if (direction != null) {
 			move();
@@ -40,16 +50,21 @@ public class Player extends Agent {
 		}
 	}
 
-	public PImage getSprite()
+	public PImage getSprite(int counter)
 	{
-		if (direction == null) {
-			return sprites.get(Direction.right);
-		} else {
-			if (++counter % 8 == 0) {
-				open = (open) ? false : true;
-			}
+		if (counter % 8 == 0) {
+			open = (open) ? false : true;
+		}
 
+		if (direction == null) {
+			return (open) ? sprites.get(Direction.right) : closed;
+		} else {
 			return (open) ? sprites.get(direction) : closed;
 		}
+	}
+
+	public PImage scoreboardSprite()
+	{
+		return sprites.get(Direction.right);
 	}
 }

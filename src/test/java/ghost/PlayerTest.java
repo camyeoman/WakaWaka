@@ -25,7 +25,7 @@ public class PlayerTest {
 		
 	@Test
 	public void constructor() {
-		Player player = new Player(1, 1, null);
+		Player player = new Player(1, 1);
 		assertNotNull(player);
 	}
 
@@ -42,7 +42,7 @@ public class PlayerTest {
 	@Test
 	public void nextCoords() {
 		/*
-		Player player = new Player(1, 1, testMap);
+		Player player = new Player(1, 1, );
 		player.move();
 
 		int[] actual = player.nextCoords(Direction.right, 1);
@@ -73,33 +73,33 @@ public class PlayerTest {
 		// TEST FOR X, Y % 16 == 0 (clearly on grid squares)
 
 		// 1
-		Player player = new Player(1, 1, testMap);
+		Player player = new Player(1, 1, );
 		testAllDirections(new Boolean[]{ false, false, true, false }, player);
 		//                                 up    left  right  down
 
 		// 2
-		player = new Player(1, 4, testMap);
+		player = new Player(1, 4, );
 		testAllDirections(new Boolean[]{ false, false, false, false }, player);
 
 		// 3
-		player = new Player(8, 3, testMap);
+		player = new Player(8, 3, );
 		testAllDirections(new Boolean[]{ false, true, false, true }, player);
 
 		// 4
-		player = new Player(10, 1, testMap);
+		player = new Player(10, 1, );
 		testAllDirections(new Boolean[]{ false, true, true, true }, player);
 
 		// TEST FOR X, Y % 16 != 0 (not clearly on grid squares), as such
 		// behavuiour should be return no valid neighbours
 
 		// 5
-		player = new Player(9, 1, testMap);
+		player = new Player(9, 1, );
 		player.setDirection(Direction.right);
 		player.move();
 		testAllDirections(new Boolean[]{ false, true, true, false }, player);
 
 		// 6
-		player = new Player(8, 3, testMap);
+		player = new Player(8, 3, );
 		player.setDirection(Direction.down);
 		player.move();
 		testAllDirections(new Boolean[]{ true, false, false, true }, player);
@@ -110,7 +110,7 @@ public class PlayerTest {
 	public void move()
 	{
 		/*
-		Player player = new Player(10, 1, testMap);
+		Player player = new Player(10, 1, );
 		// test going right
 		int vel = player.speed();
 		player.setDirection(Direction.right);

@@ -9,10 +9,9 @@ interface Lambda<T, U> {
 }
 
 public class Agent {
-
+	static boolean[][] boolMap;
 	protected static int speed = 1;
 	protected Direction direction;
-	final boolean[][] boolMap;
 	protected int x, y;
 
 	public float displayX() { return (float)(x - 6); }
@@ -25,18 +24,14 @@ public class Agent {
 
 	public Direction getDirection() { return direction; }
 
-	public int speed() { return speed; }
-
-	public Agent(int x, int y, boolean[][] boolMap)
+	public Agent(int x, int y)
 	{
-		// @TEMP figure out exactly what direction later etc.
 		this.direction = null;
-		this.boolMap = boolMap;
 		this.x = x;
 		this.y = y;
 	}
 
-	// Moving
+	// Position and Direction
 
 	public void move()
 	{
@@ -49,8 +44,9 @@ public class Agent {
 
 	protected Point translate(Direction direction, int magnitude)
 	{
-		// Adds a multiple of the speed to the position,
-		// while rounding the position.
+		// Adds an interger multiple of the speed to the existing
+		// position, and creates a new Point object with the new
+		// coordinates.
 
 		Point point = getPoint();
 
@@ -63,7 +59,6 @@ public class Agent {
 
 		return point;
 	}
-
 
 	// Interpreting map state
 
@@ -106,6 +101,7 @@ public class Agent {
 			if (direction == null) {
 				return false;
 			}
+
 			return this.direction.isHorizontal() == newDirection.isHorizontal();
 		}
 	}
@@ -138,21 +134,6 @@ public class Agent {
 			return true;
 		}
 		return false;
-	}
-
-	// Obselete
-
-	public int[] nextCoords(Direction direction, int squares)
-	{
-		int x = this.x, y = this.y;
-		switch (direction) {
-			case up:     y -= 16 * squares;  break;
-			case left:   x -= 16 * squares;  break;
-			case right:  x += 16 * squares;  break;
-			case down:   y += 16 * squares;  break;
-		}
-
-		return new int[]{ x, y };
 	}
 
 	// Misc

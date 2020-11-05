@@ -1,6 +1,8 @@
 package ghost;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Comparator;
 import java.util.Arrays;
 
@@ -8,16 +10,43 @@ import processing.core.PImage;
 import processing.core.PApplet;
 
 public class Ghost extends Agent {
-	static PImage sprite;
+	static Map<Type, PImage> sprites;
+	private Type type;
 
-	public Ghost(int x, int y, boolean[][] map)
-	{
-		super(x, y, map);
-		this.direction = null;
+	enum Type {
+		ambusher,
+		chaser,
+		ignorant,
+		whim;
 	}
 
-	public static void setUp(PApplet app) {
+	public Ghost(int x, int y, char typeOfGhost)
+	{
+		super(x, y);
+		this.direction = null;
+		switch (typeOfGhost) {
+			case 'a':
+				this.type = Type.ambusher;
+				break;
+			case 'c':
+				this.type = Type.chaser;
+				break;
+			case 'i':
+				this.type = Type.ignorant;
+				break;
+			case 'w':
+				this.type = Type.whim;
+				break;
+		}
+	}
 
+	public static void loadSprites(App app)
+	{
+		sprites = new HashMap<>();
+		sprites.put(Type.ambusher, Utilities.pathLoad(app, "ambusher"));
+		sprites.put(Type.chaser, Utilities.pathLoad(app, "chaser"));
+		sprites.put(Type.ignorant, Utilities.pathLoad(app, "ignorant"));
+		sprites.put(Type.whim, Utilities.pathLoad(app, "whim"));
 	}
 
 	public boolean tic(PApplet app, Player player, int counter)
@@ -48,7 +77,7 @@ public class Ghost extends Agent {
 
 	public PImage getSprite()
 	{
-		return Ghost.sprite;
+		return Ghost.sprites.get(type);
 	}
 
 	public void setDirection(Direction p)
@@ -71,6 +100,7 @@ public class Ghost extends Agent {
 
 	public Double distance(Player player)
 	{
+		/*
 		if (direction == null) {
 			return null;
 		}
@@ -79,15 +109,20 @@ public class Ghost extends Agent {
 		int[] playerCoords = player.nextCoords(player.getDirection(), 8);
 
 		return Utilities.distance(ghostCoords, playerCoords);
+		*/
+		return 0.2;
 	}
 
 	public Double distance(Direction direction, int[] coords)
 	{
+		/*
 		if (direction == null || coords == null) {
 			return null;
 		}
 
 		int[] p = nextCoords(direction, 1);
 		return Utilities.distance(p, coords);
+		*/
+		return 0.2;
 	}
 }

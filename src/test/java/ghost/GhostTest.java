@@ -26,7 +26,7 @@ public class GhostTest {
 	@Test
 	public void constructor() {
 		/*
-		Ghost ghost = new Ghost(1, 1, null);
+		Ghost ghost = new Ghost(1, 1);
 		assertNotNull(ghost);
 		*/
 	}
@@ -54,33 +54,33 @@ public class GhostTest {
 
 		//System.out.println(ghost.validDirections());
 		// 1
-		Ghost ghost = new Ghost(1, 1, testMap);
+		Ghost ghost = new Ghost(1, 1, );
 		testAllDirections(new Boolean[]{ false, false, true, false }, ghost);
 		//                                 up    left  right  down
 
 		// 2
-		ghost = new Ghost(1, 4, testMap);
+		ghost = new Ghost(1, 4, );
 		testAllDirections(new Boolean[]{ false, false, false, false }, ghost);
 
 		// 3
-		ghost = new Ghost(8, 3, testMap);
+		ghost = new Ghost(8, 3, );
 		testAllDirections(new Boolean[]{ false, true, false, true }, ghost);
 
 		// 4
-		ghost = new Ghost(10, 1, testMap);
+		ghost = new Ghost(10, 1, );
 		testAllDirections(new Boolean[]{ false, true, true, true }, ghost);
 
 		// TEST FOR X, Y % 16 != 0 (not clearly on grid squares), as such
 		// behavuiour should be return no valid neighbours
 
 		// 5
-		ghost = new Ghost(9, 1, testMap);
+		ghost = new Ghost(9, 1, );
 		ghost.setDirection(Direction.right);
 		ghost.move();
 		testAllDirections(new Boolean[]{ false, true, true, false }, ghost);
 
 		// 6
-		ghost = new Ghost(8, 3, testMap);
+		ghost = new Ghost(8, 3, );
 		ghost.setDirection(Direction.down);
 		ghost.move();
 		testAllDirections(new Boolean[]{ true, false, false, true }, ghost);
@@ -91,7 +91,7 @@ public class GhostTest {
 	public void move()
 	{
 		/*
-		Ghost ghost = new Ghost(10, 1, testMap);
+		Ghost ghost = new Ghost(10, 1, );
 		// test going right
 		double vel = ghost.speed();
 		ghost.setDirection(Direction.right);
