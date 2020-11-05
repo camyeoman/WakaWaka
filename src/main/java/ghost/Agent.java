@@ -14,8 +14,8 @@ public class Agent {
 	protected Direction direction;
 	protected int x, y;
 
-	public float displayX() { return (float)(x - 6); }
-	public float displayY() { return (float)(y - 6); }
+	public float displayX() { return (float)(x - 5); }
+	public float displayY() { return (float)(y - 5); }
 
 	public int getX() { return x; }
 	public int getY() { return y; }

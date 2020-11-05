@@ -58,27 +58,43 @@ public class AgentTest {
 		// This tests validDirection() && validDirections()
 
 		Agent.Point point;
-		Agent agent = new Agent(16, 16);
 
-		// Check left
-		point = agent.translate(Direction.left, 1);
-		pointCheck.with(15, 16, point);
-		pointCheck.with(0, 16, Agent.currentGridCell(point, Direction.left));
+		int a, b;
+		int[][] tests = new int[][]{
+			{16,  16},
+			{32,  16},
+			{48,  16},
+			{64,  16},
+			{80,  16},
+			{96,  16},
+			{128, 48}
+		};
 
-		// Check right
-		point = agent.translate(Direction.right, 1);
-		pointCheck.with(17, 16, point);
-		pointCheck.with(32, 16, Agent.currentGridCell(point, Direction.right));
+		for (int[] coord : tests) {
+			a = coord[0];
+			b = coord[1];
+			Agent agent = new Agent(a, b);
 
-		// Check up
-		point = agent.translate(Direction.up, 1);
-		pointCheck.with(16, 15, point);
-		pointCheck.with(16, 0, Agent.currentGridCell(point, Direction.up));
+			// Check left
+			point = agent.translate(Direction.left, 1);
+			pointCheck.with(a-1, b, point);
+			pointCheck.with(a-16, b, Agent.currentGridCell(point, Direction.left));
 
-		// Check down
-		point = agent.translate(Direction.down, 1);
-		pointCheck.with(16, 17, point);
-		pointCheck.with(16, 32, Agent.currentGridCell(point, Direction.down));
+			// Check right
+			point = agent.translate(Direction.right, 1);
+			pointCheck.with(a+1, b, point);
+			pointCheck.with(a+16, b, Agent.currentGridCell(point, Direction.right));
+
+			// Check up
+			point = agent.translate(Direction.up, 1);
+			pointCheck.with(a, b-1, point);
+			pointCheck.with(a, b-16, Agent.currentGridCell(point, Direction.up));
+
+			// Check down
+			point = agent.translate(Direction.down, 1);
+			pointCheck.with(a, b+1, point);
+			pointCheck.with(a, b+16, Agent.currentGridCell(point, Direction.down));
+		}
 	}
 
 	@Test
