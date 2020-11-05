@@ -1,11 +1,8 @@
 package ghost;
-
 import processing.core.PApplet;
 import processing.core.PImage;
-
 import org.json.simple.JSONArray; 
 import org.json.simple.JSONObject; 
-
 import java.util.*;
 import java.util.regex.*;
 
@@ -36,10 +33,10 @@ public class App extends PApplet {
 	{
 		// Parse config
 		JSONObject foo = Maps.parseConfig("config.json");
-		mapFile = (String)foo.get("map"); 
+		mapFile = (String) foo.get("map"); 
 
 		String arrayString = ((JSONArray) foo.get("modeLengths")).toString();
-		String[] strArr = Utilities.extractMatches("\\d+", arrayString);
+		String[] strArr = Utilities.extractMatches("(!=\\.)\\d+(!=\\.)", arrayString);
 		int[] modeLengths = new int[strArr.length];
 		for (int i=0; i < strArr.length; i++) {
 			modeLengths[i] = Integer.parseInt(strArr[i]);
@@ -57,11 +54,11 @@ public class App extends PApplet {
 				boolMap[j][i] = Pattern.matches("[pg7]", stringMap[j][i]);
 
 				if (stringMap[j][i].equals("p")) {
-					this.player = new Player(i, j, boolMap);
+					player = new Player(16 * i, 16 * j, boolMap);
 				} else if (stringMap[j][i].equals("g")) {
-					this.ghosts.add(new Ghost(i, j, boolMap));
+					ghosts.add(new Ghost(16 * i, 16 * j, boolMap));
 				} else if (stringMap[j][i].equals("7")) {
-					this.gameObjects.add(new GameObject(GameObject.Types.fruit, i, j));
+					gameObjects.add(new GameObject(GameObject.Types.fruit, 16 * i, 16 * j));
 				}
 			}
 		}
@@ -166,7 +163,7 @@ public class App extends PApplet {
 		drawFruit();
 
 		if (player.getDirection() != null) {
-			double[] coords = player.nextCoords(player.getDirection(), 8);
+			int[] coords = player.nextCoords(player.getDirection(), 8);
 			image(player.getSprite(), (float)coords[0]-5, (float)coords[1]-5);
 		}
 		player.tic(this, counter);

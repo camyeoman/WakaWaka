@@ -3,17 +3,20 @@ package ghost;
 import processing.core.PImage;
 import java.util.*;
 
-public class GameObject implements Coordinates {
+public class GameObject {
 	static Map<Types, PImage> sprites = new HashMap<>();
 	public final Types type;
-	private double x, y;
+	private int x, y;
 
-	public float getX() { return (float)x; }
-	public float getY() { return (float)y; }
+	public int getX() { return x; }
+	public int getY() { return y; }
+
+	public float displayX() { return (float)(x - 6); }
+	public float displayY() { return (float)(y - 6); }
 
 	public GameObject(Types type, int x, int y) {
-		this.x = 16 * x;
-		this.y = 16 * y;
+		this.x = x;
+		this.y = y;
 		this.type = type;
 	}
 

@@ -4,7 +4,7 @@ import java.util.regex.*;
 import java.util.*;
 
 public class Utilities {
-	public static double distance(double[] a, double[] b) {
+	public static double distance(int[] a, int[] b) {
 		int xDist = (int)Math.pow(a[0] - b[0], 2);
 		int yDist = (int)Math.pow(a[1] - b[1], 2);
 		return (int)Math.pow(xDist + yDist, 0.5);

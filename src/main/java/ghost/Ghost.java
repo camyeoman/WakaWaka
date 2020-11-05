@@ -8,9 +8,6 @@ import processing.core.PImage;
 import processing.core.PApplet;
 
 public class Ghost extends Agent {
-	class Ambusher {
-
-	}
 	static PImage sprite;
 
 	public Ghost(int x, int y, boolean[][] map)
@@ -19,16 +16,23 @@ public class Ghost extends Agent {
 		this.direction = null;
 	}
 
+	public static void setUp(PApplet app) {
+
+	}
+
 	public boolean tic(PApplet app, Player player, int counter)
 	{
 		app.image(getSprite(), displayX(), displayY());
-		if ( Utilities.distance(new double[]{x, y}, player.getCoords()) < 8 ) {
+		/*
+		if ( Utilities.distance(new int[]{x, y}, player.getCoords()) < 8 ) {
 			return false;
 		} else {
-			setDirection(player);
+			//setDirection(player);
 			move();
 			return true;
 		}
+		*/
+		return true;
 	}
 
 	public List<Direction> validDirections()
@@ -47,13 +51,14 @@ public class Ghost extends Agent {
 		return Ghost.sprite;
 	}
 
-	public void setDirection(Player p)
+	public void setDirection(Direction p)
 	{
+		/*
 		if (p == null || p.getDirection() == null) {
 			return;
 		}
 
-		double[] target = p.nextCoords(p.getDirection(),8);
+		int[] target = p.nextCoords(p.getDirection(),8);
 		Comparator<Direction> ambusher
 				= (a, b) -> (int)( distance(a, target) - distance(b, target) );
 		List<Direction> valid = validDirections();
@@ -61,6 +66,7 @@ public class Ghost extends Agent {
 			//valid.sort(ambusher);
 			this.direction = valid.get(0);
 		}
+		*/
 	}
 
 	public Double distance(Player player)
@@ -69,19 +75,19 @@ public class Ghost extends Agent {
 			return null;
 		}
 
-		double[] ghostCoords = nextCoords(direction, 1);
-		double[] playerCoords = player.nextCoords(player.getDirection(), 8);
+		int[] ghostCoords = nextCoords(direction, 1);
+		int[] playerCoords = player.nextCoords(player.getDirection(), 8);
 
 		return Utilities.distance(ghostCoords, playerCoords);
 	}
 
-	public Double distance(Direction direction, double[] coords)
+	public Double distance(Direction direction, int[] coords)
 	{
 		if (direction == null || coords == null) {
 			return null;
 		}
 
-		double[] p = nextCoords(direction, 1);
+		int[] p = nextCoords(direction, 1);
 		return Utilities.distance(p, coords);
 	}
 }

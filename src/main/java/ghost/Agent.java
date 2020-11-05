@@ -4,106 +4,108 @@ import processing.core.PApplet;
 import java.util.regex.Pattern;
 import java.util.*;
 
+interface Lambda<T, U> {
+	public U eval(T input);
+}
+
 public class Agent {
-	protected static double speed;
+
+	protected static int speed = 1;
 	protected Direction direction;
 	final boolean[][] boolMap;
-	protected double x, y;
+	protected int x, y;
 
 	public float displayX() { return (float)(x - 6); }
 	public float displayY() { return (float)(y - 6); }
 
-	public double getX() { return x; }
-	public double getY() { return y; }
-	public double[] getCoords() { return new double[]{x,y}; }
+	public int getX() { return x; }
+	public int getY() { return y; }
+
+	public Point getPoint() { return new Point(x, y); }
 
 	public Direction getDirection() { return direction; }
 
-	public void setSpeed(double speed) { this.speed = speed; }
-	public double speed() { return speed; }
+	public int speed() { return speed; }
 
-	public Agent(double x, double y, boolean[][] boolMap)
+	public Agent(int x, int y, boolean[][] boolMap)
 	{
 		// @TEMP figure out exactly what direction later etc.
 		this.direction = null;
 		this.boolMap = boolMap;
-		this.x = 16 * x;
-		this.y = 16 * y;
-	}
-
-	public static boolean setSpeed(int n) {
-		if (n == 1 || n == 2) {
-			speed = 0.8 * n;
-			return true;
-		}
-		return false;
+		this.x = x;
+		this.y = y;
 	}
 
 	// Moving
 
-	public void setDirection(Direction newDirection)
-	{
-		if (validDirection(newDirection)) {
-			this.direction = newDirection;
-		}
-	}
-
 	public void move()
 	{
 		if (direction != null && validDirection(direction)) {
-			switch (direction) {
-				case right:  translate(1, 0);  break;
-				case down:   translate(0, 1);  break;
-				case left:   translate(-1,0);  break;
-				case up:     translate(0,-1);  break;
-			}
+			Point point = translate(direction, 1);
+			this.x = point.x;
+			this.y = point.y;
 		}
 	}
 
-	protected void translate(int x, int y)
+	protected Point translate(Direction direction, int magnitude)
 	{
 		// Adds a multiple of the speed to the position,
 		// while rounding the position.
 
-		this.x = Utilities.round(this.x + speed * x, 2);
-		this.y = Utilities.round(this.y + speed * y, 2);
+		Point point = getPoint();
+
+		switch (direction) {
+			case right:  point.x += speed * magnitude;  break;
+			case down:   point.y += speed * magnitude;  break;
+			case left:   point.x -= speed * magnitude;  break;
+			case up:     point.y -= speed * magnitude;  break;
+		}
+
+		return point;
 	}
 
-	// Navigation
 
-	public double[] nextCoords(Direction direction, double squares)
+	// Interpreting map state
+
+	protected boolean isWall(Point point)
 	{
-		double x = this.x, y = this.y;
-		if (x % 16 != 0 || y % 16 != 0) {
-			if (direction.isHorizontal()) {
-				x += - (x % 16) + (direction == Direction.left ? 0 : 16);
+		try {
+			return !boolMap[point.y/16][point.x/16];
+		} catch (IndexOutOfBoundsException e) {
+			return true;
+		}
+	}
+
+	protected static Point currentGridCell(Point point, Direction newDirection)
+	{
+		// get next grid square to check if valid
+		if (point.x % 16 != 0 || point.y % 16 != 0) {
+			if (newDirection.isHorizontal()) {
+				point.x += - (point.x % 16) + (newDirection == Direction.left ? 0 : 16);
 			} else {
-				y += - (y % 16) + (direction == Direction.down ? 0 : 16);
-			}
-		} if (!(x % 16 != 0 || y % 16 != 0) || squares > 1) {
-			switch (direction) {
-				case up:     y -= 16 * squares;  break;
-				case left:   x -= 16 * squares;  break;
-				case right:  x += 16 * squares;  break;
-				case down:   y += 16 * squares;  break;
+				point.y += - (point.y % 16) + (newDirection == Direction.up   ? 0 : 16);
 			}
 		}
 
-		return new double[]{ x, y };
+		return point;
 	}
+
+	// Determining valid actions
 
 	protected boolean validDirection(Direction newDirection)
 	{
-		double x = this.x, y = this.y;
+		if (newDirection == null) {
+			return false;
+		}
 
 		if (x % 16 == 0 && y % 16 == 0) {
-			double[] p = nextCoords(newDirection, 1);
-			try {
-				return boolMap[(int)p[1]/16][(int)p[0]/16];
-			} catch (IndexOutOfBoundsException e) {
+			Point point = translate(newDirection, 1);
+			point = currentGridCell(point, newDirection); 
+			return !isWall(point);
+		} else {
+			if (direction == null) {
 				return false;
 			}
-		} else {
 			return this.direction.isHorizontal() == newDirection.isHorizontal();
 		}
 	}
@@ -121,15 +123,54 @@ public class Agent {
 		return directions;
 	}
 
-	public PImage getSprite() {
+	// App related processes
+
+	public PImage getSprite()
+	{
 		// overwrite in the subclasses
 		return null;
+	}
+
+	public static boolean setSpeed(int n)
+	{
+		if (n == 1 || n == 2) {
+			speed = n;
+			return true;
+		}
+		return false;
+	}
+
+	// Obselete
+
+	public int[] nextCoords(Direction direction, int squares)
+	{
+		int x = this.x, y = this.y;
+		switch (direction) {
+			case up:     y -= 16 * squares;  break;
+			case left:   x -= 16 * squares;  break;
+			case right:  x += 16 * squares;  break;
+			case down:   y += 16 * squares;  break;
+		}
+
+		return new int[]{ x, y };
 	}
 
 	// Misc
 
 	public String toString()
 	{
-		return "( " + x + ", " + y + " )" + " heading " + direction;
+		return "( " + x + ", " + y + " )" + " heading " + (direction==null?"null":direction);
+	}
+
+	class Point {
+		// Container class for x and y coordinate
+		int x, y;
+
+		public Point(int x, int y) {
+			this.x = x;
+			this.y = y;
+		}
+
+		public String toString() { return "( " + x + ", " + y + " )"; }
 	}
 }
