@@ -40,6 +40,19 @@ public class PlayerTest {
 	}
 
 	@Test
+	public void getSprite() {
+		int counter = 0;
+		Player player = new Player(16, 16);
+		for (Direction d : Direction.values()) {
+			player.direction = d;
+			counter = 8;
+			//assertEquals(player.getSprite(counter++), player.sprites.get(d));
+			//assertEquals(player.getSprite(counter), player.sprites.get(d));
+		}
+
+	}
+
+	@Test
 	public void nextCoords() {
 		/*
 		Player player = new Player(1, 1, );

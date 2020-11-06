@@ -33,15 +33,6 @@ public class Agent {
 
 	// Position and Direction
 
-	public void move()
-	{
-		if (direction != null && validDirection(direction)) {
-			Point point = translate(direction, 1);
-			this.x = point.x;
-			this.y = point.y;
-		}
-	}
-
 	protected Point translate(Direction direction, int magnitude)
 	{
 		// Adds an interger multiple of the speed to the existing
@@ -50,11 +41,13 @@ public class Agent {
 
 		Point point = getPoint();
 
-		switch (direction) {
-			case right:  point.x += speed * magnitude;  break;
-			case down:   point.y += speed * magnitude;  break;
-			case left:   point.x -= speed * magnitude;  break;
-			case up:     point.y -= speed * magnitude;  break;
+		if (direction != null) {
+			switch (direction) {
+				case right:  point.x += speed * magnitude;  break;
+				case down:   point.y += speed * magnitude;  break;
+				case left:   point.x -= speed * magnitude;  break;
+				case up:     point.y -= speed * magnitude;  break;
+			}
 		}
 
 		return point;
@@ -74,7 +67,7 @@ public class Agent {
 	protected static Point currentGridCell(Point point, Direction newDirection)
 	{
 		// get next grid square to check if valid
-		if (point.x % 16 != 0 || point.y % 16 != 0) {
+		if (point.x % 16 != 0 ^ point.y % 16 != 0) {
 			if (newDirection.isHorizontal()) {
 				point.x += - (point.x % 16) + (newDirection == Direction.left ? 0 : 16);
 			} else {
@@ -121,12 +114,6 @@ public class Agent {
 
 	// App related processes
 
-	public PImage getSprite()
-	{
-		// overwrite in the subclasses
-		return null;
-	}
-
 	public static boolean setSpeed(int n)
 	{
 		if (n == 1 || n == 2) {
@@ -140,7 +127,8 @@ public class Agent {
 
 	public String toString()
 	{
-		return "( " + x + ", " + y + " )" + " heading " + (direction==null?"null":direction);
+		return String.format("(%s, %s) heading %s", x, y,
+			(direction==null ? "null" : direction));
 	}
 
 	class Point {
@@ -152,6 +140,6 @@ public class Agent {
 			this.y = y;
 		}
 
-		public String toString() { return "( " + x + ", " + y + " )"; }
+		public String toString() { return String.format("(%s, %s)", x, y); }
 	}
 }

@@ -40,6 +40,16 @@ public class Ghost extends Agent {
 		}
 	}
 
+	public void move()
+	{
+		if (direction != null && validDirection(direction)) {
+			Point point = translate(direction, 1);
+			this.x = point.x;
+			this.y = point.y;
+		}
+	}
+
+
 	public static void loadSprites(App app)
 	{
 		sprites = new HashMap<>();

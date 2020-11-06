@@ -13,6 +13,16 @@ public class Player extends Agent {
 	private boolean open = true;
 	int points;
 
+	public void move()
+	{
+		if (direction != null && validDirection(direction)) {
+			Point point = translate(direction, 1);
+			this.x = point.x;
+			this.y = point.y;
+		}
+	}
+
+
 	public Player(int x, int y)
 	{
 		super(x, y);
