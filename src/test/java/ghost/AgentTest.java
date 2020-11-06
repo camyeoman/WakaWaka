@@ -22,7 +22,7 @@ public class AgentTest {
 	{
 		Agent.boolMap = testMap;
 
-		lambdaTest<Integer, Integer, Agent.Point> pointCheck
+		lambdaTest<Integer, Integer, Point> pointCheck
 			= (a, b, point) -> assertTrue(point.x == a && point.y == b);
 
 		Agent agent = new Agent(16, 16);
@@ -55,11 +55,11 @@ public class AgentTest {
 	{
 		Agent.boolMap = testMap;
 
-		lambdaTest<Integer, Integer, Agent.Point> pointCheck
+		lambdaTest<Integer, Integer, Point> pointCheck
 			= (a, b, point) -> assertTrue(point.x == a && point.y == b);
 		// This tests validDirection() && validDirections()
 
-		Agent.Point point;
+		Point point;
 
 		int a, b;
 		int[][] tests = new int[][]{
@@ -112,7 +112,7 @@ public class AgentTest {
 		lambdaTest<Direction, Boolean, Agent> checkWall
 			= new lambdaTest<Direction, Boolean, Agent>() {
 			public void with(Direction d, Boolean bool, Agent agent) {
-				Agent.Point point = agent.translate(d, 1);
+				Point point = agent.translate(d, 1);
 				point = Agent.currentGridCell(point, d);
 				assertTrue(agent.isWall(point) == bool);
 			}
@@ -304,10 +304,16 @@ public class AgentTest {
 	};
 
 	@Test
-	public void pointClass() {
+	public void pointClass()
+	{
 		Agent agent = new Agent(16, 16);
-		Agent.Point point = agent.getPoint();
+		Point point = agent.getPoint();
 		assertTrue(point != null && point.x == 16 && point.y == 16);
 		assertEquals("(16, 16)", point.toString());
+	}
+
+	@Test
+	public void loadConfig() {
+
 	}
 }

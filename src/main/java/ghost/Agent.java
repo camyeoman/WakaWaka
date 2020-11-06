@@ -33,7 +33,7 @@ public class Agent {
 
 	// Position and Direction
 
-	protected Point translate(Direction direction, int magnitude)
+	public Point translate(Direction direction, int magnitude)
 	{
 		// Adds an interger multiple of the speed to the existing
 		// position, and creates a new Point object with the new
@@ -53,9 +53,14 @@ public class Agent {
 		return point;
 	}
 
+	protected void moveTo(Point point) {
+		this.x = point.x;
+		this.y = point.y;
+	}
+
 	// Interpreting map state
 
-	protected boolean isWall(Point point)
+	public boolean isWall(Point point)
 	{
 		try {
 			return !boolMap[point.y/16][point.x/16];
@@ -64,7 +69,7 @@ public class Agent {
 		}
 	}
 
-	protected static Point currentGridCell(Point point, Direction newDirection)
+	public static Point currentGridCell(Point point, Direction newDirection)
 	{
 		// get next grid square to check if valid
 		if (point.x % 16 != 0 ^ point.y % 16 != 0) {
@@ -80,7 +85,7 @@ public class Agent {
 
 	// Determining valid actions
 
-	protected boolean validDirection(Direction newDirection)
+	public boolean validDirection(Direction newDirection)
 	{
 		if (newDirection == null) {
 			return false;
@@ -99,7 +104,7 @@ public class Agent {
 		}
 	}
 
-	protected List<Direction> validDirections()
+	public List<Direction> validDirections()
 	{
 		List<Direction> directions = new ArrayList<>();
 		
@@ -110,6 +115,14 @@ public class Agent {
 		}
 
 		return directions;
+	}
+
+	public static void loadConfig(boolean[][] boolMap, int speed) {
+		List<Point> corners = new ArrayList<>();
+		Agent.boolMap = boolMap;
+
+		setSpeed(speed);
+		// Comparator.comparing(Employee::getAge).thenComparing(Employee::getName)
 	}
 
 	// App related processes
@@ -131,15 +144,4 @@ public class Agent {
 			(direction==null ? "null" : direction));
 	}
 
-	class Point {
-		// Container class for x and y coordinate
-		int x, y;
-
-		public Point(int x, int y) {
-			this.x = x;
-			this.y = y;
-		}
-
-		public String toString() { return String.format("(%s, %s)", x, y); }
-	}
 }

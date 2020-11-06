@@ -15,13 +15,12 @@ public class App extends PApplet {
 
 	public String fileName;
 	public int lives;
-	public List<GameObject> gameObjects = new ArrayList<>();
 	public List<Ghost> ghosts = new ArrayList<>();
 	public Player player = null;
 	public PImage[][] map;
 
 	private boolean debugMode = false;
-	private int counter = -1;
+	private int counter = 0;
 
 	public App() {
 		fileName = Utilities.parseConfig(this);
@@ -37,25 +36,7 @@ public class App extends PApplet {
 		size(WIDTH, HEIGHT);
 	}
 
-	public boolean drawFruit()
-	{
-		// Draw GameObjects
-		for (int i=0; i < gameObjects.size(); i++) {
-			GameObject obj = gameObjects.get(i);
-			if (!obj.tic(player)) {
-				player.points++;
-				gameObjects.remove(i);
-			} else {
-				image(obj.getSprite(), obj.getX(), obj.getY());
-			}
-		}
-		
-		return gameObjects.size() > 0;
-	}
-
 	private void drawMap() {
-		background(0, 0, 0);
-		drawFruit();
 
 		for (int j=0; j < 36; j++) {
 			for (int i=0; i < 28; i++) {
@@ -67,22 +48,23 @@ public class App extends PApplet {
 
 		// draw scoreboard
 		for (int i=0; i < lives; i++) {
-			image(player.scoreboardSprite(), 16 + 32 * i, 543);
+			image(player.staticSprite(), 16 + 32 * i, 543);
 		}
+
 	}
 
 	public void draw()
 	{
+		background(0,0,0);
+		Ghost.scatter = true;
 		refreshMovementCache();
-		drawMap();
-		drawFruit();
 
-		/*
-		if (player.getDirection() != null) {
-			int[] coords = player.nextCoords(player.getDirection(), 8);
-			image(player.getSprite(counter), (float)coords[0]-5, (float)coords[1]-5);
-		}
-		*/
+
+		// drawMap();
+
+		// GameObject.ticAll(this, player);
+
+		image(Ghost.sprites.get(Ghost.Type.ambusher), 430, 50);
 
 		player.tic(this, counter);
 
@@ -92,12 +74,25 @@ public class App extends PApplet {
 				lives--;
 			}
 		}
+
+		/*
+		if (player.getDirection() != null) {
+			Point point = player.translate(player.getDirection(), 4*16);
+			image(player.staticSprite(), point.x-5, point.y-5);
+		}
+		*/
+
+
+		//image(player.staticSprite(), 448, 576);
+
+		/*
+		*/
+
+		counter++;
 	}
 
 	public boolean refreshMovementCache()
 	{
-		counter++;
-
 		Direction direct = player.getDirection();
 		Integer currentDirection = (direct == null) ? null : direct.KEY_CODE;
 		if (keyCode == 32) {
@@ -124,8 +119,7 @@ public class App extends PApplet {
 		return false;
 	}
 
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 		PApplet.main("ghost.App");
 	}
 }

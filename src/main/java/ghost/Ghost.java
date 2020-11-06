@@ -2,6 +2,7 @@ package ghost;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.HashMap;
 import java.util.Comparator;
 import java.util.Arrays;
@@ -9,15 +10,71 @@ import java.util.Arrays;
 import processing.core.PImage;
 import processing.core.PApplet;
 
+@FunctionalInterface
+interface Target {
+	public Point at(Player player, Point current);
+}
+
 public class Ghost extends Agent {
 	static Map<Type, PImage> sprites;
+	static PImage clearSprite;
+	static int[] modeLengths;
+	public static boolean scatter;
 	private Type type;
 
 	enum Type {
-		ambusher,
-		chaser,
-		ignorant,
-		whim;
+		ambusher(new Target() {
+			public Point at(Player player, Point unused) {
+				if (scatter) {
+					return new Point(300, 100);
+				} else {
+					return player.translate(player.getDirection(), 4 * 16);
+				}
+			}
+		}),
+
+		chaser(new Target() {
+			public Point at(Player player, Point unused) {
+				if (scatter) {
+					return new Point(0,0);
+				} else {
+					return player.getPoint();
+				}
+			}
+		}),
+
+		ignorant(new Target() {
+			public Point at(Player player, Point current) {
+				int distance = player.getPoint().distance(current);
+				if (scatter || distance <= 8) {
+					return new Point(0,576);
+				} else {
+					return player.getPoint();
+				}
+			}
+		}),
+
+		whim(new Target() {
+			public Point at(Player player, Point unused) {
+				if (scatter) {
+					return new Point(448, 576);
+				} else {
+					Point chaser = Type.chaser.target.at(player,null);
+					Point target = player.translate(player.getDirection(), 2 * 16);
+
+					int finalX = 2 * ( target.x - chaser.x );
+					int finalY = 2 * ( target.y - chaser.y );
+
+					return new Point(finalX, finalY);
+				}
+			}
+		});
+
+		Target target;
+
+		Type(Target target) {
+			this.target = target;
+		}
 	}
 
 	public Ghost(int x, int y, char typeOfGhost)
@@ -40,16 +97,6 @@ public class Ghost extends Agent {
 		}
 	}
 
-	public void move()
-	{
-		if (direction != null && validDirection(direction)) {
-			Point point = translate(direction, 1);
-			this.x = point.x;
-			this.y = point.y;
-		}
-	}
-
-
 	public static void loadSprites(App app)
 	{
 		sprites = new HashMap<>();
@@ -57,25 +104,34 @@ public class Ghost extends Agent {
 		sprites.put(Type.chaser, Utilities.pathLoad(app, "chaser"));
 		sprites.put(Type.ignorant, Utilities.pathLoad(app, "ignorant"));
 		sprites.put(Type.whim, Utilities.pathLoad(app, "whim"));
+		clearSprite = Utilities.pathLoad(app, "clearGhost");
 	}
 
 	public boolean tic(PApplet app, Player player, int counter)
 	{
+		List<Direction> validMoves = validDirections();
+
+		validMoves.sort(
+			(a, b) -> {
+				Point target = type.target.at(player, getPoint());
+				return Math.abs(translate(a,1).distance(target))
+							 - Math.abs(translate(b,1).distance(target));
+			}
+		);
+
+		direction = validMoves.get(0);
+		Point point = translate(direction, 1);
+		this.x = point.x;
+		this.y = point.y;
+
 		app.image(getSprite(), displayX(), displayY());
-		/*
-		if ( Utilities.distance(new int[]{x, y}, player.getCoords()) < 8 ) {
-			return false;
-		} else {
-			//setDirection(player);
-			move();
-			return true;
-		}
-		*/
-		return true;
+
+		return player.getPoint().distance(this.getPoint()) < 10;
 	}
 
 	public List<Direction> validDirections()
 	{
+		// unless cornered, a ghost cannot turn backwards
 		List<Direction> valid = super.validDirections();
 		if (valid.size() > 1) {
 			if (direction != null && valid.contains(direction.getOpposite())) {
@@ -88,51 +144,5 @@ public class Ghost extends Agent {
 	public PImage getSprite()
 	{
 		return Ghost.sprites.get(type);
-	}
-
-	public void setDirection(Direction p)
-	{
-		/*
-		if (p == null || p.getDirection() == null) {
-			return;
-		}
-
-		int[] target = p.nextCoords(p.getDirection(),8);
-		Comparator<Direction> ambusher
-				= (a, b) -> (int)( distance(a, target) - distance(b, target) );
-		List<Direction> valid = validDirections();
-		if (valid.size() > 0) {
-			//valid.sort(ambusher);
-			this.direction = valid.get(0);
-		}
-		*/
-	}
-
-	public Double distance(Player player)
-	{
-		/*
-		if (direction == null) {
-			return null;
-		}
-
-		int[] ghostCoords = nextCoords(direction, 1);
-		int[] playerCoords = player.nextCoords(player.getDirection(), 8);
-
-		return Utilities.distance(ghostCoords, playerCoords);
-		*/
-		return 0.2;
-	}
-
-	public Double distance(Direction direction, int[] coords)
-	{
-		/*
-		if (direction == null || coords == null) {
-			return null;
-		}
-
-		int[] p = nextCoords(direction, 1);
-		return Utilities.distance(p, coords);
-		*/
-		return 0.2;
 	}
 }

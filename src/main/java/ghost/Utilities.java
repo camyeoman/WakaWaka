@@ -121,7 +121,7 @@ public class Utilities {
 				} else if (Pattern.matches("[aciw]", stringMap[j][i])) {
 					app.ghosts.add(new Ghost(16 * i, 16 * j, stringMap[j][i].charAt(0)));
 				} else if (stringMap[j][i].equals("7")) {
-					app.gameObjects.add(new GameObject(GameObject.Types.fruit, 16 * i, 16 * j));
+					GameObject.objects.add(new GameObject(GameObject.Types.fruit, 16 * i, 16 * j));
 				}
 
 			}
@@ -173,5 +173,15 @@ public class Utilities {
 		while (match.find()) matches.add(match.group());
 
 		return matches.toArray(new String[matches.size()]);
+	}
+
+	public static int restrictRange(int num, int lowerBound, int upperBound) {
+		if (num < lowerBound) {
+			return lowerBound;
+		} else if (num > upperBound) {
+			return upperBound;
+		} else {
+			return num;
+		}
 	}
 }

@@ -13,28 +13,20 @@ public class Player extends Agent {
 	private boolean open = true;
 	int points;
 
-	public void move()
-	{
-		if (direction != null && validDirection(direction)) {
-			Point point = translate(direction, 1);
-			this.x = point.x;
-			this.y = point.y;
-		}
-	}
-
-
 	public Player(int x, int y)
 	{
 		super(x, y);
 		this.directionQued = Direction.right;
 	}
 
-	public static void loadSprites(App app) {
+	public static void loadSprites(App app)
+	{
 		sprites = new HashMap<>();
+
 		String[] files = new String[]{"Up", "Left", "Right", "Down"};
 		for (int i=0; i < 4; i++) {
 			PImage sprite = Utilities.pathLoad(app, "player" + files[i]);
-			Player.sprites.put(Direction.values()[i], sprite);
+			sprites.put(Direction.values()[i], sprite);
 		}
 
 		closed = Utilities.pathLoad(app, "playerClosed");
@@ -42,11 +34,13 @@ public class Player extends Agent {
 
 	public void tic(PApplet app, int counter)
 	{
-		app.image(getSprite(counter), displayX(), displayY());
-
-		if (direction != null) {
-			move();
+		if (direction != null && validDirection(direction)) {
+			Point point = translate(direction, 1);
+			this.x = point.x;
+			this.y = point.y;
 		}
+
+		app.image(getSprite(counter), displayX(), displayY());
 	}
 
 	public void setDirection(Direction newDirection)
@@ -73,7 +67,7 @@ public class Player extends Agent {
 		}
 	}
 
-	public PImage scoreboardSprite()
+	public PImage staticSprite()
 	{
 		return sprites.get(Direction.right);
 	}
