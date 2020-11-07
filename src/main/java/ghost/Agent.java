@@ -9,7 +9,7 @@ interface Lambda<T, U> {
 }
 
 public class Agent {
-	static boolean[][] boolMap;
+	protected static boolean[][] boolMap;
 	protected static int speed = 1;
 	protected Direction direction;
 	protected int x, y;
@@ -53,7 +53,8 @@ public class Agent {
 		return point;
 	}
 
-	protected void moveTo(Point point) {
+	protected void moveTo(Point point)
+	{
 		this.x = point.x;
 		this.y = point.y;
 	}
@@ -117,7 +118,8 @@ public class Agent {
 		return directions;
 	}
 
-	public static void loadConfig(boolean[][] boolMap, int speed) {
+	public static void loadConfig(boolean[][] boolMap, int speed)
+	{
 		List<Point> corners = new ArrayList<>();
 		Agent.boolMap = boolMap;
 
@@ -136,6 +138,12 @@ public class Agent {
 		return false;
 	}
 
+	public static void setUp(Game game)
+	{
+		Agent.boolMap = game.boolMap;
+		Agent.speed = game.speed;
+	}
+
 	// Misc
 
 	public String toString()
@@ -143,5 +151,4 @@ public class Agent {
 		return String.format("(%s, %s) heading %s", x, y,
 			(direction==null ? "null" : direction));
 	}
-
 }

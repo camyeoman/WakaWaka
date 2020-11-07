@@ -10,123 +10,71 @@ import java.util.Arrays;
 import processing.core.PImage;
 import processing.core.PApplet;
 
-@FunctionalInterface
-interface Target {
-	public Point at(Player player, Point current);
-}
-
 public class Ghost extends Agent {
 	static Map<Type, PImage> sprites;
-	static PImage clearSprite;
-	static int[] modeLengths;
-	public static boolean scatter;
+	static PImage frightened;
+
+	private static List<Integer> modeLengths;
+	private static boolean scatter;
+	private static int mode;
 	private Type type;
-
-	enum Type {
-		ambusher(new Target() {
-			public Point at(Player player, Point unused) {
-				if (scatter) {
-					return new Point(300, 100);
-				} else {
-					return player.translate(player.getDirection(), 4 * 16);
-				}
-			}
-		}),
-
-		chaser(new Target() {
-			public Point at(Player player, Point unused) {
-				if (scatter) {
-					return new Point(0,0);
-				} else {
-					return player.getPoint();
-				}
-			}
-		}),
-
-		ignorant(new Target() {
-			public Point at(Player player, Point current) {
-				int distance = player.getPoint().distance(current);
-				if (scatter || distance <= 8) {
-					return new Point(0,576);
-				} else {
-					return player.getPoint();
-				}
-			}
-		}),
-
-		whim(new Target() {
-			public Point at(Player player, Point unused) {
-				if (scatter) {
-					return new Point(448, 576);
-				} else {
-					Point chaser = Type.chaser.target.at(player,null);
-					Point target = player.translate(player.getDirection(), 2 * 16);
-
-					int finalX = 2 * ( target.x - chaser.x );
-					int finalY = 2 * ( target.y - chaser.y );
-
-					return new Point(finalX, finalY);
-				}
-			}
-		});
-
-		Target target;
-
-		Type(Target target) {
-			this.target = target;
-		}
-	}
 
 	public Ghost(int x, int y, char typeOfGhost)
 	{
 		super(x, y);
 		this.direction = null;
-		switch (typeOfGhost) {
-			case 'a':
-				this.type = Type.ambusher;
-				break;
-			case 'c':
-				this.type = Type.chaser;
-				break;
-			case 'i':
-				this.type = Type.ignorant;
-				break;
-			case 'w':
-				this.type = Type.whim;
-				break;
+		this.type = null;
+
+		if (typeOfGhost == 'a') {
+			this.type = Type.ambusher;
+		} else if (typeOfGhost == 'c') {
+			this.type = Type.chaser;
+		} else if (typeOfGhost == 'i') {
+			this.type = Type.ignorant;
+		} else if (typeOfGhost == 'w') {
+			this.type = Type.whim;
 		}
 	}
 
-	public static void loadSprites(App app)
+	public static void toggleScatter()
 	{
-		sprites = new HashMap<>();
-		sprites.put(Type.ambusher, Utilities.pathLoad(app, "ambusher"));
-		sprites.put(Type.chaser, Utilities.pathLoad(app, "chaser"));
-		sprites.put(Type.ignorant, Utilities.pathLoad(app, "ignorant"));
-		sprites.put(Type.whim, Utilities.pathLoad(app, "whim"));
-		clearSprite = Utilities.pathLoad(app, "clearGhost");
+		Ghost.scatter = (Ghost.scatter) ? false : true;
 	}
 
-	public boolean tic(PApplet app, Player player, int counter)
+	public static void setUp(Player player, int[] parsedModeLengths)
+	{
+		Navigate.TARGET = player;
+	}
+
+	public boolean tic(Player player)
 	{
 		List<Direction> validMoves = validDirections();
 
-		validMoves.sort(
-			(a, b) -> {
-				Point target = type.target.at(player, getPoint());
+		// decide direction based on ghost type
+		validMoves.sort( (a, b) -> {
+				Point target = type.target.at(getPoint());
 				return Math.abs(translate(a,1).distance(target))
 							 - Math.abs(translate(b,1).distance(target));
-			}
-		);
+		});
 
 		direction = validMoves.get(0);
 		Point point = translate(direction, 1);
+
 		this.x = point.x;
 		this.y = point.y;
 
-		app.image(getSprite(), displayX(), displayY());
-
 		return player.getPoint().distance(this.getPoint()) < 10;
+	}
+
+	public void draw(App app, int counter)
+	{
+		app.image(getSprite(), displayX(), displayY());
+		Point target = type.target.at(getPoint());
+
+		app.beginShape();
+		app.stroke(256,256,256);
+		app.line(x + 9, y + 9, target.x + 9, target.y + 9);
+		app.endShape();
 	}
 
 	public List<Direction> validDirections()
@@ -143,6 +91,92 @@ public class Ghost extends Agent {
 
 	public PImage getSprite()
 	{
-		return Ghost.sprites.get(type);
+		return (scatter) ? frightened : Ghost.sprites.get(type);
+	}
+
+	public Type getType()
+	{
+		return type;
+	}
+
+	enum Type
+	{
+		ambusher((point) -> Navigate.ambusher(point)),
+		ignorant((point) -> Navigate.ignorant(point)),
+		chaser((point) -> Navigate.chaser(point)),
+		whim((point) -> Navigate.whim(point));
+
+		Lambda target;
+
+		Type(Lambda target) {
+			this.target = target;
+		}
+	}
+
+	@FunctionalInterface
+	interface Lambda {
+		public Point at(Point current);
+	}
+
+	static class Navigate
+	{
+		static Agent TARGET;
+
+		static Point AMBUSHER = null;
+		static Point IGNORANT = null;
+		static Point CHASER = null;
+		static Point WHIM = null;
+
+		public static Point ambusher(Point current)
+		{
+			AMBUSHER = current;
+
+			if (Ghost.scatter) {
+				return new Point(448, 50);
+			} else {
+				Point point = TARGET.translate(TARGET.getDirection(), 4 * 16);
+				return Utilities.restrictRange(point);
+			}
+		}
+
+		public static Point chaser(Point current)
+		{
+			CHASER = current;
+
+			if (Ghost.scatter) {
+				return new Point(0,50);
+			} else {
+				return Utilities.restrictRange(TARGET.getPoint());
+			}
+		}
+
+		public static Point ignorant(Point current)
+		{
+			IGNORANT = current;
+
+			int distance = Math.abs(TARGET.getPoint().distance(current));
+			if (Ghost.scatter || distance <= 8 * 16) {
+				return new Point(0,576);
+			} else {
+				return Utilities.restrictRange(TARGET.getPoint());
+			}
+		}
+
+		public static Point whim(Point current)
+		{
+			WHIM = current;
+
+			if (Ghost.scatter || CHASER == null) {
+				return new Point(448, 576);
+			} else {
+				Point chaser = CHASER;
+				Point target = TARGET.translate(TARGET.getDirection(), 2 * 16);
+
+				int X = CHASER.x + 2 * ( target.x - CHASER.x );
+				int Y = CHASER.y + 2 * ( target.y - CHASER.y );
+
+				return Utilities.restrictRange(new Point(X, Y));
+			}
+		}
 	}
 }

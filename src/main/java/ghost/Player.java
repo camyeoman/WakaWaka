@@ -5,7 +5,6 @@ import processing.core.PApplet;
 import java.util.*;
 
 public class Player extends Agent {
-	// Sprites
 	private static Map<Direction, PImage> sprites;
 	private static PImage closed;
 
@@ -19,21 +18,12 @@ public class Player extends Agent {
 		this.directionQued = Direction.right;
 	}
 
-	public static void loadSprites(App app)
-	{
-		sprites = new HashMap<>();
-
-		String[] files = new String[]{"Up", "Left", "Right", "Down"};
-		for (int i=0; i < 4; i++) {
-			PImage sprite = Utilities.pathLoad(app, "player" + files[i]);
-			sprites.put(Direction.values()[i], sprite);
-		}
-
-		closed = Utilities.pathLoad(app, "playerClosed");
-	}
-
 	public void tic(PApplet app, int counter)
 	{
+		if (validDirection(directionQued)) {
+			this.direction = this.directionQued;
+		}
+
 		if (direction != null && validDirection(direction)) {
 			Point point = translate(direction, 1);
 			this.x = point.x;
@@ -43,15 +33,16 @@ public class Player extends Agent {
 		app.image(getSprite(counter), displayX(), displayY());
 	}
 
-	public void setDirection(Direction newDirection)
+	public void setQuedDirection(Direction newDirection)
 	{
 		if (newDirection != null) {
 			this.directionQued = newDirection;
 		}
+	}
 
-		if (validDirection(newDirection)) {
-			this.direction = this.directionQued;
-		}
+	public void setDirection(Direction newDirection)
+	{
+
 	}
 
 	public PImage getSprite(int counter)
@@ -70,5 +61,10 @@ public class Player extends Agent {
 	public PImage staticSprite()
 	{
 		return sprites.get(Direction.right);
+	}
+
+	public static void setUp(Game game)
+	{
+		Player.sprites = game.playerSprites;
 	}
 }

@@ -2,19 +2,21 @@ package ghost;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import java.util.*;
 
 public class GhostTest {
 	/* Visualisation of test map
 			0123456789012
 		 0*************
-		 1*          g*
+		 1*C        B *
 		 2**********  *
-		 3***  *   *  *
-		 4* **   *   p*
+		 3***  *  A*  *
+		 4*D**   *    *
 		 5*************
 	*/
 
-	static boolean[][] testMap = new boolean[][]{
+	static boolean[][] testMap = new boolean[][]
+	{
 		{ false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false },
 		{ false,  true,   true,   true,   true,   true,   true,   true,   true,   true,   true,   true,   false },
 		{ false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  true,   true,   false },
@@ -24,67 +26,98 @@ public class GhostTest {
 	};
 		
 	@Test
-	public void constructor() {
-		/*
-		Ghost ghost = new Ghost(1, 1);
-		assertNotNull(ghost);
-		*/
+	public void constructor()
+	{
+		Ghost ghost;
+
+		for (int j=-10; j < 10; j++) {
+			for (int i=-10; i < 10; i++) {
+				for (char c : new char[]{'a','i','c','w'}) {
+					Ghost g = new Ghost(i, j, c);
+					assertNotNull(g);
+					assertTrue(g.getX() == i && g.getY() == j);
+				}
+			}
+		}
+
+		assertTrue((new Ghost(1,1,'a')).getType() == Ghost.Type.ambusher);
+		assertTrue((new Ghost(1,1,'i')).getType() == Ghost.Type.ignorant);
+		assertTrue((new Ghost(1,1,'c')).getType() == Ghost.Type.chaser);
+		assertTrue((new Ghost(1,1,'w')).getType() == Ghost.Type.whim);
+
+		for (char c : new char[]{'b','d','e','f','g','h'}) {
+			ghost = new Ghost(1,1,c);
+			assertNotNull(ghost);
+			assertNull(ghost.getType());
+		}
+
 	}
 
-	private void testAllDirections(Boolean[] expected, Ghost ghost) {
+	private void testValidDirect(Direction direction, Boolean[] expected, Ghost ghost)
+	{
+		ghost.direction = direction;
+
 		for (int i=0; i < 4; i++) {
 			Direction testDirection = Direction.values()[i];
 			boolean contained = ghost.validDirections().contains(testDirection);
 
+			if (!contained == expected[i]) {
+				System.out.printf("%s should be %s\n",
+					Arrays.toString(expected), ghost.validDirections()
+				);
+			}
+
 			assertTrue(contained == expected[i]);
-			assertTrue(ghost.validDirection(testDirection) == expected[i]);
 		}
+
+		ghost.direction = null;
 	}
 
 	@Test
-	public void validDirection_and_validDirections()
+	public void validDirections()
 	{
-		/*
-		// This tests validDirection() && validDirections()
+		Agent.boolMap = testMap;
 
-		// test return values for (in this order); up, left, right, down
-		int testCounter = 1;
 
-		// TEST FOR X, Y % 16 == 0 (clearly on grid squares)
+		for (char character : new char[]{ 'a', 'c', 'i', 'w' }) {
 
-		//System.out.println(ghost.validDirections());
-		// 1
-		Ghost ghost = new Ghost(1, 1, );
-		testAllDirections(new Boolean[]{ false, false, true, false }, ghost);
-		//                                 up    left  right  down
+			Ghost A = new Ghost(16 * 8,  16 * 3, character);
+			Ghost B = new Ghost(16 * 10, 16 * 1, character);
+			Ghost C = new Ghost(16 * 1,  16 * 1, character);
+			Ghost D = new Ghost(16 * 1,  16 * 4, character);
 
-		// 2
-		ghost = new Ghost(1, 4, );
-		testAllDirections(new Boolean[]{ false, false, false, false }, ghost);
+			// Ghost A
+			testValidDirect(Direction.right, new Boolean[]{ false, false, false, true },  A);
+			testValidDirect(Direction.left,  new Boolean[]{ false, true, false, true  },  A);
+			testValidDirect(Direction.down,  new Boolean[]{ false, true, false, true  },  A);
+			testValidDirect(Direction.up,    new Boolean[]{ false, true, false, false },  A);
+			// null case
+			testValidDirect(null, new Boolean[]{ false, true, false, true },  A);
 
-		// 3
-		ghost = new Ghost(8, 3, );
-		testAllDirections(new Boolean[]{ false, true, false, true }, ghost);
+			// Ghost B
+			testValidDirect(Direction.right, new Boolean[]{ false, false, true, true },   B);
+			testValidDirect(Direction.left,  new Boolean[]{ false, true, false, true },   B);
+			testValidDirect(Direction.down,  new Boolean[]{ false, true, true, true  },   B);
+			testValidDirect(Direction.up,    new Boolean[]{ false, true, true, false },   B);
+			// null case
+			testValidDirect(null, new Boolean[]{ false, true, true, true },  B);
 
-		// 4
-		ghost = new Ghost(10, 1, );
-		testAllDirections(new Boolean[]{ false, true, true, true }, ghost);
+			// Ghost C
+			testValidDirect(Direction.right, new Boolean[]{ false, false, true, false },  C);
+			testValidDirect(Direction.left,  new Boolean[]{ false, false, true, false },  C);
+			testValidDirect(Direction.down,  new Boolean[]{ false, false, true, false },  C);
+			testValidDirect(Direction.up,    new Boolean[]{ false, false, true, false },  C);
+			// null case
+			testValidDirect(null, new Boolean[]{ false, false, true, false },  C);
 
-		// TEST FOR X, Y % 16 != 0 (not clearly on grid squares), as such
-		// behavuiour should be return no valid neighbours
-
-		// 5
-		ghost = new Ghost(9, 1, );
-		ghost.setDirection(Direction.right);
-		ghost.move();
-		testAllDirections(new Boolean[]{ false, true, true, false }, ghost);
-
-		// 6
-		ghost = new Ghost(8, 3, );
-		ghost.setDirection(Direction.down);
-		ghost.move();
-		testAllDirections(new Boolean[]{ true, false, false, true }, ghost);
-		*/
+			// Ghost D
+			testValidDirect(Direction.right, new Boolean[]{ false, false, false, false }, D);
+			testValidDirect(Direction.left,  new Boolean[]{ false, false, false, false }, D);
+			testValidDirect(Direction.down,  new Boolean[]{ false, false, false, false }, D);
+			testValidDirect(Direction.up,    new Boolean[]{ false, false, false, false }, D);
+			// null case
+			testValidDirect(null, new Boolean[]{ false, false, false, false },  D);
+		}
 	}
 
 	@Test

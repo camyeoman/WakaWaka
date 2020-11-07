@@ -5,8 +5,8 @@ import java.util.*;
 
 public class GameObject {
 	public static List<GameObject> objects = new ArrayList<>();
-	static Map<Types, PImage> sprites = new HashMap<>();
-	public final Types type;
+	static Map<Type, PImage> sprites = new HashMap<>();
+	public final Type type;
 	private int x, y;
 
 	public int getX() { return x; }
@@ -17,21 +17,17 @@ public class GameObject {
 
 	public Point getPoint() { return new Point(x, y); }
 
-	public GameObject(Types type, int x, int y) {
+	public GameObject(Type type, int x, int y) {
 		this.x = x;
 		this.y = y;
 		this.type = type;
-	}
-
-	public static void loadSprites(App app) {
-		sprites.put(Types.fruit, Utilities.pathLoad(app,"fruit"));
 	}
 
 	public PImage getSprite() {
 		return sprites.get(type);
 	}
 
-	enum Types {
+	enum Type {
 		fruit
 	}
 

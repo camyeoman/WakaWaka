@@ -313,7 +313,8 @@ public class AgentTest {
 	}
 
 	@Test
-	public void loadConfig() {
+	public void loadConfig()
+	{
 
 	}
 }
