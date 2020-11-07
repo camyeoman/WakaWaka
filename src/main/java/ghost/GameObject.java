@@ -4,9 +4,8 @@ import processing.core.PImage;
 import java.util.*;
 
 public class GameObject {
-	public static List<GameObject> objects = new ArrayList<>();
-	static Map<Type, PImage> sprites = new HashMap<>();
-	public final Type type;
+	private static Map<Type, PImage> sprites;
+	private Type type;
 	private int x, y;
 
 	public int getX() { return x; }
@@ -16,6 +15,10 @@ public class GameObject {
 	public float displayY() { return (float)(y - 6); }
 
 	public Point getPoint() { return new Point(x, y); }
+
+	public static void setUp(Game game) {
+		sprites = game.gameSprites;
+	}
 
 	public GameObject(Type type, int x, int y) {
 		this.x = x;
@@ -31,20 +34,9 @@ public class GameObject {
 		fruit
 	}
 
-	public static boolean ticAll(App app, Player player) {
+	public void draw(App app) {
 		// Draw GameObjects
-		for (int i=0; i < objects.size(); i++) {
-			GameObject obj = objects.get(i);
-
-			if (obj.getPoint().distance(player.getPoint()) < 1) {
-				player.points++;
-				objects.remove(i--);
-			} else {
-				app.image(obj.getSprite(), obj.getX(), obj.getY());
-			}
-		}
-		
-		return objects.size() > 0;
+		app.image(getSprite(), x, y);
 	}
 
 	public String toString() {

@@ -10,12 +10,17 @@ public class Player extends Agent {
 
 	protected Direction directionQued;
 	private boolean open = true;
-	int points;
 
 	public Player(int x, int y)
 	{
 		super(x, y);
-		this.directionQued = Direction.right;
+		this.directionQued = null;
+	}
+
+	public static void setUp(Game game)
+	{
+		sprites = game.playerSprites;
+		closed = game.playerClosed;
 	}
 
 	public void tic(PApplet app, int counter)
@@ -40,11 +45,6 @@ public class Player extends Agent {
 		}
 	}
 
-	public void setDirection(Direction newDirection)
-	{
-
-	}
-
 	public PImage getSprite(int counter)
 	{
 		if (counter % 8 == 0) {
@@ -61,10 +61,5 @@ public class Player extends Agent {
 	public PImage staticSprite()
 	{
 		return sprites.get(Direction.right);
-	}
-
-	public static void setUp(Game game)
-	{
-		Player.sprites = game.playerSprites;
 	}
 }

@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.Scanner;
 import java.util.List;
 import java.util.Map;
+import java.lang.Thread;
 
 import processing.core.PApplet;
+import processing.core.PFont;
 import processing.core.PImage;
 
 import org.json.simple.JSONArray; 
@@ -24,6 +26,7 @@ public class Game {
 	// Configuration settings
 	List<Integer> modeLengths;
 	Integer lives, speed;
+	final int initLives;
 	String fileName;
 
 	// Objects
@@ -32,8 +35,13 @@ public class Game {
 	Player player;
 
 	// Maps
+	String[][] stringMap;
 	boolean[][] boolMap;
 	PImage[][] imageMap;
+
+	// Other
+	int counter = 0;
+	int points = 0;
 
 	// Sprites
 	PImage frightenedGhost, playerClosed;
@@ -44,14 +52,28 @@ public class Game {
 
 	public Game(App app)
 	{
+		gameObjects = new ArrayList<>();
+		ghosts = new ArrayList<>();
+
 		parseConfig(app);
 		loadSprites(app, fileName);
-		String[][] stringMap = parseMap(fileName);
-		createObjects(stringMap);
+		parseMap(fileName);
+		createObjects(true);
+
+		initLives = lives;
 
 		// setup classes
 		Player.setUp(this);
 		Agent.setUp(this);
+		Ghost.setUp(this);
+		GameObject.setUp(this);
+
+		// load font
+		app.textFont(
+			app.createFont("src/main/resources/PressStart2P-Regular.ttf",
+				20, false, new char[]{ 'G','a','m','e','O','v','e','r',' ' }
+			)
+		);
 	}
 
 	public PImage pathLoad(PApplet app, String str)
@@ -129,10 +151,10 @@ public class Game {
 		playerClosed = pathLoad(app, "playerClosed");
 	}
 
-	public String[][] parseMap(String fileName)
+	public void parseMap(String fileName)
 	{
 		// string map
-		String[][] stringMap = new String[36][28];
+		stringMap = new String[36][28];
 
 		try {
 			File f = new File(fileName);
@@ -142,7 +164,7 @@ public class Game {
 				String[] line = Utilities.extractMatches("[0-7paciw]",fileReader.nextLine());
 
 				if (i > 36 || line.length != 28) {
-					return null;
+					return;
 				} else {
 					stringMap[i] = line;
 				}
@@ -150,7 +172,7 @@ public class Game {
 
 			stringMap = stringMap;
 		} catch (FileNotFoundException e) {
-			return null;
+			return;
 		}
 
 		// boolean map
@@ -174,14 +196,13 @@ public class Game {
 				}
 			}
 		}
-
-		return stringMap;
 	}
 
-	public void createObjects(String[][] stringMap)
+	public void createObjects(boolean fruit)
 	{
-		List<GameObject> gameObjects = new ArrayList<>();
-		List<Ghost> ghosts = new ArrayList<>();
+		gameObjects = (fruit) ? new ArrayList<>() : gameObjects;
+
+		ghosts = new ArrayList<>();
 
 		for (int j=0; j < 36; j++) {
 			for (int i=0; i < 28; i++) {
@@ -190,14 +211,17 @@ public class Game {
 					player = new Player(16 * i, 16 * j);
 				} else if (Pattern.matches("[aciw]", stringMap[j][i])) {
 					ghosts.add(new Ghost(16 * i, 16 * j, stringMap[j][i].charAt(0)));
-				} else if (stringMap[j][i].equals("7")) {
+				} else if (stringMap[j][i].equals("7") && fruit) {
 					gameObjects.add(new GameObject(GameObject.Type.fruit, 16 * i, 16 * j));
 				}
 
 			}
 		}
 
+		Ghost.Navigate.TARGET = player;
 	}
+
+	// Active methods
 
 	public void drawMap(App app)
 	{
@@ -217,13 +241,73 @@ public class Game {
 		}
 	}
 
+	public void endScreen(App app, boolean won)
+	{
+		app.background(0,0,0);
+
+		if (won) {
+			app.text("You won", 154, 288);
+		} else {
+			app.text("Game Over", 134, 288);
+		}
+
+	}
+
+	public void drawGameObjects(App app)
+	{
+		for (int i=0; i < gameObjects.size(); i++) {
+			GameObject obj = gameObjects.get(i);
+			obj.draw(app);
+			if (obj.getPoint().distance(player.getPoint()) < 1) {
+				points++;
+				gameObjects.remove(i--);
+			}
+		}
+
+		if (gameObjects.size() == 0) {
+			endScreen(app, true);
+		}
+	}
+
+	public void drawGhosts(App app)
+	{
+		for (int i=0; i < ghosts.size(); i++) {
+			Ghost ghost = ghosts.get(i);
+			ghost.draw(app, counter);
+
+			if (ghost.tic(player)) {
+				counter = 0;
+				lives--;
+				if (lives > 0) {
+					createObjects(false);
+				} else {
+					endScreen(app, false);
+					return;
+				}
+			}
+
+		}
+	}
+
+	public void tic(App app)
+	{
+		if (lives > 0) {
+			refreshMovementCache(app);
+			drawMap(app);
+			drawGameObjects(app);
+			player.tic(app, counter);
+			drawGhosts(app);
+			
+			counter++;
+		}
+	}
+
 	public boolean refreshMovementCache(App app)
 	{
 		Direction direct = player.getDirection();
 		Integer currentDirection = (direct == null) ? null : direct.KEY_CODE;
 		if (app.keyCode == 32) {
 			app.debugMode = (app.debugMode) ? false : true;
-			Ghost.toggleScatter();
 			app.keyCode = 0;
 		} else if ((currentDirection == null || app.keyCode != currentDirection)
 				&& (app.keyCode <= 40 && app.keyCode >= 37)) {
@@ -249,4 +333,3 @@ public class Game {
 		return false;
 	}
 }
-

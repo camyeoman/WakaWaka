@@ -20,8 +20,8 @@ public class App extends PApplet {
 	}
 
 	public void setup() {
-		game = new Game(this);
 		frameRate(60);
+		game = new Game(this);
 	}
 
 	public void settings() {
@@ -29,22 +29,17 @@ public class App extends PApplet {
 	}
 
 	public void draw() {
-		game.drawMap(this);
-
-		/*
-		player.tic(this, counter);
-
-		for (int i=0; i < ghosts.size(); i++) {
-			Ghost ghost = ghosts.get(i);
-			ghost.draw(this, counter);
-
-			if (ghost.tic(player)) {
-				game.lives--;
+		if (game.lives < 1) {
+			try {
+				Thread.sleep(10 * 1000);
+			} catch (Exception e) {
+				System.out.println("timeout exception");
 			}
+			game = new Game(this);
 		}
-		*/
 
-		counter++;
+		game.tic(this);
+
 	}
 
 	public static void main(String[] args)

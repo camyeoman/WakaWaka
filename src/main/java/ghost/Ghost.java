@@ -11,8 +11,8 @@ import processing.core.PImage;
 import processing.core.PApplet;
 
 public class Ghost extends Agent {
-	static Map<Type, PImage> sprites;
-	static PImage frightened;
+	private static Map<Type, PImage> sprites;
+	private static PImage frightened;
 
 	private static List<Integer> modeLengths;
 	private static boolean scatter;
@@ -71,10 +71,12 @@ public class Ghost extends Agent {
 		app.image(getSprite(), displayX(), displayY());
 		Point target = type.target.at(getPoint());
 
-		app.beginShape();
-		app.stroke(256,256,256);
-		app.line(x + 9, y + 9, target.x + 9, target.y + 9);
-		app.endShape();
+		if (app.debugMode) {
+			app.beginShape();
+			app.stroke(256,256,256);
+			app.line(x + 9, y + 9, target.x + 9, target.y + 9);
+			app.endShape();
+		}
 	}
 
 	public List<Direction> validDirections()
@@ -97,6 +99,12 @@ public class Ghost extends Agent {
 	public Type getType()
 	{
 		return type;
+	}
+
+	public static void setUp(Game game)
+	{
+		sprites = game.ghostSprites;
+		frightened = game.frightenedGhost;
 	}
 
 	enum Type
