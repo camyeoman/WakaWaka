@@ -32,9 +32,8 @@ public class App extends PApplet {
 		if (game.lives < 1) {
 			try {
 				Thread.sleep(10 * 1000);
-			} catch (Exception e) {
-				System.out.println("timeout exception");
-			}
+			} catch (Exception e) {}
+
 			game = new Game(this);
 		}
 
