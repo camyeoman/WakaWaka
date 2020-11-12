@@ -22,26 +22,18 @@ import java.io.FileReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class Game {
-	// Configuration settings
-	List<Integer> modeLengths;
-	Integer lives, speed;
-	final int initLives;
-	String fileName;
-
-	// Objects
-	List<GameObject> gameObjects;
-	List<Ghost> ghosts;
-	Player player;
-
-	// Maps
+class Data {
 	String[][] stringMap;
 	boolean[][] boolMap;
 	PImage[][] imageMap;
 
-	// Other
-	int counter = 0;
-	int points = 0;
+	// App attributes
+	String fileName;
+	int lives;
+	int speed;
+	App app;
+	List<Integer> modeLengths;
+
 
 	// Sprites
 	PImage frightenedGhost, playerClosed;
@@ -50,38 +42,15 @@ public class Game {
 	Map<GameObject.Type, PImage> gameSprites;
 	Map<String, PImage> wallSprites;
 
-	public Game(App app)
-	{
-		gameObjects = new ArrayList<>();
-		ghosts = new ArrayList<>();
+	public Data(App app) {
+		this.app = app;
 
-		parseConfig(app);
-		loadSprites(app, fileName);
-		parseMap(fileName);
-		createObjects(true);
-
-		initLives = lives;
-
-		// setup classes
-		Player.setUp(this);
-		Agent.setUp(this);
-		Ghost.setUp(this);
-		GameObject.setUp(this);
-
-		// load font
-		app.textFont(
-			app.createFont("src/main/resources/PressStart2P-Regular.ttf",
-				20, false, new char[]{ 'G','a','m','e','O','v','e','r',' ' }
-			)
-		);
+		parseConfig();
+		loadSprites();
+		parseMap();
 	}
 
-	public PImage pathLoad(PApplet app, String str)
-	{
-		return app.loadImage("src/main/resources/" + str + ".png");
-	}
-
-	public void parseConfig(App app)
+	public void parseConfig()
 	{
 		// Read config file
 		JSONObject config = null;
@@ -99,10 +68,10 @@ public class Game {
 		String[] strArr = Utilities.extractMatches(regex, arrayString);
 		modeLengths = new ArrayList<>();
 
-		for (int i=0; i < modeLengths.size(); i++) {
+		for (int i=0; i < strArr.length; i++) {
 			int sum = 0;
-			for (int j=0; j < i; j++) {
-				sum += Integer.parseInt(strArr[i]);
+			for (int j=0; j <= i; j++) {
+				sum += 60 * Integer.parseInt(strArr[j]);
 			}
 			modeLengths.add(sum);
 		}
@@ -121,7 +90,7 @@ public class Game {
 		*/
 	}
 
-	public void loadSprites(App app, String fileName)
+	public void loadSprites()
 	{
 		playerSprites = new HashMap<>();
 		ghostSprites = new HashMap<>();
@@ -151,7 +120,7 @@ public class Game {
 		playerClosed = pathLoad(app, "playerClosed");
 	}
 
-	public void parseMap(String fileName)
+	public void parseMap()
 	{
 		// string map
 		stringMap = new String[36][28];
@@ -196,6 +165,60 @@ public class Game {
 				}
 			}
 		}
+	}
+
+	public PImage pathLoad(PApplet app, String str)
+	{
+		return app.loadImage("src/main/resources/" + str + ".png");
+	}
+}
+
+public class Game {
+
+	// Configuration settings
+	List<Integer> modeLengths;
+	Integer lives, speed;
+	final int initLives;
+
+	// Objects
+	List<GameObject> gameObjects;
+	List<Ghost> ghosts;
+	Player player;
+
+	// Map
+	String[][] stringMap;
+	PImage[][] imageMap;
+
+	// Other
+	int counter = 0;
+	int points = 0;
+
+	public Game(App app)
+	{
+		gameObjects = new ArrayList<>();
+		ghosts = new ArrayList<>();
+
+		Data data = new Data(app);
+
+		initLives = data.lives;
+		lives = data.lives;
+		imageMap = data.imageMap;
+		stringMap = data.stringMap;
+
+		// setup classes
+		Ghost.setUp(player, data.modeLengths, data.ghostSprites, data.frightenedGhost);
+		Player.setUp(data.playerSprites, data.playerClosed);
+		Agent.setUp(data.boolMap, data.speed);
+		GameObject.setUp(data.gameSprites);
+
+		createObjects(true);
+
+		// load font
+		app.textFont(
+			app.createFont("src/main/resources/PressStart2P-Regular.ttf",
+				20, false, new char[]{ 'G','a','m','e','O','v','e','r',' ' }
+			)
+		);
 	}
 
 	public void createObjects(boolean fruit)
@@ -275,7 +298,7 @@ public class Game {
 			Ghost ghost = ghosts.get(i);
 			ghost.draw(app, counter);
 
-			if (ghost.tic(player)) {
+			if (ghost.tic(player, counter)) {
 				counter = 0;
 				lives--;
 				if (lives > 0) {
@@ -306,6 +329,7 @@ public class Game {
 	{
 		Direction direct = player.getDirection();
 		Integer currentDirection = (direct == null) ? null : direct.KEY_CODE;
+
 		if (app.keyCode == 32) {
 			app.debugMode = (app.debugMode) ? false : true;
 			app.keyCode = 0;

@@ -13,18 +13,15 @@ public enum Direction {
 	}
 
 	Direction getOpposite() {
-		switch (this) {
-			case left:
-				return right;
-			case right:
-				return left;
-			case up:
-				return down;
-			case down:
-				return up;
+		if (this == Direction.left) {
+			return right;
+		} if (this == Direction.right) {
+			return left;
+		} if (this == Direction.up) {
+			return down;
+		} else {
+			return up;
 		}
-
-		return null;
 	}
 
 	boolean isHorizontal() {

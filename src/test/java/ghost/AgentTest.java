@@ -20,7 +20,7 @@ public class AgentTest {
 	@Test
 	public void translate()
 	{
-		Agent.boolMap = testMap;
+		Agent.setUp(testMap, 1);
 
 		lambdaTest<Integer, Integer, Point> pointCheck
 			= (a, b, point) -> assertTrue(point.x == a && point.y == b);
@@ -53,7 +53,7 @@ public class AgentTest {
 	@Test
 	public void currentGridCell()
 	{
-		Agent.boolMap = testMap;
+		Agent.setUp(testMap, 1);
 
 		lambdaTest<Integer, Integer, Point> pointCheck
 			= (a, b, point) -> assertTrue(point.x == a && point.y == b);
@@ -107,7 +107,7 @@ public class AgentTest {
 	@Test
 	public void isWall()
 	{
-		Agent.boolMap = testMap;
+		Agent.setUp(testMap, 1);
 
 		lambdaTest<Direction, Boolean, Agent> checkWall
 			= new lambdaTest<Direction, Boolean, Agent>() {
@@ -163,7 +163,7 @@ public class AgentTest {
 	@Test
 	public void validDirection()
 	{
-		Agent.boolMap = testMap;
+		Agent.setUp(testMap, 1);
 
 		Agent agent;
 
@@ -202,7 +202,7 @@ public class AgentTest {
 	@Test
 	public void validDirections()
 	{
-		Agent.boolMap = testMap;
+		Agent.setUp(testMap, 1);
 
 		Agent agent;
 
@@ -251,8 +251,10 @@ public class AgentTest {
 	}
 
 	@Test
-	public void getterMethods()
+	public void getterAndSetterMethods()
 	{
+		Agent.setUp(testMap, 1);
+
 		int[][] tests = new int[][]{
 			{16,  16}, {32,  16}, {48,  16},
 			{64,  16}, {80,  16}, {96,  16}
@@ -276,11 +278,24 @@ public class AgentTest {
 
 		Agent agent = new Agent(16, 16);
 		for (int i=-10; i < 10; i++) {
-			assertTrue(agent.setSpeed(i) == (i==2||i==1) ? true : false);
+			Agent.setUp(testMap, i);
+			if (i==2||i==1) {
+				assertTrue(Agent.speed == i);
+			} else {
+				assertTrue(Agent.speed == 1 || Agent.speed == 2);
+			}
 		}
+	}
 
-		// default value
-		agent.setSpeed(1);
+	@Test
+	public void pointClass()
+	{
+		Agent.setUp(testMap, 1);
+
+		Agent agent = new Agent(16, 16);
+		Point point = agent.getPoint();
+		assertTrue(point != null && point.x == 16 && point.y == 16);
+		assertEquals("(16, 16)", point.toString());
 	}
 
 	static boolean[][] testMap = new boolean[][]
@@ -302,19 +317,4 @@ public class AgentTest {
 		{ false,  true,   false,  false,  true,   true,   true,   false,  true,   true,   true,   true,   false },
 		{ false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false }
 	};
-
-	@Test
-	public void pointClass()
-	{
-		Agent agent = new Agent(16, 16);
-		Point point = agent.getPoint();
-		assertTrue(point != null && point.x == 16 && point.y == 16);
-		assertEquals("(16, 16)", point.toString());
-	}
-
-	@Test
-	public void loadConfig()
-	{
-
-	}
 }

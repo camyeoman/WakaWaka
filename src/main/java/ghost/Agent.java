@@ -53,12 +53,6 @@ public class Agent {
 		return point;
 	}
 
-	protected void moveTo(Point point)
-	{
-		this.x = point.x;
-		this.y = point.y;
-	}
-
 	// Interpreting map state
 
 	public boolean isWall(Point point)
@@ -118,15 +112,6 @@ public class Agent {
 		return directions;
 	}
 
-	public static void loadConfig(boolean[][] boolMap, int speed)
-	{
-		List<Point> corners = new ArrayList<>();
-		Agent.boolMap = boolMap;
-
-		setSpeed(speed);
-		// Comparator.comparing(Employee::getAge).thenComparing(Employee::getName)
-	}
-
 	// App related processes
 
 	public static boolean setSpeed(int n)
@@ -138,10 +123,10 @@ public class Agent {
 		return false;
 	}
 
-	public static void setUp(Game game)
+	public static void setUp(boolean[][] boolMap, int speed)
 	{
-		Agent.boolMap = game.boolMap;
-		Agent.speed = game.speed;
+		Agent.boolMap = boolMap;
+		setSpeed(speed);
 	}
 
 	// Misc

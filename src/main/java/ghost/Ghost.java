@@ -22,6 +22,7 @@ public class Ghost extends Agent {
 	public Ghost(int x, int y, char typeOfGhost)
 	{
 		super(x, y);
+		this.scatter = false;
 		this.direction = null;
 		this.type = null;
 
@@ -41,14 +42,17 @@ public class Ghost extends Agent {
 		Ghost.scatter = (Ghost.scatter) ? false : true;
 	}
 
-	public static void setUp(Player player, int[] parsedModeLengths)
-	{
-		Navigate.TARGET = player;
-	}
-
-	public boolean tic(Player player)
+	public boolean tic(Player player, int counter)
 	{
 		List<Direction> validMoves = validDirections();
+
+		System.out.println(counter);
+		System.out.println(modeLengths.get(mode));
+		if (counter > modeLengths.get(mode % modeLengths.size())) {
+			System.out.println((int)(counter/60 % modeLengths.size()));
+			toggleScatter();
+			mode++;
+		}
 
 		// decide direction based on ghost type
 		validMoves.sort( (a, b) -> {
@@ -101,10 +105,18 @@ public class Ghost extends Agent {
 		return type;
 	}
 
-	public static void setUp(Game game)
+	public static void setUp(Player player, List<Integer> modeLengths,
+			Map<Type, PImage> sprites, PImage frightened)
 	{
-		sprites = game.ghostSprites;
-		frightened = game.frightenedGhost;
+		Navigate.TARGET = player;
+		Ghost.sprites = sprites;
+		Ghost.frightened = frightened;
+		Ghost.modeLengths = modeLengths;
+	}
+
+	@FunctionalInterface
+	interface Lambda {
+		public Point at(Point current);
 	}
 
 	enum Type
@@ -119,11 +131,6 @@ public class Ghost extends Agent {
 		Type(Lambda target) {
 			this.target = target;
 		}
-	}
-
-	@FunctionalInterface
-	interface Lambda {
-		public Point at(Point current);
 	}
 
 	static class Navigate

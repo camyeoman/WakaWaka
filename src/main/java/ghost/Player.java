@@ -17,10 +17,10 @@ public class Player extends Agent {
 		this.directionQued = null;
 	}
 
-	public static void setUp(Game game)
+	public static void setUp(Map<Direction, PImage> sprites, PImage closed)
 	{
-		sprites = game.playerSprites;
-		closed = game.playerClosed;
+		Player.sprites = sprites;
+		Player.closed = closed;
 	}
 
 	public void tic(PApplet app, int counter)
