@@ -22,7 +22,7 @@ import java.io.FileReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-class Data {
+class Configuration {
 	String[][] stringMap;
 	boolean[][] boolMap;
 	PImage[][] imageMap;
@@ -36,13 +36,13 @@ class Data {
 
 
 	// Sprites
+	Map<GameObject.Type, PImage> gameSprites;
 	PImage frightenedGhost, playerClosed;
 	Map<Direction, PImage> playerSprites;
 	Map<Ghost.Type, PImage> ghostSprites;
-	Map<GameObject.Type, PImage> gameSprites;
 	Map<String, PImage> wallSprites;
 
-	public Data(App app) {
+	public Configuration(App app) {
 		this.app = app;
 
 		parseConfig();
@@ -52,12 +52,12 @@ class Data {
 
 	public void parseConfig()
 	{
-		// Read config file
 		JSONObject config = null;
 		try {
 			Object file = new JSONParser().parse(new FileReader("config.json")); 
 			config = (JSONObject) file;
 		} catch (Exception e) {}
+
 
 		// Name of map file
 		fileName = (String) config.get("map"); 
@@ -71,7 +71,7 @@ class Data {
 		for (int i=0; i < strArr.length; i++) {
 			int sum = 0;
 			for (int j=0; j <= i; j++) {
-				sum += 60 * Integer.parseInt(strArr[j]);
+				sum += Integer.parseInt(strArr[j]);
 			}
 			modeLengths.add(sum);
 		}
@@ -98,26 +98,26 @@ class Data {
 		gameSprites = new HashMap<>();
 
 		// Create a PImage representation of map
-		wallSprites.put("1", pathLoad(app, "horizontal"));
-		wallSprites.put("2", pathLoad(app, "vertical"));
-		wallSprites.put("3", pathLoad(app, "upLeft"));
-		wallSprites.put("4", pathLoad(app, "upRight"));
-		wallSprites.put("5", pathLoad(app, "downLeft"));
-		wallSprites.put("6", pathLoad(app, "downRight"));
+		wallSprites.put("1", pathLoad("horizontal"));
+		wallSprites.put("2", pathLoad("vertical"));
+		wallSprites.put("3", pathLoad("upLeft"));
+		wallSprites.put("4", pathLoad("upRight"));
+		wallSprites.put("5", pathLoad("downLeft"));
+		wallSprites.put("6", pathLoad("downRight"));
 
-		playerSprites.put(Direction.right, pathLoad(app, "playerRight"));
-		playerSprites.put(Direction.left, pathLoad(app, "playerLeft"));
-		playerSprites.put(Direction.down, pathLoad(app, "playerDown"));
-		playerSprites.put(Direction.up, pathLoad(app, "playerUp"));
+		playerSprites.put(Direction.right, pathLoad("playerRight"));
+		playerSprites.put(Direction.left, pathLoad("playerLeft"));
+		playerSprites.put(Direction.down, pathLoad("playerDown"));
+		playerSprites.put(Direction.up, pathLoad("playerUp"));
 
-		ghostSprites.put(Ghost.Type.ambusher, pathLoad(app, "ambusher"));
-		ghostSprites.put(Ghost.Type.chaser, pathLoad(app, "chaser"));
-		ghostSprites.put(Ghost.Type.ignorant, pathLoad(app, "ignorant"));
-		ghostSprites.put(Ghost.Type.whim, pathLoad(app, "whim"));
+		ghostSprites.put(Ghost.Type.ambusher, pathLoad("ambusher"));
+		ghostSprites.put(Ghost.Type.chaser, pathLoad("chaser"));
+		ghostSprites.put(Ghost.Type.ignorant, pathLoad("ignorant"));
+		ghostSprites.put(Ghost.Type.whim, pathLoad("whim"));
 
-		gameSprites.put(GameObject.Type.fruit, pathLoad(app,"fruit"));
-		frightenedGhost = pathLoad(app, "frightened");
-		playerClosed = pathLoad(app, "playerClosed");
+		gameSprites.put(GameObject.Type.fruit, pathLoad("fruit"));
+		frightenedGhost = pathLoad("frightened");
+		playerClosed = pathLoad("playerClosed");
 	}
 
 	public void parseMap()
@@ -167,7 +167,7 @@ class Data {
 		}
 	}
 
-	public PImage pathLoad(PApplet app, String str)
+	public PImage pathLoad(String str)
 	{
 		return app.loadImage("src/main/resources/" + str + ".png");
 	}
@@ -177,8 +177,8 @@ public class Game {
 
 	// Configuration settings
 	List<Integer> modeLengths;
-	Integer lives, speed;
-	final int initLives;
+	int lives, speed;
+	int initLives;
 
 	// Objects
 	List<GameObject> gameObjects;
@@ -190,28 +190,33 @@ public class Game {
 	PImage[][] imageMap;
 
 	// Other
+	App app;
 	int counter = 0;
 	int points = 0;
 
 	public Game(App app)
 	{
+		this.app = app;
 		gameObjects = new ArrayList<>();
 		ghosts = new ArrayList<>();
+	}
 
-		Data data = new Data(app);
+	public void setUp()
+	{
+		Configuration data = new Configuration(app);
 
 		initLives = data.lives;
 		lives = data.lives;
 		imageMap = data.imageMap;
 		stringMap = data.stringMap;
 
+		createObjects(true);
+
 		// setup classes
 		Ghost.setUp(player, data.modeLengths, data.ghostSprites, data.frightenedGhost);
 		Player.setUp(data.playerSprites, data.playerClosed);
 		Agent.setUp(data.boolMap, data.speed);
 		GameObject.setUp(data.gameSprites);
-
-		createObjects(true);
 
 		// load font
 		app.textFont(
@@ -241,7 +246,7 @@ public class Game {
 			}
 		}
 
-		Ghost.Navigate.TARGET = player;
+		Ghost.Type.PLAYER = player;
 	}
 
 	// Active methods

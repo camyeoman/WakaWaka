@@ -11,6 +11,8 @@ interface Lambda<T, U> {
 public class Agent {
 	protected static boolean[][] boolMap;
 	protected static int speed = 1;
+
+	protected boolean alive = true;
 	protected Direction direction;
 	protected int x, y;
 

@@ -17,11 +17,12 @@ public class App extends PApplet {
 	private int counter = 0;
 
 	public App() {
+		game = new Game(this);
 	}
 
 	public void setup() {
 		frameRate(60);
-		game = new Game(this);
+		game.setUp();
 	}
 
 	public void settings() {

@@ -40,15 +40,15 @@ public class GhostTest {
 			}
 		}
 
-		assertTrue((new Ghost(1,1,'a')).getType() == Ghost.Type.ambusher);
-		assertTrue((new Ghost(1,1,'i')).getType() == Ghost.Type.ignorant);
-		assertTrue((new Ghost(1,1,'c')).getType() == Ghost.Type.chaser);
-		assertTrue((new Ghost(1,1,'w')).getType() == Ghost.Type.whim);
+		assertTrue((new Ghost(1,1,'a')).type == Ghost.Type.ambusher);
+		assertTrue((new Ghost(1,1,'i')).type == Ghost.Type.ignorant);
+		assertTrue((new Ghost(1,1,'c')).type == Ghost.Type.chaser);
+		assertTrue((new Ghost(1,1,'w')).type == Ghost.Type.whim);
 
 		for (char c : new char[]{'b','d','e','f','g','h'}) {
 			ghost = new Ghost(1,1,c);
 			assertNotNull(ghost);
-			assertNull(ghost.getType());
+			assertNull(ghost.type);
 		}
 
 	}
