@@ -121,38 +121,71 @@ public class GhostTest {
 	}
 
 	@Test
-	public void move()
+	public void toggleScatter()
 	{
-		/*
-		Ghost ghost = new Ghost(10, 1, );
-		// test going right
-		double vel = ghost.speed();
-		ghost.setDirection(Direction.right);
-		for (int i=0; i < (int)(16/vel); i++) {
-			assertTrue( Math.abs(ghost.getX() - (160 + vel * i)) < 0.0001 );
-			ghost.move();
+		assertFalse(Ghost.isScatter());
+		Ghost.toggleScatter();
+		assertTrue(Ghost.isScatter());
+		Ghost.toggleScatter();
+		assertFalse(Ghost.isScatter());
+		Ghost.toggleScatter();
+		assertTrue(Ghost.isScatter());
+	}
+
+	@Test
+	public void ambusher()
+	{
+		Point target, current;
+		Player player;
+
+		current = new Point(80, 80);
+
+		player = new Player(96, 96);
+
+		// Test chasing behaviour
+
+		player.direction = Direction.right;
+		target = Ghost.ambusher(current, player);
+		assertTrue(target.x == player.x + 16 * 4 && target.y == player.y);
+
+		player.direction = Direction.left;
+		target = Ghost.ambusher(current, player);
+		assertTrue(target.x == player.x - 16 * 4 && target.y == player.y);
+
+		player.direction = Direction.down; target = Ghost.ambusher(current, player);
+		assertTrue(target.x == player.x && target.y == player.y + 16 * 4);
+
+		player.direction = Direction.up;
+		target = Ghost.ambusher(current, player);
+		assertTrue(target.x == player.x && target.y == player.y - 16 * 4);
+
+		// TODO scatter behaviour
+	}
+
+	@Test
+	public void chaser()
+	{
+		Point target, current;
+		Player player;
+
+		current = new Point(80, 80);
+
+		// Test chasing behaviour
+
+		player = new Player(32, 128);
+		for (Direction d : Direction.values()) {
+			player.direction = Direction.right;
+			target = Ghost.chaser(current, player);
+			assertTrue(target.x == player.x && target.y == player.y);
 		}
 
-		// test going left
-		ghost.setDirection(Direction.left);
-		for (int i=0; i < (int)(16/vel); i++) {
-			assertTrue( Math.abs(ghost.getX() - (176 - vel * i)) < 0.0001 );
-			ghost.move();
+		player = new Player(16, 64);
+		for (Direction d : Direction.values()) {
+			player.direction = Direction.right;
+			target = Ghost.chaser(current, player);
+			assertTrue(target.x == player.x && target.y == player.y);
 		}
 
-		// test going down
-		ghost.setDirection(Direction.down);
-		for (int i=0; i < (int)(16/vel); i++) {
-			assertTrue( Math.abs(ghost.getY() - (16 + vel * i)) < 0.0001 );
-			ghost.move();
-		}
-
-		// test going up
-		ghost.setDirection(Direction.up);
-		for (int i=0; i < (int)(16/vel); i++) {
-			assertTrue( Math.abs(ghost.getY() - (32 - vel * i)) < 0.0001 );
-			ghost.move();
-		}
-		*/
+		// TODO scatter behaviour
 	}
 }

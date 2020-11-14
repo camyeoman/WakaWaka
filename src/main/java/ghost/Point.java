@@ -13,7 +13,20 @@ public class Point {
 	{
 		int xDist = (int)(Math.pow(this.x - point.x, 2));
 		int yDist = (int)(Math.pow(this.y - point.y, 2));
-		return (int)(Math.pow(xDist + yDist, 0.5));
+		return (int)(Math.round(Math.pow(xDist + yDist, 0.5)));
+	}
+
+	public Point restrictRange(int xUpper, int yUpper)
+	{
+		if (x < 0 || x > xUpper) {
+			x = (x < 0) ? 0 : xUpper;
+		}
+
+		if (y < 0 || y > yUpper) {
+			y = (y < 0) ? 0 : yUpper;
+		}
+
+		return this;
 	}
 
 	public String toString() { return String.format("(%s, %s)", x, y); }

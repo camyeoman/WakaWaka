@@ -1,5 +1,4 @@
 package ghost;
-import processing.core.PImage;
 import processing.core.PApplet;
 import java.util.regex.Pattern;
 import java.util.*;

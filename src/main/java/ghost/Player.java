@@ -17,7 +17,7 @@ public class Player extends Agent {
 		this.directionQued = null;
 	}
 
-	public static void setUp(Map<Direction, PImage> sprites, PImage closed)
+	public static void setup(Map<Direction, PImage> sprites, PImage closed)
 	{
 		Player.sprites = sprites;
 		Player.closed = closed;

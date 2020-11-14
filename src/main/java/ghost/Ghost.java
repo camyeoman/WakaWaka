@@ -2,7 +2,6 @@ package ghost;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.HashMap;
 import java.util.Comparator;
 import java.util.Arrays;
@@ -43,6 +42,11 @@ public class Ghost extends Agent {
 
 	// Getter and Setter methods
 
+	public static boolean isScatter()
+	{
+		return scatter;
+	}
+
 	public static void toggleScatter()
 	{
 		Ghost.scatter = (Ghost.scatter) ? false : true;
@@ -74,7 +78,7 @@ public class Ghost extends Agent {
 			return new Point(448, 50);
 		} else {
 			Point point = player.translate(player.getDirection(), 4 * 16);
-			return Utilities.restrictRange(point);
+			return point.restrictRange(448, 576);
 		}
 	}
 
@@ -83,7 +87,7 @@ public class Ghost extends Agent {
 		if (Ghost.scatter) {
 			return new Point(0,50);
 		} else {
-			return Utilities.restrictRange(player.getPoint());
+			return player.getPoint().restrictRange(448, 576);
 		}
 	}
 
@@ -93,7 +97,7 @@ public class Ghost extends Agent {
 		if (Ghost.scatter || distance <= 8 * 16) {
 			return new Point(0,576);
 		} else {
-			return Utilities.restrictRange(player.getPoint());
+			return player.getPoint().restrictRange(448, 576);
 		}
 	}
 
@@ -108,7 +112,7 @@ public class Ghost extends Agent {
 			int X = chaser.x + 2 * ( target.x - chaser.x );
 			int Y = chaser.y + 2 * ( target.y - chaser.y );
 
-			return Utilities.restrictRange(new Point(X, Y));
+			return (new Point(X, Y)).restrictRange(448, 576);
 		}
 	}
 
@@ -153,7 +157,7 @@ public class Ghost extends Agent {
 
 	// Game related methods
 
-	public static void setUp(Player player, List<Integer> modeLengths,
+	public static void setup(Player player, List<Integer> modeLengths,
 			Map<Type, PImage> sprites, PImage frightened)
 	{
 		Type.PLAYER = player;
@@ -169,12 +173,6 @@ public class Ghost extends Agent {
  		System.out.println(modeLengths);
  		System.out.println(modeLengths.get(mode[0]));
 		System.out.println();
-		/*
-		if (counter > modeLengths.get(mode % modeLengths.size())) {
-			toggleScatter();
-			mode++;
-		}
-		*/
 
 		// decide direction based on ghost type
 		validMoves.sort( (a, b) -> {

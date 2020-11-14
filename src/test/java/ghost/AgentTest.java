@@ -10,6 +10,7 @@ interface lambdaTest<T, U, V> {
 }
 
 public class AgentTest {
+
 	@Test
 	public void constructor()
 	{
@@ -221,35 +222,6 @@ public class AgentTest {
 		testValidDirections(new Boolean[]{ true, false, false, true }, agent);
 	}
 
-	private void testValidDirection(Boolean[] expected, Agent agent)
-	{
-		for (int i=0; i < 4; i++) {
-			Direction testDirection = Direction.values()[i];
-
-			boolean truth = agent.validDirection(testDirection) == expected[i];
-			if (!truth) {
-				System.out.printf("%s should be %s\n",
-						testDirection, !agent.validDirection(testDirection)
-				);
-			}
-			assertTrue(truth);
-		}
-	}
-
-	private void testValidDirections(Boolean[] expected, Agent agent)
-	{
-		for (int i=0; i < 4; i++) {
-			Direction testDirection = Direction.values()[i];
-			boolean contained = agent.validDirections().contains(testDirection);
-
-			if (!contained == expected[i]) {
-				System.out.printf("%s should be %s\n",
-						Arrays.toString(expected), agent.validDirections()
-				);
-			}
-		}
-	}
-
 	@Test
 	public void getterAndSetterMethods()
 	{
@@ -287,15 +259,35 @@ public class AgentTest {
 		}
 	}
 
-	@Test
-	public void pointClass()
-	{
-		Agent.setUp(testMap, 1);
+	// Testing functions
 
-		Agent agent = new Agent(16, 16);
-		Point point = agent.getPoint();
-		assertTrue(point != null && point.x == 16 && point.y == 16);
-		assertEquals("(16, 16)", point.toString());
+	private void testValidDirection(Boolean[] expected, Agent agent)
+	{
+		for (int i=0; i < 4; i++) {
+			Direction testDirection = Direction.values()[i];
+
+			boolean truth = agent.validDirection(testDirection) == expected[i];
+			if (!truth) {
+				System.out.printf("%s should be %s\n",
+						testDirection, !agent.validDirection(testDirection)
+				);
+			}
+			assertTrue(truth);
+		}
+	}
+
+	private void testValidDirections(Boolean[] expected, Agent agent)
+	{
+		for (int i=0; i < 4; i++) {
+			Direction testDirection = Direction.values()[i];
+			boolean contained = agent.validDirections().contains(testDirection);
+
+			if (!contained == expected[i]) {
+				System.out.printf("%s should be %s\n",
+						Arrays.toString(expected), agent.validDirections()
+				);
+			}
+		}
 	}
 
 	static boolean[][] testMap = new boolean[][]
