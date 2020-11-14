@@ -16,7 +16,7 @@ public class GameObject {
 
 	public Point getPoint() { return new Point(x, y); }
 
-	public static void setUp(Map<Type, PImage> sprites) {
+	public static void setup(Map<Type, PImage> sprites) {
 		GameObject.sprites = sprites;
 	}
 

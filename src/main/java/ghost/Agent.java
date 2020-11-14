@@ -124,7 +124,7 @@ public class Agent {
 		return false;
 	}
 
-	public static void setUp(boolean[][] boolMap, int speed)
+	public static void setup(boolean[][] boolMap, int speed)
 	{
 		Agent.boolMap = boolMap;
 		setSpeed(speed);

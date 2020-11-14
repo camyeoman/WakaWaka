@@ -21,7 +21,7 @@ public class AgentTest {
 	@Test
 	public void translate()
 	{
-		Agent.setUp(testMap, 1);
+		Agent.setup(testMap, 1);
 
 		lambdaTest<Integer, Integer, Point> pointCheck
 			= (a, b, point) -> assertTrue(point.x == a && point.y == b);
@@ -54,7 +54,7 @@ public class AgentTest {
 	@Test
 	public void currentGridCell()
 	{
-		Agent.setUp(testMap, 1);
+		Agent.setup(testMap, 1);
 
 		lambdaTest<Integer, Integer, Point> pointCheck
 			= (a, b, point) -> assertTrue(point.x == a && point.y == b);
@@ -108,7 +108,7 @@ public class AgentTest {
 	@Test
 	public void isWall()
 	{
-		Agent.setUp(testMap, 1);
+		Agent.setup(testMap, 1);
 
 		lambdaTest<Direction, Boolean, Agent> checkWall
 			= new lambdaTest<Direction, Boolean, Agent>() {
@@ -164,7 +164,7 @@ public class AgentTest {
 	@Test
 	public void validDirection()
 	{
-		Agent.setUp(testMap, 1);
+		Agent.setup(testMap, 1);
 
 		Agent agent;
 
@@ -203,7 +203,7 @@ public class AgentTest {
 	@Test
 	public void validDirections()
 	{
-		Agent.setUp(testMap, 1);
+		Agent.setup(testMap, 1);
 
 		Agent agent;
 
@@ -225,7 +225,7 @@ public class AgentTest {
 	@Test
 	public void getterAndSetterMethods()
 	{
-		Agent.setUp(testMap, 1);
+		Agent.setup(testMap, 1);
 
 		int[][] tests = new int[][]{
 			{16,  16}, {32,  16}, {48,  16},
@@ -250,7 +250,7 @@ public class AgentTest {
 
 		Agent agent = new Agent(16, 16);
 		for (int i=-10; i < 10; i++) {
-			Agent.setUp(testMap, i);
+			Agent.setup(testMap, i);
 			if (i==2||i==1) {
 				assertTrue(Agent.speed == i);
 			} else {

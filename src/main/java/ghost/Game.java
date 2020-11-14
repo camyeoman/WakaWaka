@@ -201,7 +201,7 @@ public class Game {
 		ghosts = new ArrayList<>();
 	}
 
-	public void setUp()
+	public void setup()
 	{
 		Configuration data = new Configuration(app);
 
@@ -213,10 +213,10 @@ public class Game {
 		createObjects(true);
 
 		// setup classes
-		Ghost.setUp(player, data.modeLengths, data.ghostSprites, data.frightenedGhost);
-		Player.setUp(data.playerSprites, data.playerClosed);
-		Agent.setUp(data.boolMap, data.speed);
-		GameObject.setUp(data.gameSprites);
+		Ghost.setup(player, data.modeLengths, data.ghostSprites, data.frightenedGhost);
+		Player.setup(data.playerSprites, data.playerClosed);
+		Agent.setup(data.boolMap, data.speed);
+		GameObject.setup(data.gameSprites);
 
 		// load font
 		app.textFont(

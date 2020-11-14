@@ -22,7 +22,7 @@ public class App extends PApplet {
 
 	public void setup() {
 		frameRate(60);
-		game.setUp();
+		game.setup();
 	}
 
 	public void settings() {
