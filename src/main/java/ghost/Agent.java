@@ -15,16 +15,6 @@ public class Agent {
 	protected Direction direction;
 	protected int x, y;
 
-	public float displayX() { return (float)(x - 5); }
-	public float displayY() { return (float)(y - 5); }
-
-	public int getX() { return x; }
-	public int getY() { return y; }
-
-	public Point getPoint() { return new Point(x, y); }
-
-	public Direction getDirection() { return direction; }
-
 	public Agent(int x, int y)
 	{
 		this.direction = null;
@@ -32,14 +22,47 @@ public class Agent {
 		this.y = y;
 	}
 
+	public float displayX()
+	{
+		return (float)(x - 5);
+	}
+
+	public float displayY()
+	{
+		return (float)(y - 5);
+	}
+
+	public int getX()
+	{
+		return x;
+	}
+
+	public int getY()
+	{
+		return y;
+	}
+
+	public Point getPoint()
+	{
+		return new Point(x, y);
+	}
+
+	public Direction getDirection()
+	{
+		return direction;
+	}
+
 	// Position and Direction
 
+	/**
+	 * Return a point object that is the current Agent's position, but translated
+	 * by an integer multiple (magnitude) of the speed in a specified direction.
+	 * @param direction, the direction to translate the point
+	 * @param magnitude, the integer size of the displacement
+	 * @return A new Point object with translated coordinates.
+	 */
 	public Point translate(Direction direction, int magnitude)
 	{
-		// Adds an interger multiple of the speed to the existing
-		// position, and creates a new Point object with the new
-		// coordinates.
-
 		Point point = getPoint();
 
 		if (direction != null) {
@@ -65,7 +88,7 @@ public class Agent {
 		}
 	}
 
-	public static Point currentGridCell(Point point, Direction newDirection)
+	private static Point currentGridCell(Point point, Direction newDirection)
 	{
 		// get next grid square to check if valid
 		if (point.x % 16 != 0 ^ point.y % 16 != 0) {
@@ -121,6 +144,7 @@ public class Agent {
 			speed = n;
 			return true;
 		}
+
 		return false;
 	}
 
@@ -134,7 +158,11 @@ public class Agent {
 
 	public String toString()
 	{
-		return String.format("(%s, %s) heading %s", x, y,
-			(direction==null ? "null" : direction));
+		return String.format(
+			"(%s, %s) heading %s",
+			x,
+			y,
+			(direction==null ? "null" : direction)
+		);
 	}
 }
