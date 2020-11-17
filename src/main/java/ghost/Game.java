@@ -1,6 +1,7 @@
 package ghost;
 
 import java.util.regex.Pattern;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -16,6 +17,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject; 
 import org.json.simple.parser.*;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import java.io.File;
 import java.io.Reader;
 import java.io.FileReader;
@@ -23,9 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 class Configuration {
-	String[][] stringMap;
-	boolean[][] boolMap;
-	PImage[][] imageMap;
+	Sprite[][] spriteMap;
 
 	// App attributes
 	String fileName;
@@ -35,20 +37,27 @@ class Configuration {
 	List<Integer> modeLengths;
 
 
-	// Sprites
-	Map<GameObject.Type, PImage> gameSprites;
-	PImage frightenedGhost, playerClosed;
-	Map<Direction, PImage> playerSprites;
-	Map<Ghost.Type, PImage> ghostSprites;
-	Map<String, PImage> wallSprites;
-
-	public Configuration(App app) {
+	public Configuration(App app)
+	{
 		this.app = app;
 
 		parseConfig();
-		loadSprites();
 		parseMap();
 	}
+
+	// Helper functions
+
+	private static String[] extractMatches(String regex, String rawString)
+	{
+		// returns all the matches of a regular expression
+		Matcher match = Pattern.compile(regex).matcher(rawString);
+		List<String> matches = new ArrayList<>();
+		while (match.find()) matches.add(match.group());
+
+		return matches.toArray(new String[matches.size()]);
+	}
+
+	// Parsing functions
 
 	public void parseConfig()
 	{
@@ -57,6 +66,12 @@ class Configuration {
 			Object file = new JSONParser().parse(new FileReader("config.json")); 
 			config = (JSONObject) file;
 		} catch (Exception e) {}
+		/*
+			catch (FileNotFoundException e) {
+			} catch (IOException e) {
+			} catch (ParseException e) {
+			}
+		*/
 
 
 		// Name of map file
@@ -65,7 +80,7 @@ class Configuration {
 		// Mode lengths
 		String arrayString = ((JSONArray) config.get("modeLengths")).toString();
 		String regex = "(?<=[\\[\\] ,])\\d+(?![0-9.])";
-		String[] strArr = Utilities.extractMatches(regex, arrayString);
+		String[] strArr = extractMatches(regex, arrayString);
 		modeLengths = new ArrayList<>();
 
 		for (int i=0; i < strArr.length; i++) {
@@ -82,99 +97,36 @@ class Configuration {
 		// Lives
 		lives = Integer.parseInt(config.get("lives").toString());
 
-		/*
-			catch (FileNotFoundException e) {
-			} catch (IOException e) {
-			} catch (ParseException e) {
-			}
-		*/
-	}
-
-	public void loadSprites()
-	{
-		playerSprites = new HashMap<>();
-		ghostSprites = new HashMap<>();
-		wallSprites = new HashMap<>();
-		gameSprites = new HashMap<>();
-
-		// Create a PImage representation of map
-		wallSprites.put("1", pathLoad("horizontal"));
-		wallSprites.put("2", pathLoad("vertical"));
-		wallSprites.put("3", pathLoad("upLeft"));
-		wallSprites.put("4", pathLoad("upRight"));
-		wallSprites.put("5", pathLoad("downLeft"));
-		wallSprites.put("6", pathLoad("downRight"));
-
-		playerSprites.put(Direction.right, pathLoad("playerRight"));
-		playerSprites.put(Direction.left, pathLoad("playerLeft"));
-		playerSprites.put(Direction.down, pathLoad("playerDown"));
-		playerSprites.put(Direction.up, pathLoad("playerUp"));
-
-		ghostSprites.put(Ghost.Type.ambusher, pathLoad("ambusher"));
-		ghostSprites.put(Ghost.Type.chaser, pathLoad("chaser"));
-		ghostSprites.put(Ghost.Type.ignorant, pathLoad("ignorant"));
-		ghostSprites.put(Ghost.Type.whim, pathLoad("whim"));
-
-		gameSprites.put(GameObject.Type.fruit, pathLoad("fruit"));
-		frightenedGhost = pathLoad("frightened");
-		playerClosed = pathLoad("playerClosed");
 	}
 
 	public void parseMap()
 	{
 		// string map
-		stringMap = new String[36][28];
+		spriteMap = new Sprite[36][28];
 
 		try {
 			File f = new File(fileName);
 			Scanner fileReader = new Scanner(f);
-			String[][] map = new String[36][28];
+
 			for (int i=0; fileReader.hasNextLine(); i++) {
-				String[] line = Utilities.extractMatches("[0-7paciw]",fileReader.nextLine());
+				String[] line = extractMatches("[0-7paciw]",fileReader.nextLine());
 
 				if (i > 36 || line.length != 28) {
+					// error
 					return;
 				} else {
-					stringMap[i] = line;
+					spriteMap[i] = Arrays.stream(line)
+						.map(c -> Sprite.getSprite(c))
+						.toArray(Sprite[]::new);
 				}
 			}
-
-			stringMap = stringMap;
 		} catch (FileNotFoundException e) {
 			return;
 		}
-
-		// boolean map
-		boolMap = new boolean[36][28];
-
-		for (int j=0; j < 36; j++) {
-			for (int i=0; i < 28; i++) {
-				boolMap[j][i] = Pattern.matches("[paciw7]", stringMap[j][i]);
-			}
-		}
-
-		// PImage map
-		imageMap = new PImage[36][28];
-
-		for (int j=0; j < 36; j++) {
-			for (int i=0; i < 28; i++) {
-				if (stringMap[j][i] != null) {
-					if (Pattern.matches("[1-6]", stringMap[j][i])) {
-						imageMap[j][i] = wallSprites.get(stringMap[j][i]);
-					}
-				}
-			}
-		}
-	}
-
-	public PImage pathLoad(String str)
-	{
-		return app.loadImage("src/main/resources/" + str + ".png");
 	}
 }
 
 public class Game {
-
 	// Configuration settings
 	List<Integer> modeLengths;
 	int lives, speed;
@@ -186,8 +138,10 @@ public class Game {
 	Player player;
 
 	// Map
-	String[][] stringMap;
-	PImage[][] imageMap;
+	Sprite[][] spriteMap;
+
+	// Sprites
+	Map<Sprite, PImage> allSprites;
 
 	// Other
 	App app;
@@ -201,22 +155,48 @@ public class Game {
 		ghosts = new ArrayList<>();
 	}
 
+	private PImage pathLoad(String str)
+	{
+		return app.loadImage("src/main/resources/" + str + ".png");
+	}
+
 	public void setup()
 	{
 		Configuration data = new Configuration(app);
 
+		allSprites = new HashMap<>();
+
+		allSprites.put(Sprite.horizontal, pathLoad("horizontal"));
+		allSprites.put(Sprite.vertical, pathLoad("vertical"));
+		allSprites.put(Sprite.upLeft, pathLoad("upLeft"));
+		allSprites.put(Sprite.upRight, pathLoad("upRight"));
+		allSprites.put(Sprite.downLeft, pathLoad("downLeft"));
+		allSprites.put(Sprite.downRight, pathLoad("downRight"));
+
+		allSprites.put(Sprite.playerRight, pathLoad("playerRight"));
+		allSprites.put(Sprite.playerLeft, pathLoad("playerLeft"));
+		allSprites.put(Sprite.playerDown, pathLoad("playerDown"));
+		allSprites.put(Sprite.playerUp, pathLoad("playerUp"));
+		allSprites.put(Sprite.playerUp, pathLoad("playerClosed"));
+
+		allSprites.put(Sprite.ghostFrightened, pathLoad("frightened"));
+		allSprites.put(Sprite.ghostIgnorant, pathLoad("ignorant"));
+		allSprites.put(Sprite.ghostAmbusher, pathLoad("ambusher"));
+		allSprites.put(Sprite.ghostChaser, pathLoad("chaser"));
+		allSprites.put(Sprite.ghostWhim, pathLoad("whim"));
+
+		// TODO load Super fruit here!!
+		allSprites.put(Sprite.fruit, pathLoad("fruit"));
+
 		initLives = data.lives;
 		lives = data.lives;
-		imageMap = data.imageMap;
-		stringMap = data.stringMap;
+		spriteMap = data.spriteMap;
 
 		createObjects(true);
 
 		// setup classes
-		Ghost.setup(player, data.modeLengths, data.ghostSprites, data.frightenedGhost);
-		Player.setup(data.playerSprites, data.playerClosed);
-		Agent.setup(data.boolMap, data.speed);
-		GameObject.setup(data.gameSprites);
+		Ghost.setup(player, data.modeLengths);
+		Agent.setup(spriteMap, data.speed);
 
 		// load font
 		app.textFont(
@@ -235,11 +215,11 @@ public class Game {
 		for (int j=0; j < 36; j++) {
 			for (int i=0; i < 28; i++) {
 
-				if (stringMap[j][i].equals("p")) {
+				if (spriteMap[j][i].equals("p")) {
 					player = new Player(16 * i, 16 * j);
-				} else if (Pattern.matches("[aciw]", stringMap[j][i])) {
-					ghosts.add(new Ghost(16 * i, 16 * j, stringMap[j][i].charAt(0)));
-				} else if (stringMap[j][i].equals("7") && fruit) {
+				} else if (spriteMap[j][i].isGhost()) {
+					ghosts.add(new Ghost(16 * i, 16 * j, spriteMap[j][i]));
+				} else if (spriteMap[j][i] == Sprite.fruit && fruit) {
 					gameObjects.add(new GameObject(GameObject.Type.fruit, 16 * i, 16 * j));
 				}
 
@@ -257,15 +237,15 @@ public class Game {
 
 		for (int j=0; j < 36; j++) {
 			for (int i=0; i < 28; i++) {
-				if (imageMap[j][i] != null) {
-					app.image(imageMap[j][i], 16 * i, 16 * j);
+				if (spriteMap[j][i] != null) {
+					app.image(allSprites.get(spriteMap[j][i]), 16 * i, 16 * j);
 				}
 			}
 		}
 
 		// draw scoreboard
 		for (int i=0; i < lives; i++) {
-			app.image(player.staticSprite(), 16 + 32 * i, 543);
+			app.image(allSprites.get(player.staticSprite()), 16 + 32 * i, 543);
 		}
 	}
 
@@ -285,7 +265,7 @@ public class Game {
 	{
 		for (int i=0; i < gameObjects.size(); i++) {
 			GameObject obj = gameObjects.get(i);
-			obj.draw(app);
+			obj.draw(this);
 			if (obj.getPoint().distance(player.getPoint()) < 1) {
 				points++;
 				gameObjects.remove(i--);
@@ -301,7 +281,7 @@ public class Game {
 	{
 		for (int i=0; i < ghosts.size(); i++) {
 			Ghost ghost = ghosts.get(i);
-			ghost.draw(app, counter);
+			ghost.draw(this, counter);
 
 			if (ghost.tic(player, counter)) {
 				counter = 0;
@@ -323,7 +303,7 @@ public class Game {
 			refreshMovementCache(app);
 			drawMap(app);
 			drawGameObjects(app);
-			player.tic(app, counter);
+			player.tic(this, counter);
 			drawGhosts(app);
 			
 			counter++;

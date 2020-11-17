@@ -4,7 +4,6 @@ import processing.core.PImage;
 import java.util.*;
 
 public class GameObject {
-	private static Map<Type, PImage> sprites;
 	private Type type;
 	private int x, y;
 
@@ -16,27 +15,32 @@ public class GameObject {
 
 	public Point getPoint() { return new Point(x, y); }
 
-	public static void setup(Map<Type, PImage> sprites) {
-		GameObject.sprites = sprites;
-	}
-
 	public GameObject(Type type, int x, int y) {
 		this.x = x;
 		this.y = y;
 		this.type = type;
 	}
 
-	public PImage getSprite() {
-		return sprites.get(type);
+	public Sprite getSprite() {
+		Sprite sprite = null;
+
+		switch (type) {
+			case fruit:       sprite = Sprite.playerRight;  break;
+			case superFruit:  sprite = Sprite.playerLeft;   break;
+		}
+
+		return sprite;
 	}
 
 	enum Type {
-		fruit
+		fruit,
+		superFruit;
 	}
 
-	public void draw(App app) {
+	public void draw(Game game) {
 		// Draw GameObjects
-		app.image(getSprite(), x, y);
+		App app = game.app;
+		app.image(game.allSprites.get(getSprite()), x, y);
 	}
 
 	public String toString() {

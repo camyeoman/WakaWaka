@@ -16,6 +16,22 @@ public class Point {
 		return (int)(Math.round(Math.pow(xDist + yDist, 0.5)));
 	}
 
+	public Point gridSnap(Direction direction)
+	{
+		int x = this.x, y = this.y;
+
+		if (x % 16 != 0 ^ y % 16 != 0) {
+			if (direction.isHorizontal()) {
+				x += - (x % 16) + (direction == Direction.left ? 0 : 16);
+			} else {
+				y += - (y % 16) + (direction == Direction.up   ? 0 : 16);
+			}
+		}
+
+		return new Point(x, y);
+	}
+
+
 	public Point restrictRange(int xUpper, int yUpper)
 	{
 		if (x < 0 || x > xUpper) {

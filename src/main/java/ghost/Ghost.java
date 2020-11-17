@@ -19,20 +19,20 @@ public class Ghost extends Agent {
 	private static int[] mode;
 	final Type type;
 
-	public Ghost(int x, int y, char typeOfGhost)
+	public Ghost(int x, int y, Sprite typeOfGhost)
 	{
 		super(x, y);
 		this.scatter = false;
 		this.direction = null;
 		this.mode = new int[]{ 0, 0 };
 
-		if (typeOfGhost == 'a') {
+		if (typeOfGhost == Sprite.ghostAmbusher) {
 			this.type = Type.ambusher;
-		} else if (typeOfGhost == 'c') {
+		} else if (typeOfGhost == Sprite.ghostChaser) {
 			this.type = Type.chaser;
-		} else if (typeOfGhost == 'i') {
+		} else if (typeOfGhost == Sprite.ghostIgnorant) {
 			this.type = Type.ignorant;
-		} else if (typeOfGhost == 'w') {
+		} else if (typeOfGhost == Sprite.ghostWhim) {
 			this.type = Type.whim;
 		} else {
 			this.type = null;
@@ -52,9 +52,22 @@ public class Ghost extends Agent {
 		Ghost.scatter = (Ghost.scatter) ? false : true;
 	}
 
-	public PImage getSprite()
+	public Sprite getSprite()
 	{
-		return (scatter) ? frightened : Ghost.sprites.get(type);
+		Sprite sprite = null;
+
+		if (scatter) {
+			switch (type) {
+				case ambusher:  sprite = Sprite.ghostAmbusher;  break;
+				case ignorant:  sprite = Sprite.ghostIgnorant;  break;
+				case chaser:    sprite = Sprite.ghostChaser;    break;
+				case whim:      sprite = Sprite.ghostWhim;      break;
+			}
+		} else {
+			sprite = Sprite.ghostFrightened;
+		}
+
+		return sprite;
 	}
 
 	// Navigation
@@ -157,8 +170,7 @@ public class Ghost extends Agent {
 
 	// Game related methods
 
-	public static void setup(Player player, List<Integer> modeLengths,
-			Map<Type, PImage> sprites, PImage frightened)
+	public static void setup(Player player, List<Integer> modeLengths)
 	{
 		Type.PLAYER = player;
 		Ghost.sprites = sprites;
@@ -190,9 +202,11 @@ public class Ghost extends Agent {
 		return player.getPoint().distance(this.getPoint()) < 10;
 	}
 
-	public void draw(App app, int counter)
+	public void draw(Game game, int counter)
 	{
-		app.image(getSprite(), displayX(), displayY());
+		App app = game.app;
+
+		app.image(game.allSprites.get(getSprite()), displayX(), displayY());
 		Point target = type.target(getPoint());
 
 		if (app.debugMode) {

@@ -5,9 +5,6 @@ import processing.core.PApplet;
 import java.util.*;
 
 public class Player extends Agent {
-	private static Map<Direction, PImage> sprites;
-	private static PImage closed;
-
 	protected Direction directionQued;
 	private boolean open = true;
 
@@ -17,13 +14,7 @@ public class Player extends Agent {
 		this.directionQued = null;
 	}
 
-	public static void setup(Map<Direction, PImage> sprites, PImage closed)
-	{
-		Player.sprites = sprites;
-		Player.closed = closed;
-	}
-
-	public void tic(PApplet app, int counter)
+	public void tic(Game game, int counter)
 	{
 		if (validDirection(directionQued)) {
 			this.direction = this.directionQued;
@@ -35,7 +26,10 @@ public class Player extends Agent {
 			this.y = point.y;
 		}
 
-		app.image(getSprite(counter), displayX(), displayY());
+		App app = game.app;
+
+		Sprite sprite = getSprite(counter);
+		app.image(game.allSprites.get(sprite), displayX(), displayY());
 	}
 
 	public void setQuedDirection(Direction newDirection)
@@ -45,21 +39,30 @@ public class Player extends Agent {
 		}
 	}
 
-	public PImage getSprite(int counter)
+	public Sprite getSprite(int counter)
 	{
+		// toggle whether Waka has mouth open
 		if (counter % 8 == 0) {
 			open = (open) ? false : true;
 		}
 
-		if (direction == null) {
-			return (open) ? sprites.get(Direction.right) : closed;
+		Sprite sprite = null;
+		if (open && direction != null) {
+			switch (direction) {
+				case right:  sprite = Sprite.playerRight;  break;
+				case left:   sprite = Sprite.playerLeft;   break;
+				case up:     sprite = Sprite.playerUp;     break;
+				case down:   sprite = Sprite.playerDown;   break;
+			}
 		} else {
-			return (open) ? sprites.get(direction) : closed;
+			sprite = (open) ? Sprite.playerRight : Sprite.playerClosed;
 		}
+
+		return sprite;
 	}
 
-	public PImage staticSprite()
+	public Sprite staticSprite()
 	{
-		return sprites.get(Direction.right);
+		return Sprite.playerRight;
 	}
 }

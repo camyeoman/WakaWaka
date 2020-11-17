@@ -2,14 +2,15 @@ package ghost;
 import processing.core.PApplet;
 import java.util.regex.Pattern;
 import java.util.*;
+import java.util.stream.*;
 
 interface Lambda<T, U> {
 	public U eval(T input);
 }
 
 public class Agent {
-	protected static boolean[][] boolMap;
-	protected static int speed = 1;
+	protected static Boolean[][] boolMap;
+	protected static int speed = 0;
 
 	protected boolean alive = true;
 	protected Direction direction;
@@ -88,20 +89,6 @@ public class Agent {
 		}
 	}
 
-	private static Point currentGridCell(Point point, Direction newDirection)
-	{
-		// get next grid square to check if valid
-		if (point.x % 16 != 0 ^ point.y % 16 != 0) {
-			if (newDirection.isHorizontal()) {
-				point.x += - (point.x % 16) + (newDirection == Direction.left ? 0 : 16);
-			} else {
-				point.y += - (point.y % 16) + (newDirection == Direction.up   ? 0 : 16);
-			}
-		}
-
-		return point;
-	}
-
 	// Determining valid actions
 
 	public boolean validDirection(Direction newDirection)
@@ -111,8 +98,7 @@ public class Agent {
 		}
 
 		if (x % 16 == 0 && y % 16 == 0) {
-			Point point = translate(newDirection, 1);
-			point = currentGridCell(point, newDirection); 
+			Point point = translate(newDirection, 1).gridSnap(newDirection);
 			return !isWall(point);
 		} else {
 			if (direction == null) {
@@ -138,20 +124,21 @@ public class Agent {
 
 	// App related processes
 
-	public static boolean setSpeed(int n)
+	public static void setup(Sprite[][] map, int speed)
 	{
-		if (n == 1 || n == 2) {
-			speed = n;
-			return true;
+		boolMap = new Boolean[36][28];
+
+		for (int i=0; i < 36; i++) {
+			boolMap[i] = Arrays.stream(map[i])
+										.map(c -> c == null)
+										.toArray(Boolean[]::new);
 		}
 
-		return false;
-	}
+		//boolMap = Arrays.stream(map);
+		if (speed == 1 || speed == 2) {
+			Agent.speed = speed;
+		}
 
-	public static void setup(boolean[][] boolMap, int speed)
-	{
-		Agent.boolMap = boolMap;
-		setSpeed(speed);
 	}
 
 	// Misc
