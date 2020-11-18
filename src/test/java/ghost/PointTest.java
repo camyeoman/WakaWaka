@@ -77,4 +77,16 @@ public class PointTest {
 		Point point = new Point(1, 1);
 		assertEquals(point.toString(), "(1, 1)");
 	}
+
+
+	@Test
+	public void gridSnap() {
+		Point point, testPoint;
+
+		point = new Point(16 + 5, 16);
+		testPoint = point.gridSnap(Direction.left);
+		assertTrue(testPoint.x == 16 && testPoint.y == 16);
+		testPoint = point.gridSnap(Direction.right);
+		assertTrue(testPoint.x == 32 && testPoint.y == 16);
+	}
 }

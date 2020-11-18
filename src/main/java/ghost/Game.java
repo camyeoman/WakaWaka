@@ -214,14 +214,18 @@ public class Game {
 
 		for (int j=0; j < 36; j++) {
 			for (int i=0; i < 28; i++) {
+				if (spriteMap[j][i] != null) {
 
-				if (spriteMap[j][i].equals("p")) {
-					player = new Player(16 * i, 16 * j);
-				} else if (spriteMap[j][i].isGhost()) {
-					ghosts.add(new Ghost(16 * i, 16 * j, spriteMap[j][i]));
-				} else if (spriteMap[j][i] == Sprite.fruit && fruit) {
-					gameObjects.add(new GameObject(GameObject.Type.fruit, 16 * i, 16 * j));
+					if (spriteMap[j][i] == Sprite.playerRight) {
+						player = new Player(16 * i, 16 * j);
+					} else if (spriteMap[j][i].isGhost()) {
+						ghosts.add(new Ghost(16 * i, 16 * j, spriteMap[j][i]));
+					} else if (spriteMap[j][i] == Sprite.fruit && fruit) {
+						gameObjects.add(new GameObject(GameObject.Type.fruit, 16 * i, 16 * j));
+					}
+
 				}
+
 
 			}
 		}
@@ -237,7 +241,7 @@ public class Game {
 
 		for (int j=0; j < 36; j++) {
 			for (int i=0; i < 28; i++) {
-				if (spriteMap[j][i] != null) {
+				if (spriteMap[j][i] != null && spriteMap[j][i].isWall()) {
 					app.image(allSprites.get(spriteMap[j][i]), 16 * i, 16 * j);
 				}
 			}
@@ -303,7 +307,7 @@ public class Game {
 			refreshMovementCache(app);
 			drawMap(app);
 			drawGameObjects(app);
-			player.tic(this, counter);
+			//player.tic(this, counter);
 			drawGhosts(app);
 			
 			counter++;

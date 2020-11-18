@@ -5,34 +5,23 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.*;
 
 public class GhostTest {
-	/* Visualisation of test map
-			0123456789012
-		 0*************
-		 1*C        B *
-		 2**********  *
-		 3***  *  A*  *
-		 4*D**   *    *
-		 5*************
-	*/
-
-	static boolean[][] testMap = new boolean[][]
-	{
-		{ false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false },
-		{ false,  true,   true,   true,   true,   true,   true,   true,   true,   true,   true,   true,   false },
-		{ false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  true,   true,   false },
-		{ false,  false,  false,  true,   true,   false,  true,   true,   true,   false,  true,   true,   false },
-		{ false,  true,   false,  false,  true,   true,   true,   false,  true,   true,   true,   true,   false },
-		{ false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false }
-	};
-		
 	@Test
 	public void constructor()
 	{
+		Agent.setup(testMap, 1);
+
 		Ghost ghost;
+
+		Sprite[] ghosts = new Sprite[]{
+			Sprite.ghostAmbusher,
+			Sprite.ghostIgnorant,
+			Sprite.ghostChaser,
+			Sprite.ghostWhim
+		};
 
 		for (int j=-10; j < 10; j++) {
 			for (int i=-10; i < 10; i++) {
-				for (char c : new char[]{'a','i','c','w'}) {
+				for (Sprite c : ghosts) {
 					Ghost g = new Ghost(i, j, c);
 					assertNotNull(g);
 					assertTrue(g.getX() == i && g.getY() == j);
@@ -40,13 +29,13 @@ public class GhostTest {
 			}
 		}
 
-		assertTrue((new Ghost(1,1,'a')).type == Ghost.Type.ambusher);
-		assertTrue((new Ghost(1,1,'i')).type == Ghost.Type.ignorant);
-		assertTrue((new Ghost(1,1,'c')).type == Ghost.Type.chaser);
-		assertTrue((new Ghost(1,1,'w')).type == Ghost.Type.whim);
+		assertTrue((new Ghost(1,1,ghosts[0])).type == Ghost.Type.ambusher);
+		assertTrue((new Ghost(1,1,ghosts[1])).type == Ghost.Type.ignorant);
+		assertTrue((new Ghost(1,1,ghosts[2])).type == Ghost.Type.chaser);
+		assertTrue((new Ghost(1,1,ghosts[3])).type == Ghost.Type.whim);
 
-		for (char c : new char[]{'b','d','e','f','g','h'}) {
-			ghost = new Ghost(1,1,c);
+		for (int i=0; i < 4; i++) {
+			ghost = new Ghost(1,1,Sprite.values()[i]);
 			assertNotNull(ghost);
 			assertNull(ghost.type);
 		}
@@ -76,10 +65,16 @@ public class GhostTest {
 	@Test
 	public void validDirections()
 	{
-		Agent.boolMap = testMap;
+		Agent.setup(testMap, 1);
 
+		Sprite[] ghosts = new Sprite[]{
+			Sprite.ghostAmbusher,
+			Sprite.ghostIgnorant,
+			Sprite.ghostChaser,
+			Sprite.ghostWhim
+		};
 
-		for (char character : new char[]{ 'a', 'c', 'i', 'w' }) {
+		for (Sprite character : ghosts) {
 
 			Ghost A = new Ghost(16 * 8,  16 * 3, character);
 			Ghost B = new Ghost(16 * 10, 16 * 1, character);
@@ -135,6 +130,8 @@ public class GhostTest {
 	@Test
 	public void ambusher()
 	{
+		Agent.setup(testMap, 1);
+
 		Point target, current;
 		Player player;
 
@@ -165,6 +162,8 @@ public class GhostTest {
 	@Test
 	public void chaser()
 	{
+		Agent.setup(testMap, 1);
+
 		Point target, current;
 		Player player;
 
@@ -187,5 +186,26 @@ public class GhostTest {
 		}
 
 		// TODO scatter behaviour
+	}
+
+	static Sprite[][] testMap;
+	static // test map
+	{
+		String[][] stringMap = new String[][] {
+			{ "3","1","1","1","1","1","1","1","1","1","1","1","4" },
+			{ "2","p","a","c","i","w","7","7","7","7","7","7","2" },
+			{ "2","1","1","1","1","1","1","1","1","4","7","7","2" },
+			{ "2","2","2","7","7","2","7","7","7","2","7","7","2" },
+			{ "2","7","2","2","7","7","7","2","7","7","7","7","2" },
+			{ "5","1","1","1","1","1","1","1","1","1","1","1","6" }
+		};
+
+		testMap = new Sprite[6][13];
+
+		for (int j=0; j < 6; j++) {
+			for (int i=0; i < 13; i++) {
+				testMap[j][i] = Sprite.getSprite(stringMap[j][i]);
+			}
+		}
 	}
 }

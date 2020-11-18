@@ -52,60 +52,6 @@ public class AgentTest {
 	}
 
 	@Test
-	public void currentGridCell()
-	{
-		Agent.setup(testMap, 1);
-
-		lambdaTest<Integer, Integer, Point> pointCheck
-			= (a, b, point) -> assertTrue(point.x == a && point.y == b);
-		// This tests validDirection() && validDirections()
-
-		Point point;
-
-		int a, b;
-		int[][] tests = new int[][]{
-			{16,  16}, {32,  16}, {48,  16},
-			{64,  16}, {80,  16}, {96,  16}
-		};
-
-		for (int magnitude=1; magnitude < 10; magnitude++) {
-			for (int[] coord : tests) {
-				a = coord[0];
-				b = coord[1];
-				Agent agent = new Agent(a, b);
-
-				// Check left
-				point = agent.translate(Direction.left, magnitude);
-				pointCheck.with(a-magnitude, b, point);
-				pointCheck.with(a-16, b, Agent.currentGridCell(point, Direction.left));
-
-				// Check right
-				point = agent.translate(Direction.right, magnitude);
-				pointCheck.with(a+magnitude, b, point);
-				pointCheck.with(a+16, b, Agent.currentGridCell(point, Direction.right));
-
-				// Check up
-				point = agent.translate(Direction.up, magnitude);
-				pointCheck.with(a, b-magnitude, point);
-				pointCheck.with(a, b-16, Agent.currentGridCell(point, Direction.up));
-
-				// Check down
-				point = agent.translate(Direction.down, magnitude);
-				pointCheck.with(a, b+magnitude, point);
-				pointCheck.with(a, b+16, Agent.currentGridCell(point, Direction.down));
-			}
-		}
-
-		// test on grid squares
-		for (int[] coord : tests) {
-			int x = coord[0], y = coord[1];
-			point = (new Agent(x, y)).getPoint();
-			point = Agent.currentGridCell(point, Direction.right);
-			assertTrue(point.x == x && point.y == y);
-		}
-	}
-
-	@Test
 	public void isWall()
 	{
 		Agent.setup(testMap, 1);
@@ -114,7 +60,7 @@ public class AgentTest {
 			= new lambdaTest<Direction, Boolean, Agent>() {
 			public void with(Direction d, Boolean bool, Agent agent) {
 				Point point = agent.translate(d, 1);
-				point = Agent.currentGridCell(point, d);
+				point = point.gridSnap(d);
 				assertTrue(agent.isWall(point) == bool);
 			}
 		};
@@ -290,23 +236,25 @@ public class AgentTest {
 		}
 	}
 
-	static boolean[][] testMap = new boolean[][]
-	{
-		/* Visualisation of test map
-				0123456789012
-			 0*************
-			 1*           *
-			 2**********  *
-			 3***  *   *  *
-			 4* **   *    *
-			 5*************
-		*/
+	static Sprite[][] testMap;
 
-		{ false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false },
-		{ false,  true,   true,   true,   true,   true,   true,   true,   true,   true,   true,   true,   false },
-		{ false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  true,   true,   false },
-		{ false,  false,  false,  true,   true,   false,  true,   true,   true,   false,  true,   true,   false },
-		{ false,  true,   false,  false,  true,   true,   true,   false,  true,   true,   true,   true,   false },
-		{ false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false }
-	};
+	static // test map
+	{
+		String[][] stringMap = new String[][] {
+			{ "3","1","1","1","1","1","1","1","1","1","1","1","4" },
+			{ "2","p","a","c","i","w","7","7","7","7","7","7","2" },
+			{ "2","1","1","1","1","1","1","1","1","4","7","7","2" },
+			{ "2","2","2","7","7","2","7","7","7","2","7","7","2" },
+			{ "2","7","2","2","7","7","7","2","7","7","7","7","2" },
+			{ "5","1","1","1","1","1","1","1","1","1","1","1","6" }
+		};
+
+		testMap = new Sprite[6][13];
+
+		for (int j=0; j < 6; j++) {
+			for (int i=0; i < 13; i++) {
+				testMap[j][i] = Sprite.getSprite(stringMap[j][i]);
+			}
+		}
+	}
 }

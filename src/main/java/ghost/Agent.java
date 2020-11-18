@@ -126,9 +126,12 @@ public class Agent {
 
 	public static void setup(Sprite[][] map, int speed)
 	{
-		boolMap = new Boolean[36][28];
+		int height = map.length;
+		int width = map[0].length;
 
-		for (int i=0; i < 36; i++) {
+		boolMap = new Boolean[height][width];
+
+		for (int i=0; i < height; i++) {
 			boolMap[i] = Arrays.stream(map[i])
 										.map(c -> c == null)
 										.toArray(Boolean[]::new);

@@ -71,5 +71,17 @@ public enum Sprite {
 		return ghost;
 	}
 
-}           
-            
+	public boolean isWall() {
+		boolean wall = false;
+		switch (this) {
+			case horizontal:  wall = true;  break;
+			case vertical:    wall = true;  break;
+			case upLeft:      wall = true;  break;
+			case upRight:     wall = true;  break;
+			case downLeft:    wall = true;  break;
+			case downRight:   wall = true;  break;
+		}
+
+		return wall;
+	}
+}
