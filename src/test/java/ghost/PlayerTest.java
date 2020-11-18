@@ -24,12 +24,14 @@ public class PlayerTest {
 	};
 		
 	@Test
-	public void constructor() {
+	public void constructor()
+	{
 		Player player = new Player(1, 1);
 		assertNotNull(player);
 	}
 
-	private void testAllDirections(Boolean[] expected, Player player) {
+	private void testAllDirections(Boolean[] expected, Player player)
+	{
 		for (int i=0; i < 4; i++) {
 			Direction testDirection = Direction.values()[i];
 			boolean contained = player.validDirections().contains(testDirection);
@@ -40,7 +42,8 @@ public class PlayerTest {
 	}
 
 	@Test
-	public void getSprite() {
+	public void getSprite()
+	{
 		int counter = 0;
 		Player player = new Player(16, 16);
 		for (Direction d : Direction.values()) {
@@ -50,28 +53,6 @@ public class PlayerTest {
 			//assertEquals(player.getSprite(counter), player.sprites.get(d));
 		}
 
-	}
-
-	@Test
-	public void nextCoords() {
-		/*
-		Player player = new Player(1, 1, );
-		player.move();
-
-		int[] actual = player.nextCoords(Direction.right, 1);
-		assertTrue(Arrays.equals(actual, new int[]{32,16}));
-
-		actual = player.nextCoords(Direction.down, 1);
-		assertTrue(Arrays.equals(actual, new int[]{16,32}));
-
-		actual = player.nextCoords(Direction.left, 1);
-		assertTrue(Arrays.equals(actual, new int[]{0,16}));
-
-		actual = player.nextCoords(Direction.up, 1);
-		assertTrue(Arrays.equals(actual, new int[]{16,0}));
-
-		System.out.println(Arrays.toString(player.nextCoords(Direction.right, 1)));
-		*/
 	}
 
 	@Test

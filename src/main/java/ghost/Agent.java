@@ -9,7 +9,7 @@ interface Lambda<T, U> {
 }
 
 public class Agent {
-	protected static Boolean[][] boolMap;
+	protected static Sprite[][] spriteMap;
 	protected static int speed = 0;
 
 	protected boolean alive = true;
@@ -80,15 +80,6 @@ public class Agent {
 
 	// Interpreting map state
 
-	public boolean isWall(Point point)
-	{
-		try {
-			return !boolMap[point.y/16][point.x/16];
-		} catch (IndexOutOfBoundsException e) {
-			return true;
-		}
-	}
-
 	// Determining valid actions
 
 	public boolean validDirection(Direction newDirection)
@@ -99,7 +90,12 @@ public class Agent {
 
 		if (x % 16 == 0 && y % 16 == 0) {
 			Point point = translate(newDirection, 1).gridSnap(newDirection);
-			return !isWall(point);
+			try {
+				Sprite sprite = spriteMap[point.y/16][point.x/16];
+				return !sprite.isWall();
+			} catch (IndexOutOfBoundsException e) {
+				return false;
+			}
 		} else {
 			if (direction == null) {
 				return false;
@@ -126,22 +122,12 @@ public class Agent {
 
 	public static void setup(Sprite[][] map, int speed)
 	{
-		int height = map.length;
-		int width = map[0].length;
+		Agent.spriteMap = map;
 
-		boolMap = new Boolean[height][width];
-
-		for (int i=0; i < height; i++) {
-			boolMap[i] = Arrays.stream(map[i])
-										.map(c -> c == null)
-										.toArray(Boolean[]::new);
-		}
-
-		//boolMap = Arrays.stream(map);
+		//spriteMap = Arrays.stream(map);
 		if (speed == 1 || speed == 2) {
 			Agent.speed = speed;
 		}
-
 	}
 
 	// Misc

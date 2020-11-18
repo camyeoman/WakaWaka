@@ -88,5 +88,11 @@ public class PointTest {
 		assertTrue(testPoint.x == 16 && testPoint.y == 16);
 		testPoint = point.gridSnap(Direction.right);
 		assertTrue(testPoint.x == 32 && testPoint.y == 16);
+
+		point = new Point(16, 16 - 5);
+		testPoint = point.gridSnap(Direction.up);
+		assertTrue(testPoint.x == 16 && testPoint.y == 0);
+		testPoint = point.gridSnap(Direction.down);
+		assertTrue(testPoint.x == 16 && testPoint.y == 16);
 	}
 }

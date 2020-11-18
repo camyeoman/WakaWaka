@@ -52,62 +52,6 @@ public class AgentTest {
 	}
 
 	@Test
-	public void isWall()
-	{
-		Agent.setup(testMap, 1);
-
-		lambdaTest<Direction, Boolean, Agent> checkWall
-			= new lambdaTest<Direction, Boolean, Agent>() {
-			public void with(Direction d, Boolean bool, Agent agent) {
-				Point point = agent.translate(d, 1);
-				point = point.gridSnap(d);
-				assertTrue(agent.isWall(point) == bool);
-			}
-		};
-
-		Agent agent;
-
-		// Check out of bounds behaviour, treat cells
-		// outside of grid as effectively 'walls'
-		agent = new Agent(-32, 16);
-		checkWall.with(Direction.left, true, agent);
-		checkWall.with(Direction.right, true, agent);
-		checkWall.with(Direction.up, true, agent);
-		checkWall.with(Direction.down, true, agent);
-
-		// Check behaviour in grid
-		agent = new Agent(16, 16);
-		checkWall.with(Direction.left, true, agent);
-		checkWall.with(Direction.right, false, agent);
-		checkWall.with(Direction.up, true, agent);
-		checkWall.with(Direction.down, true, agent);
-
-		agent = new Agent(16, 16 * 4);
-		checkWall.with(Direction.left, true, agent);
-		checkWall.with(Direction.right, true, agent);
-		checkWall.with(Direction.up, true, agent);
-		checkWall.with(Direction.down, true, agent);
-
-		agent = new Agent(16 * 11, 16);
-		checkWall.with(Direction.left, false, agent);
-		checkWall.with(Direction.right, true, agent);
-		checkWall.with(Direction.up, true, agent);
-		checkWall.with(Direction.down, false, agent);
-
-		agent = new Agent(16 * 11, 16);
-		checkWall.with(Direction.left, false, agent);
-		checkWall.with(Direction.right, true, agent);
-		checkWall.with(Direction.up, true, agent);
-		checkWall.with(Direction.down, false, agent);
-
-		agent = new Agent(16 * 11, 16 * 4);
-		checkWall.with(Direction.left, false, agent);
-		checkWall.with(Direction.right, true, agent);
-		checkWall.with(Direction.up, false, agent);
-		checkWall.with(Direction.down, true, agent);
-	}
-
-	@Test
 	public void validDirection()
 	{
 		Agent.setup(testMap, 1);
