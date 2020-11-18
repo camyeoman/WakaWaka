@@ -78,8 +78,6 @@ public class Agent {
 		return point;
 	}
 
-	// Interpreting map state
-
 	// Determining valid actions
 
 	public boolean validDirection(Direction newDirection)
@@ -90,18 +88,22 @@ public class Agent {
 
 		if (x % 16 == 0 && y % 16 == 0) {
 			Point point = translate(newDirection, 1).gridSnap(newDirection);
+
 			try {
 				Sprite sprite = spriteMap[point.y/16][point.x/16];
 				return !sprite.isWall();
 			} catch (IndexOutOfBoundsException e) {
 				return false;
 			}
+
 		} else {
+
 			if (direction == null) {
 				return false;
+			} else {
+				return this.direction.isHorizontal() == newDirection.isHorizontal();
 			}
 
-			return this.direction.isHorizontal() == newDirection.isHorizontal();
 		}
 	}
 

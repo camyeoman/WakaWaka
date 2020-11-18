@@ -88,6 +88,11 @@ public class AgentTest {
 		// test if direction given is null
 		agent = new Agent(16 + 3, 16);
 		assertFalse(agent.validDirection(null));
+
+		// Test out of bounds
+		agent = new Agent(1600, 16);
+		agent.direction = Direction.right;
+		testValidDirection(new Boolean[]{ false, false, false, false }, agent);
 	}
 
 	@Test
