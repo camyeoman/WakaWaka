@@ -1,130 +1,19 @@
 package ghost;
 
-import java.util.regex.Pattern;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Queue;
 import java.util.Scanner;
 import java.util.List;
 import java.util.Map;
 import java.lang.Thread;
 
+import java.util.regex.Pattern;
+
 import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PImage;
-
-import org.json.simple.JSONArray; 
-import org.json.simple.JSONObject; 
-import org.json.simple.parser.*;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import java.io.File;
-import java.io.Reader;
-import java.io.FileReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-class Configuration {
-	Sprite[][] spriteMap;
-
-	// App attributes
-	String fileName;
-	int lives;
-	int speed;
-	App app;
-	List<Integer> modeLengths;
-
-
-	public Configuration(App app)
-	{
-		this.app = app;
-
-		parseConfig();
-		parseMap();
-	}
-
-	// Helper functions
-
-	private static String[] extractMatches(String regex, String rawString)
-	{
-		// returns all the matches of a regular expression
-		Matcher match = Pattern.compile(regex).matcher(rawString);
-		List<String> matches = new ArrayList<>();
-		while (match.find()) matches.add(match.group());
-
-		return matches.toArray(new String[matches.size()]);
-	}
-
-	// Parsing functions
-
-	public void parseConfig()
-	{
-		JSONObject config = null;
-		try {
-			Object file = new JSONParser().parse(new FileReader("config.json")); 
-			config = (JSONObject) file;
-		} catch (Exception e) {}
-		/*
-			catch (FileNotFoundException e) {
-			} catch (IOException e) {
-			} catch (ParseException e) {
-			}
-		*/
-
-
-		// Name of map file
-		fileName = (String) config.get("map"); 
-
-		// Mode lengths
-		String arrayString = ((JSONArray) config.get("modeLengths")).toString();
-		String regex = "(?<=[\\[\\] ,])\\d+(?![0-9.])";
-		String[] strArr = extractMatches(regex, arrayString);
-		modeLengths = new ArrayList<>();
-
-		for (int i=0; i < strArr.length; i++) {
-			int sum = 0;
-			for (int j=0; j <= i; j++) {
-				sum += Integer.parseInt(strArr[j]);
-			}
-			modeLengths.add(sum);
-		}
-
-		// Speed
-		speed = Integer.parseInt(config.get("speed").toString());
-
-		// Lives
-		lives = Integer.parseInt(config.get("lives").toString());
-
-	}
-
-	public void parseMap()
-	{
-		// string map
-		spriteMap = new Sprite[36][28];
-
-		try {
-			File f = new File(fileName);
-			Scanner fileReader = new Scanner(f);
-
-			for (int i=0; fileReader.hasNextLine(); i++) {
-				String[] line = extractMatches("[0-7paciw]",fileReader.nextLine());
-
-				if (i > 36 || line.length != 28) {
-					// error
-					return;
-				} else {
-					spriteMap[i] = Arrays.stream(line)
-						.map(c -> Sprite.getSprite(c))
-						.toArray(Sprite[]::new);
-				}
-			}
-		} catch (FileNotFoundException e) {
-			return;
-		}
-	}
-}
 
 public class Game {
 	// Configuration settings
@@ -177,7 +66,7 @@ public class Game {
 		allSprites.put(Sprite.playerLeft, pathLoad("playerLeft"));
 		allSprites.put(Sprite.playerDown, pathLoad("playerDown"));
 		allSprites.put(Sprite.playerUp, pathLoad("playerUp"));
-		allSprites.put(Sprite.playerUp, pathLoad("playerClosed"));
+		allSprites.put(Sprite.playerClosed, pathLoad("playerClosed"));
 
 		allSprites.put(Sprite.ghostFrightened, pathLoad("frightened"));
 		allSprites.put(Sprite.ghostIgnorant, pathLoad("ignorant"));
@@ -195,8 +84,8 @@ public class Game {
 		createObjects(true);
 
 		// setup classes
-		Ghost.setup(player, data.modeLengths);
 		Agent.setup(spriteMap, data.speed);
+		Ghost.setup(player, data.modeLengths);
 
 		// load font
 		app.textFont(
@@ -225,8 +114,6 @@ public class Game {
 					}
 
 				}
-
-
 			}
 		}
 
@@ -304,12 +191,14 @@ public class Game {
 	public void tic(App app)
 	{
 		if (lives > 0) {
-			refreshMovementCache(app);
 			drawMap(app);
 			drawGameObjects(app);
-			//player.tic(this, counter);
+
+			refreshMovementCache(app);
+			player.tic(this, counter);
+
 			drawGhosts(app);
-			
+
 			counter++;
 		}
 	}
@@ -321,6 +210,7 @@ public class Game {
 
 		if (app.keyCode == 32) {
 			app.debugMode = (app.debugMode) ? false : true;
+			Ghost.toggleScatter();
 			app.keyCode = 0;
 		} else if ((currentDirection == null || app.keyCode != currentDirection)
 				&& (app.keyCode <= 40 && app.keyCode >= 37)) {

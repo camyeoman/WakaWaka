@@ -29,7 +29,7 @@ public class Player extends Agent {
 		App app = game.app;
 
 		Sprite sprite = getSprite(counter);
-		//app.image(game.allSprites.get(sprite), displayX(), displayY());
+		app.image(game.allSprites.get(sprite), displayX(), displayY());
 	}
 
 	public void setQuedDirection(Direction newDirection)

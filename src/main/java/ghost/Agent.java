@@ -130,6 +130,7 @@ public class Agent {
 		if (speed == 1 || speed == 2) {
 			Agent.speed = speed;
 		}
+
 	}
 
 	// Misc

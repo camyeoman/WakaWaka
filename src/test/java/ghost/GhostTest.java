@@ -3,6 +3,7 @@ package ghost;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.*;
+import java.util.stream.*;
 
 public class GhostTest {
 	@Test
@@ -40,26 +41,6 @@ public class GhostTest {
 			assertNull(ghost.type);
 		}
 
-	}
-
-	private void testValidDirect(Direction direction, Boolean[] expected, Ghost ghost)
-	{
-		ghost.direction = direction;
-
-		for (int i=0; i < 4; i++) {
-			Direction testDirection = Direction.values()[i];
-			boolean contained = ghost.validDirections().contains(testDirection);
-
-			if (!contained == expected[i]) {
-				System.out.printf("%s should be %s\n",
-					Arrays.toString(expected), ghost.validDirections()
-				);
-			}
-
-			assertTrue(contained == expected[i]);
-		}
-
-		ghost.direction = null;
 	}
 
 	@Test
@@ -188,6 +169,32 @@ public class GhostTest {
 		// TODO scatter behaviour
 	}
 
+	private void testValidDirect(Direction direction, Boolean[] expected, Ghost ghost)
+	{
+		ghost.direction = direction;
+
+		for (int i=0; i < 4; i++) {
+			Direction testDirection = Direction.values()[i];
+			boolean contained = ghost.validDirections().contains(testDirection);
+
+			if (!contained == expected[i]) {
+				System.out.printf("%s should be %s\n",
+					Arrays.toString(expected), ghost.validDirections()
+				);
+			}
+
+			assertTrue(contained == expected[i]);
+		}
+
+		ghost.direction = null;
+	}
+
+	@Test
+	public void setup()
+	{
+		Ghost.setup(new Player(0, 0), new ArrayList<>());
+	}
+
 	static Sprite[][] testMap;
 	static // test map
 	{
@@ -208,5 +215,4 @@ public class GhostTest {
 			}
 		}
 	}
-		
 }
