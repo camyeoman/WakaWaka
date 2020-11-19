@@ -1,15 +1,13 @@
 package ghost;
 
+import java.util.stream.Collectors;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Queue;
-import java.util.Scanner;
 import java.util.List;
 import java.util.Map;
 import java.lang.Thread;
-
-import java.util.regex.Pattern;
 
 import processing.core.PApplet;
 import processing.core.PFont;
@@ -17,24 +15,23 @@ import processing.core.PImage;
 
 public class Game {
 	// Configuration settings
-	List<Integer> modeLengths;
-	int lives, speed;
-	int initLives;
+	int initialLives, lives, speed;
+	App app;
 
 	// Objects
+	ModeController modeControl;
 	List<GameObject> gameObjects;
 	List<Ghost> ghosts;
 	Player player;
 
 	// Map
-	Sprite[][] spriteMap;
+	private Sprite[][] spriteMap;
 
 	// Sprites
 	Map<Sprite, PImage> allSprites;
 
-	// Other
-	App app;
-	int counter = 0;
+	// Counters
+	int frames = 0;
 	int points = 0;
 
 	public Game(App app)
@@ -51,7 +48,7 @@ public class Game {
 
 	public void setup()
 	{
-		Configuration data = new Configuration(app);
+		Configuration config = new Configuration("config.json");
 
 		allSprites = new HashMap<>();
 
@@ -74,18 +71,18 @@ public class Game {
 		allSprites.put(Sprite.ghostChaser, pathLoad("chaser"));
 		allSprites.put(Sprite.ghostWhim, pathLoad("whim"));
 
-		// TODO load Super fruit here!!
 		allSprites.put(Sprite.fruit, pathLoad("fruit"));
+		allSprites.put(Sprite.superFruit, pathLoad("superFruit"));
 
-		initLives = data.lives;
-		lives = data.lives;
-		spriteMap = data.spriteMap;
+		initialLives = config.lives;
+		lives = config.lives;
+		spriteMap = config.spriteMap;
 
-		createObjects(true);
+		createObjects();
 
 		// setup classes
-		Agent.setup(spriteMap, data.speed);
-		Ghost.setup(player, data.modeLengths);
+		Agent.setup(spriteMap, config.speed);
+		Ghost.setup(config, player, ghosts);
 
 		// load font
 		app.textFont(
@@ -95,12 +92,10 @@ public class Game {
 		);
 	}
 
-	public void createObjects(boolean fruit)
+	// Active methods
+
+	public void createObjects()
 	{
-		gameObjects = (fruit) ? new ArrayList<>() : gameObjects;
-
-		ghosts = new ArrayList<>();
-
 		for (int j=0; j < 36; j++) {
 			for (int i=0; i < 28; i++) {
 				if (spriteMap[j][i] != null) {
@@ -109,18 +104,16 @@ public class Game {
 						player = new Player(16 * i, 16 * j);
 					} else if (spriteMap[j][i].isGhost()) {
 						ghosts.add(new Ghost(16 * i, 16 * j, spriteMap[j][i]));
-					} else if (spriteMap[j][i] == Sprite.fruit && fruit) {
+					} else if (spriteMap[j][i] == Sprite.fruit) {
 						gameObjects.add(new GameObject(GameObject.Type.fruit, 16 * i, 16 * j));
 					}
 
 				}
 			}
 		}
-
-		Ghost.Type.PLAYER = player;
 	}
 
-	// Active methods
+	// Draw methods
 
 	public void drawMap(App app)
 	{
@@ -172,21 +165,12 @@ public class Game {
 	{
 		for (int i=0; i < ghosts.size(); i++) {
 			Ghost ghost = ghosts.get(i);
-			ghost.draw(this, counter);
-
-			if (ghost.tic(player, counter)) {
-				counter = 0;
-				lives--;
-				if (lives > 0) {
-					createObjects(false);
-				} else {
-					endScreen(app, false);
-					return;
-				}
-			}
-
+			ghost.draw(this, frames);
+			ghost.tic(this);
 		}
 	}
+
+	// Tic methods
 
 	public void tic(App app)
 	{
@@ -194,23 +178,24 @@ public class Game {
 			drawMap(app);
 			drawGameObjects(app);
 
-			refreshMovementCache(app);
-			player.tic(this, counter);
+			refreshMovementCache();
+			player.tic(this, frames);
 
 			drawGhosts(app);
 
-			counter++;
+			frames++;
+		} else {
+			endScreen(app, false);
 		}
 	}
 
-	public boolean refreshMovementCache(App app)
+	public boolean refreshMovementCache()
 	{
 		Direction direct = player.getDirection();
 		Integer currentDirection = (direct == null) ? null : direct.KEY_CODE;
 
 		if (app.keyCode == 32) {
 			app.debugMode = (app.debugMode) ? false : true;
-			Ghost.toggleScatter();
 			app.keyCode = 0;
 		} else if ((currentDirection == null || app.keyCode != currentDirection)
 				&& (app.keyCode <= 40 && app.keyCode >= 37)) {

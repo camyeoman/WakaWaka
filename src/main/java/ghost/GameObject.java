@@ -25,8 +25,8 @@ public class GameObject {
 		Sprite sprite = null;
 
 		switch (type) {
-			case fruit:       sprite = Sprite.fruit;  break;
-			// case superFruit:  sprite = Sprite.fruit;   break;
+			case fruit:       sprite = Sprite.fruit;       break;
+			case superFruit:  sprite = Sprite.superFruit;  break;
 		}
 
 		return sprite;

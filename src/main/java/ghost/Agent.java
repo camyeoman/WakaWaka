@@ -11,6 +11,7 @@ interface Lambda<T, U> {
 public class Agent {
 	protected static Sprite[][] spriteMap;
 	protected static int speed = 0;
+	final Point intialPoint;
 
 	protected boolean alive = true;
 	protected Direction direction;
@@ -18,9 +19,17 @@ public class Agent {
 
 	public Agent(int x, int y)
 	{
+		this.intialPoint = new Point(x, y);
 		this.direction = null;
 		this.x = x;
 		this.y = y;
+	}
+
+	public void softReset()
+	{
+		this.x = intialPoint.x;
+		this.y = intialPoint.y;
+		this.direction = null;
 	}
 
 	public float displayX()

@@ -28,11 +28,9 @@ public class Configuration {
 	int speed;
 	App app;
 
-	public Configuration(App app)
+	public Configuration(String configFile)
 	{
-		this.app = app;
-
-		parseConfig();
+		parseConfig(configFile);
 		parseMap();
 	}
 
@@ -50,11 +48,11 @@ public class Configuration {
 
 	// Parsing functions
 
-	public void parseConfig()
+	public void parseConfig(String fileName)
 	{
 		JSONObject config = null;
 		try {
-			Object file = new JSONParser().parse(new FileReader("config.json")); 
+			Object file = new JSONParser().parse(new FileReader(fileName)); 
 			config = (JSONObject) file;
 		} catch (Exception e) {}
 		/*
