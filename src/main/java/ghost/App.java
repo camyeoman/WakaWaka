@@ -12,17 +12,13 @@ public class App extends PApplet {
 
 	Game game;
 
-	public PImage[][] imageMap;
-	boolean debugMode = false;
-	private int counter = 0;
-
 	public App() {
 		game = new Game(this);
 	}
 
 	public void setup() {
 		frameRate(60);
-		game.setup();
+		game.loadAssets();
 	}
 
 	public void settings() {
@@ -35,15 +31,14 @@ public class App extends PApplet {
 				Thread.sleep(10 * 1000);
 			} catch (Exception e) {}
 
-			game = new Game(this);
+			//game = new Game(this);
 		}
 
 		game.tic(this);
 
 	}
 
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 		PApplet.main("ghost.App");
 	}
 }

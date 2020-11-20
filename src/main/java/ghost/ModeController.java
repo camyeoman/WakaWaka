@@ -9,21 +9,26 @@ public class ModeController
 
 	public ModeController(List<Integer> modeLengths) {
 		this.modeLengths = modeLengths;
+		this.modeQueue = new ArrayList<>();
 		buildQueue();
 	}
 
 	class Node {
-		private int timeLeft;
+		private int framesLeft;
 		final Ghost.Mode mode;
 
 		public Node(int duration, Ghost.Mode mode) {
-			this.timeLeft = duration;
+			this.framesLeft = 60 * duration;
 			this.mode = mode;
 		}
 
 		public boolean tic() {
-			timeLeft -= 1;
-			return timeLeft == 0;
+			framesLeft -= 1;
+			return framesLeft > 0;
+		}
+
+		public String toString() {
+			return framesLeft + " left";
 		}
 	}
 
@@ -44,10 +49,10 @@ public class ModeController
 		}
 	}
 
-	public Ghost.Mode mode() {
+	public Ghost.Mode update() {
 		if (modeQueue.size() == 0) {
 			buildQueue();
-			return mode();
+			return update();
 		}
 
 		Node node = modeQueue.get(0);
@@ -57,5 +62,9 @@ public class ModeController
 		}
 
 		return node.mode;
+	}
+
+	public String toString() {
+		return modeQueue.toString();
 	}
 }

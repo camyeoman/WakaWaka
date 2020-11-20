@@ -48,11 +48,11 @@ public class Configuration {
 
 	// Parsing functions
 
-	public void parseConfig(String fileName)
+	public void parseConfig(String configFileName)
 	{
 		JSONObject config = null;
 		try {
-			Object file = new JSONParser().parse(new FileReader(fileName)); 
+			Object file = new JSONParser().parse(new FileReader(configFileName)); 
 			config = (JSONObject) file;
 		} catch (Exception e) {}
 		/*
@@ -64,7 +64,7 @@ public class Configuration {
 
 
 		// Name of map file
-		fileName = (String) config.get("map"); 
+		this.fileName = (String) config.get("map"); 
 
 		// Mode lengths
 		String arrayString = ((JSONArray) config.get("modeLengths")).toString();
@@ -81,7 +81,6 @@ public class Configuration {
 
 		// Lives
 		lives = Integer.parseInt(config.get("lives").toString());
-
 	}
 
 	public void parseMap()

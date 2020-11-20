@@ -14,15 +14,17 @@ import processing.core.PFont;
 import processing.core.PImage;
 
 public class Game {
+	List<Ghost> GHOSTS = new ArrayList<>();
+	Player PLAYER;
+
 	// Configuration settings
 	int initialLives, lives, speed;
+	boolean debugMode;
 	App app;
 
 	// Objects
 	ModeController modeControl;
 	List<GameObject> gameObjects;
-	List<Ghost> ghosts;
-	Player player;
 
 	// Map
 	private Sprite[][] spriteMap;
@@ -38,7 +40,20 @@ public class Game {
 	{
 		this.app = app;
 		gameObjects = new ArrayList<>();
-		ghosts = new ArrayList<>();
+
+		Configuration config = new Configuration("config.json");
+
+		modeControl = new ModeController(config.modeLengths);
+
+		initialLives = config.lives;
+		lives = config.lives;
+		spriteMap = config.spriteMap;
+
+		createObjects();
+
+		// setup classes
+		Agent.SETUP(spriteMap, config.speed);
+		Ghost.SETUP(config, PLAYER);
 	}
 
 	private PImage pathLoad(String str)
@@ -46,12 +61,11 @@ public class Game {
 		return app.loadImage("src/main/resources/" + str + ".png");
 	}
 
-	public void setup()
+	public void loadAssets()
 	{
-		Configuration config = new Configuration("config.json");
-
 		allSprites = new HashMap<>();
 
+		// load sprites
 		allSprites.put(Sprite.horizontal, pathLoad("horizontal"));
 		allSprites.put(Sprite.vertical, pathLoad("vertical"));
 		allSprites.put(Sprite.upLeft, pathLoad("upLeft"));
@@ -74,16 +88,6 @@ public class Game {
 		allSprites.put(Sprite.fruit, pathLoad("fruit"));
 		allSprites.put(Sprite.superFruit, pathLoad("superFruit"));
 
-		initialLives = config.lives;
-		lives = config.lives;
-		spriteMap = config.spriteMap;
-
-		createObjects();
-
-		// setup classes
-		Agent.setup(spriteMap, config.speed);
-		Ghost.setup(config, player, ghosts);
-
 		// load font
 		app.textFont(
 			app.createFont("src/main/resources/PressStart2P-Regular.ttf",
@@ -101,9 +105,10 @@ public class Game {
 				if (spriteMap[j][i] != null) {
 
 					if (spriteMap[j][i] == Sprite.playerRight) {
-						player = new Player(16 * i, 16 * j);
+						PLAYER = new Player(16 * i, 16 * j);
 					} else if (spriteMap[j][i].isGhost()) {
-						ghosts.add(new Ghost(16 * i, 16 * j, spriteMap[j][i]));
+						// constructor adds to internal list
+						GHOSTS.add(new Ghost(16 * i, 16 * j, spriteMap[j][i]));
 					} else if (spriteMap[j][i] == Sprite.fruit) {
 						gameObjects.add(new GameObject(GameObject.Type.fruit, 16 * i, 16 * j));
 					}
@@ -129,7 +134,23 @@ public class Game {
 
 		// draw scoreboard
 		for (int i=0; i < lives; i++) {
-			app.image(allSprites.get(player.staticSprite()), 16 + 32 * i, 543);
+			app.image(allSprites.get(PLAYER.staticSprite()), 16 + 32 * i, 543);
+		}
+	}
+
+	public void drawGameObjects(App app)
+	{
+		for (int i=0; i < gameObjects.size(); i++) {
+			GameObject obj = gameObjects.get(i);
+			obj.draw(this);
+			if (obj.point().distance(PLAYER.point()) < 1) {
+				points++;
+				gameObjects.remove(i--);
+			}
+		}
+
+		if (gameObjects.size() == 0) {
+			endScreen(app, true);
 		}
 	}
 
@@ -145,32 +166,14 @@ public class Game {
 
 	}
 
-	public void drawGameObjects(App app)
-	{
-		for (int i=0; i < gameObjects.size(); i++) {
-			GameObject obj = gameObjects.get(i);
-			obj.draw(this);
-			if (obj.getPoint().distance(player.getPoint()) < 1) {
-				points++;
-				gameObjects.remove(i--);
-			}
-		}
-
-		if (gameObjects.size() == 0) {
-			endScreen(app, true);
-		}
-	}
-
-	public void drawGhosts(App app)
-	{
-		for (int i=0; i < ghosts.size(); i++) {
-			Ghost ghost = ghosts.get(i);
-			ghost.draw(this, frames);
-			ghost.tic(this);
-		}
-	}
-
 	// Tic methods
+	
+	public void softReset()
+	{
+		GHOSTS.stream().forEach(Agent::softReset);
+		PLAYER.softReset();
+		lives--;
+	}
 
 	public void tic(App app)
 	{
@@ -178,10 +181,24 @@ public class Game {
 			drawMap(app);
 			drawGameObjects(app);
 
-			refreshMovementCache();
-			player.tic(this, frames);
+			GHOSTS.stream()
+				.filter(g -> g.alive)
+				.forEach(g -> g.draw(this, frames));
 
-			drawGhosts(app);
+			// update player direction based using input
+			refreshMovementCache(app.keyCode);
+			app.keyCode = 0;
+
+			// update player
+			PLAYER.tic(this, frames);
+
+			// update ghosts
+			for (Ghost ghost : GHOSTS) {
+				if (!ghost.tic(this)) {
+					softReset();
+					break;
+				}
+			}
 
 			frames++;
 		} else {
@@ -189,32 +206,30 @@ public class Game {
 		}
 	}
 
-	public boolean refreshMovementCache()
+	public boolean refreshMovementCache(int keyCode)
 	{
-		Direction direct = player.getDirection();
+		Direction direct = PLAYER.getDirection();
 		Integer currentDirection = (direct == null) ? null : direct.KEY_CODE;
 
-		if (app.keyCode == 32) {
-			app.debugMode = (app.debugMode) ? false : true;
-			app.keyCode = 0;
-		} else if ((currentDirection == null || app.keyCode != currentDirection)
-				&& (app.keyCode <= 40 && app.keyCode >= 37)) {
-			switch (app.keyCode) {
+		if (keyCode == 32) {
+			debugMode = (debugMode) ? false : true;
+		} else if ((currentDirection == null || keyCode != currentDirection)
+				&& (keyCode <= 40 && keyCode >= 37)) {
+			switch (keyCode) {
 				case 37:
-					player.setQuedDirection(Direction.left);
+					PLAYER.setQuedDirection(Direction.left);
 					break;
 				case 38:
-					player.setQuedDirection(Direction.up);
+					PLAYER.setQuedDirection(Direction.up);
 					break;
 				case 39:
-					player.setQuedDirection(Direction.right);
+					PLAYER.setQuedDirection(Direction.right);
 					break;
 				case 40:
-					player.setQuedDirection(Direction.down);
+					PLAYER.setQuedDirection(Direction.down);
 					break;
 			}
 
-			app.keyCode = 0;
 			return true;
 		}
 

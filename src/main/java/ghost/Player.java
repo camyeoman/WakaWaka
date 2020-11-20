@@ -14,6 +14,11 @@ public class Player extends Agent {
 		this.directionQued = null;
 	}
 
+	public void softReset() {
+		super.softReset();
+		this.directionQued = null;
+	}
+
 	public void tic(Game game, int counter)
 	{
 		if (validDirection(directionQued)) {

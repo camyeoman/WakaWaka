@@ -11,15 +11,17 @@ interface Lambda<T, U> {
 public class Agent {
 	protected static Sprite[][] spriteMap;
 	protected static int speed = 0;
-	final Point intialPoint;
 
-	protected boolean alive = true;
 	protected Direction direction;
 	protected int x, y;
 
+	final Point intialPoint;
+
 	public Agent(int x, int y)
 	{
+		// Store initial position for soft reset
 		this.intialPoint = new Point(x, y);
+
 		this.direction = null;
 		this.x = x;
 		this.y = y;
@@ -52,7 +54,7 @@ public class Agent {
 		return y;
 	}
 
-	public Point getPoint()
+	public Point point()
 	{
 		return new Point(x, y);
 	}
@@ -69,11 +71,11 @@ public class Agent {
 	 * by an integer multiple (magnitude) of the speed in a specified direction.
 	 * @param direction, the direction to translate the point
 	 * @param magnitude, the integer size of the displacement
-	 * @return A new Point object with translated coordinates.
+	 * @return A new Point object with translated coordinates
 	 */
 	public Point translate(Direction direction, int magnitude)
 	{
-		Point point = getPoint();
+		Point point = point();
 
 		if (direction != null) {
 			switch (direction) {
@@ -87,8 +89,13 @@ public class Agent {
 		return point;
 	}
 
-	// Determining valid actions
+	// Navigation
 
+	/**
+	 * Return a whether a specified direction is valid.
+	 * @param direction, the direction to verify
+	 * @return a boolean representing if the direction is valid
+	 */
 	public boolean validDirection(Direction newDirection)
 	{
 		if (newDirection == null) {
@@ -116,6 +123,10 @@ public class Agent {
 		}
 	}
 
+	/**
+	 * Returns a list of all valid directions.
+	 * @return the list of valid directions
+	 */
 	public List<Direction> validDirections()
 	{
 		List<Direction> directions = new ArrayList<>();
@@ -131,15 +142,18 @@ public class Agent {
 
 	// App related processes
 
-	public static void setup(Sprite[][] map, int speed)
+	/**
+	 * Initialises internal static variables.
+	 * @param map, the game map, made of Sprite objects
+	 * @param speed, the speed, can either be 1 or 2
+	 */
+	public static void SETUP(Sprite[][] map, int speed)
 	{
 		Agent.spriteMap = map;
 
-		//spriteMap = Arrays.stream(map);
 		if (speed == 1 || speed == 2) {
 			Agent.speed = speed;
 		}
-
 	}
 
 	// Misc
