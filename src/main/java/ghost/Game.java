@@ -32,7 +32,7 @@ public class Game {
 	// Sprites
 	Map<Sprite, PImage> allSprites;
 
-	// Counters
+	// Attributes
 	int frames = 0;
 	int points = 0;
 
@@ -175,80 +175,78 @@ public class Game {
 		lives--;
 	}
 
-	public void drawGame(App app)
+	public void draw(App app)
 	{
 		drawMap(app);
-		PLAYER.draw(this, frames);
+		PLAYER.draw(this);
 
 		GAME_OBJECTS.stream()
 			.forEach(g -> g.draw(this));
 
 		GHOSTS.stream()
 			.filter(g -> g.alive)
-			.forEach(g -> g.draw(this, frames));
+			.forEach(g -> g.draw(this));
 	}
 	
-	public void tic(App app)
+	public void tic(int keyCode)
 	{
-		if (lives > 0) {
-			// Draw
-			drawGame(app);
+		// Read user input
 
-			// Update
-			refreshMovementCache(app.keyCode);
-			app.keyCode = 0;
-			Ghost.MODE = modeControl.update();
-
-			// Player
-			PLAYER.tic();
-
-			// Game objects
-			GAME_OBJECTS.stream()
-				.forEach(g -> g.tic(this));
-
-			// Ghosts
-			GHOSTS.stream()
-				.filter(g -> g.alive)
-				.forEach(g -> g.tic(this));
-
-			// Remove eaten game objects
-			GAME_OBJECTS = GAME_OBJECTS.stream()
-				.filter(obj -> !obj.isEaten())
-				.collect(Collectors.toList());
-
-			frames++;
-		} else {
-			endScreen(app, false);
+		if (app.keyCode == 32) {
+			debugMode = (debugMode) ? false : true;
+		} else if (app.keyCode <= 40 && app.keyCode >= 37) {
+			PLAYER.readInput(app.keyCode);
 		}
+
+		// Update ghost mode
+		Ghost.MODE = modeControl.update();
+
+		// Tic player
+		PLAYER.tic();
+
+		// Tic Game objects
+
+		for (GameObject obj : GAME_OBJECTS) {
+			if (!obj.tic(PLAYER)) {
+
+				switch (obj.type) {
+					case superFruit:
+						GameObject.superFruit(this);
+						break;
+					case fruit:
+						GameObject.fruit(this);
+						break;
+					case soda:
+						GameObject.superFruit(this);
+						break;
+				}
+
+			}
+		}
+
+		// Tic ghosts
+
+		for (Ghost ghost : GHOSTS) {
+			if (!ghost.tic(GHOSTS, PLAYER)) {
+				softReset();
+				lives--;
+			}
+		}
+
+		// Remove eaten game objects
+		GAME_OBJECTS = GAME_OBJECTS.stream()
+			.filter(obj -> !obj.isEaten())
+			.collect(Collectors.toList());
+
+		frames++;
 	}
 
-	public boolean refreshMovementCache(int keyCode)
+	public void run(App app)
 	{
-		Direction direct = PLAYER.direction();
-		Integer currentDirection = (direct == null) ? null : direct.KEY_CODE;
+		draw(app);
+		tic(app.keyCode);
 
-		if (keyCode == 32) {
-			debugMode = (debugMode) ? false : true;
-		} else if ((currentDirection == null || keyCode != currentDirection)
-				&& (keyCode <= 40 && keyCode >= 37)) {
-			switch (keyCode) {
-				case 37:
-					PLAYER.setQuedDirection(Direction.left);
-					break;
-				case 38:
-					PLAYER.setQuedDirection(Direction.up);
-					break;
-				case 39:
-					PLAYER.setQuedDirection(Direction.right);
-					break;
-				case 40:
-					PLAYER.setQuedDirection(Direction.down);
-					break;
-			}
-
-			return true;
-		}
-
-		return false;
+		// reset keyCode
+		app.keyCode = 0;
 	}
 }

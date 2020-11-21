@@ -34,8 +34,7 @@ public class App extends PApplet {
 			//game = new Game(this);
 		}
 
-		game.tic(this);
-
+		game.run(this);
 	}
 
 	public static void main(String[] args) {

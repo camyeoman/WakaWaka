@@ -6,15 +6,11 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.List;
 
-import processing.core.PImage;
-import processing.core.PApplet;
-
-
 import static java.lang.Math.abs;
 
 public class Ghost extends Agent {
+	static Mode MODE = Mode.SCATTER;
 	static private Ghost CHASER;
-	static Mode MODE;
 
 	protected boolean alive;
 	final Type type;
@@ -35,26 +31,6 @@ public class Ghost extends Agent {
 		} else {
 			this.type = null;
 		}
-	}
-
-	public static void SETUP(Configuration config)
-	{
-		MODE = Mode.SCATTER;
-
-		List<Point> pointList = new ArrayList<>();
-		for (int j=0; j < spriteMap.length; j++) {
-			for (int i=0; i < spriteMap[0].length; i++) {
-				if (spriteMap[j][i] != null && !spriteMap[j][i].isWall()) {
-					pointList.add(new Point(16 * i, 16 * j));
-				}
-			}
-		}
-
-		// Get corners
-		Type.BOT_RIGHT = new Point(16 * spriteMap[0].length, 16 * spriteMap.length);
-		Type.BOT_LEFT = new Point(0 , 16 * spriteMap.length);
-		Type.TOP_RIGHT = new Point(16 * spriteMap[0].length, 0);
-		Type.TOP_LEFT = new Point(0 , 0);
 	}
 
 	// Getter and Setter methods
@@ -90,16 +66,16 @@ public class Ghost extends Agent {
 
 	// Game related methods
 
-	public void tic(Game game)
+	public boolean tic(List<Ghost> GHOSTS, Player PLAYER)
 	{
-		direction = nextDirection(game.PLAYER);
+		direction = nextDirection(PLAYER);
 
 		// collision detection
 
-		Point player = game.PLAYER.point();
+		Point player = PLAYER.point();
 		if ((x == player.x || y == player.y) && point().distance(player) < 15) {
 			if (type == Type.chaser) {
-				List<Ghost> chasers = game.GHOSTS.stream()
+				List<Ghost> chasers = GHOSTS.stream()
 					.filter(g -> g.alive && g.type == Type.chaser)
 					.collect(Collectors.toList());
 
@@ -109,8 +85,7 @@ public class Ghost extends Agent {
 			if (MODE == Mode.FRIGHTENED) {
 				alive = false;
 			} else {
-				game.softReset();
-				game.points--;
+				return false;
 			}
 		} else {
 			// Move ghost
@@ -118,11 +93,15 @@ public class Ghost extends Agent {
 			this.x = point.x;
 			this.y = point.y;
 		}
+
+		return true;
 	}
 
-	public void draw(Game game, int frames)
+	public void draw(Game game)
 	{
+		int frames = game.frames;
 		App app = game.app;
+
 		app.image(game.allSprites.get(getSprite()), displayX(), displayY());
 
 		if (game.debugMode && MODE != Mode.FRIGHTENED) {
@@ -191,7 +170,7 @@ public class Ghost extends Agent {
 	public static Point ambusher(Player PLAYER)
 	{
 		if (MODE == Mode.SCATTER) {
-			return Type.TOP_RIGHT;
+			return Agent.TOP_RIGHT;
 		} else {
 			Point point = PLAYER.translate(PLAYER.direction(), 4 * 16);
 			return point.restrictRange(16*spriteMap[0].length, 16*spriteMap.length);
@@ -201,7 +180,7 @@ public class Ghost extends Agent {
 	public static Point chaser(Player PLAYER)
 	{
 		if (MODE == Mode.SCATTER) {
-			return Type.TOP_LEFT;
+			return Agent.TOP_LEFT;
 		} else {
 			Point point = PLAYER.point();
 			return point.restrictRange(16*spriteMap[0].length, 16*spriteMap.length);
@@ -211,7 +190,7 @@ public class Ghost extends Agent {
 	public static Point whim(Player PLAYER)
 	{
 		if (MODE == Mode.SCATTER) {
-			return Type.BOT_RIGHT;
+			return Agent.BOT_RIGHT;
 		} else if (CHASER == null) {
 			// target player
 			return chaser(PLAYER);
@@ -231,7 +210,7 @@ public class Ghost extends Agent {
 	{
 		int distance = abs(PLAYER.point().distance(current));
 		if (MODE == Mode.SCATTER || distance <= 8 * 16) {
-			return Type.BOT_LEFT;
+			return Agent.BOT_LEFT;
 		} else {
 			return chaser(PLAYER);
 		}
@@ -245,11 +224,6 @@ public class Ghost extends Agent {
 		ignorant,
 		chaser,
 		whim;
-
-		static Point TOP_RIGHT = null;
-		static Point BOT_RIGHT = null;
-		static Point TOP_LEFT = null;
-		static Point BOT_LEFT = null;
 	}
 
 	enum Mode

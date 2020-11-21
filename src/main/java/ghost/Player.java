@@ -3,7 +3,7 @@ package ghost;
 import processing.core.PApplet;
 
 public class Player extends Agent {
-	private Direction directionQued;
+	private Direction queuedDirection;
 	private boolean open;
 
 	/**
@@ -13,7 +13,7 @@ public class Player extends Agent {
 	*/
 	public Player(int x, int y) {
 		super(x, y);
-		this.directionQued = null;
+		this.queuedDirection = null;
 		this.open = true;
 	}
 
@@ -22,22 +22,16 @@ public class Player extends Agent {
 	/**
 	 * Resets player to initial position and resets all directions. This
 	 * partially overwrites the super method of Agent to properlly reset
-	 * the player object by including the directionQued attribute.
+	 * the player object by including the queuedDirection attribute.
 	 */
 	public void softReset() {
 		super.softReset();
-		this.directionQued = null;
+		this.queuedDirection = null;
 	}
 
-	/**
-	 * Sets the directionQued attribute. This is used to interface with
-	 * user input to move the player, as the user input is stored for
-	 * the next time the player is able to change direction.
-	 * @param newDirection, the new direction to que
-	 */
 	public void setQuedDirection(Direction newDirection) {
 		if (newDirection != null) {
-			this.directionQued = newDirection;
+			this.queuedDirection = newDirection;
 		}
 	}
 
@@ -46,12 +40,12 @@ public class Player extends Agent {
 	 * frames the sprite is toggled to open/closed, and while open the
 	 * sprite depends on the direction of travel. If the direction is
 	 * null then then the sprite facing right is shown.
-	 * @param counter, the number of frames elapsed since the game began
+	 * @param frames, the number of frames elapsed since the game began
 	 * @return a Sprite representing current state
 	 */
-	public Sprite getSprite(int counter) {
+	public Sprite getSprite(int frames) {
 		// toggle whether Waka has mouth open
-		if (counter % 8 == 0) {
+		if (frames % 8 == 0) {
 			open = (open) ? false : true;
 		}
 
@@ -78,8 +72,8 @@ public class Player extends Agent {
 	 * valid the player is moved in said direction.
 	 */
 	public void tic() {
-		if (validDirection(directionQued)) {
-			this.direction = this.directionQued;
+		if (validDirection(queuedDirection)) {
+			this.direction = this.queuedDirection;
 		}
 
 		if (direction != null && validDirection(direction)) {
@@ -90,14 +84,47 @@ public class Player extends Agent {
 	}
 
 	/**
+	 * Sets the queuedDirection attribute. This is used to interface with
+	 * user input to move the player, as the user input is stored for
+	 * the next time the player is able to change direction.
+	 * @param newDirection, the new direction to que
+	 */
+	public boolean readInput(int keyCode)
+	{
+		int current = (direction == null) ? 0 : direction.KEY_CODE;
+		if (direction != null || keyCode != current) {
+			switch (keyCode) {
+				case 37:
+					queuedDirection = Direction.left;
+					break;
+				case 38:
+					queuedDirection = Direction.up;
+					break;
+				case 39:
+					queuedDirection = Direction.right;
+					break;
+				case 40:
+					queuedDirection = Direction.down;
+					break;
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Draws the player.
-	 * @param counter, the number of frames elapsed since the game began
+	 * @param frames, the number of frames elapsed since the game began
 	 * @param game, the current game object
 	 */
-	public void draw(Game game, int counter) {
+	public void draw(Game game) {
+		int frames = game.frames;
 		App app = game.app;
+		
 
-		Sprite sprite = getSprite(counter);
+		Sprite sprite = getSprite(frames);
 		app.image(game.allSprites.get(sprite), displayX(), displayY());
 	}
 }

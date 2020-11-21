@@ -3,8 +3,8 @@ package ghost;
 import processing.core.PApplet;
 
 public class GameObject extends Coordinate {
-	private Type type;
 	private boolean eaten;
+	final Type type;
 
 	public boolean isEaten() {
 		return eaten;
@@ -13,15 +13,16 @@ public class GameObject extends Coordinate {
 	public GameObject(int x, int y, Sprite sprite) {
 		super(x, y);
 
-		if (sprite == null) {
-			this.type = null;
-		} else {
+		Type temp = null;
+		if (sprite != null) {
 			switch (sprite) {
-				case superFruit:  this.type = Type.superFruit;  break;
-				case fruit:       this.type = Type.fruit;       break;
-				case soda:        this.type = Type.soda;        break;
+				case superFruit:  temp = Type.superFruit;  break;
+				case fruit:       temp = Type.fruit;       break;
+				case soda:        temp = Type.soda;        break;
 			}
 		}
+
+		this.type = temp;
 	}
 
 	public Sprite getSprite() {
@@ -44,31 +45,26 @@ public class GameObject extends Coordinate {
 
 	// collision methods
 
-	public void fruit(Game game) {
+	public static void superFruit(Game game) {
+		game.modeControl.frightened();
+	}
+
+	public static void fruit(Game game) {
 		game.points++;
 	}
 
-	public void superFruit(Game game) {
-		//System.out.println("super fruit");
-		game.modeControl.frightened();
-		//System.out.println(game.modeControl);
-	}
-
-	public void soda(Game game) {
+	public static void soda(Game game) {
 		// TODO
 	}
 
 	// Active methods
-	public void tic(Game game) {
-		if (point().distance(game.PLAYER.point()) < 10) {
+	public boolean tic(Player PLAYER) {
+		if (point().distance(PLAYER.point()) < 10) {
 			eaten = true;
-
-			switch (type) {
-				case superFruit:  superFruit(game);  break;
-				case fruit:       fruit(game);       break;
-				case soda:        soda(game);        break;
-			}
+			return false;
 		}
+
+		return true;
 	}
 
 	public void draw(Game game) {
