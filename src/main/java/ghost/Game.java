@@ -1,13 +1,13 @@
 package ghost;
 
 import java.util.stream.Collectors;
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Arrays;
+import java.lang.Thread;
 import java.util.Queue;
 import java.util.List;
 import java.util.Map;
-import java.lang.Thread;
 
 import processing.core.PApplet;
 import processing.core.PFont;
