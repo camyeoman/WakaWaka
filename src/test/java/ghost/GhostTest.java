@@ -5,13 +5,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.*;
 import java.util.stream.*;
 
-public class GhostTest {
-	/*
+public class GhostTest extends TestTools {
+
 	@Test
 	public void constructor()
 	{
-		Agent.setup(testMap, 1);
-
 		Ghost ghost;
 
 		Sprite[] ghosts = new Sprite[]{
@@ -47,16 +45,17 @@ public class GhostTest {
 	@Test
 	public void setup()
 	{
-		Agent.setup(testMap, 1);
 		// TODO sanitise maps before passing them !!!
-		Ghost.setup(new Player(1, 1), new ArrayList<>(), new ArrayList<>());
+		Configuration config = new Configuration();
+		config.spriteMap = testMap;
+		Ghost.SETUP(config);
+
+		assertEquals(Ghost.spriteMap, testMap);
 	}
 
 	@Test
 	public void validDirections()
 	{
-		Agent.setup(testMap, 1);
-
 		Sprite[] ghosts = new Sprite[]{
 			Sprite.ghostAmbusher,
 			Sprite.ghostIgnorant,
@@ -106,68 +105,66 @@ public class GhostTest {
 	}
 
 	@Test
-	public void toggleScatter()
-	{
-		assertFalse(Ghost.isScatter());
-		Ghost.toggleScatter();
-		assertTrue(Ghost.isScatter());
-		Ghost.toggleScatter();
-		assertFalse(Ghost.isScatter());
-		Ghost.toggleScatter();
-		assertTrue(Ghost.isScatter());
-	}
-
-	@Test
 	public void ambusher()
 	{
-		Agent.setup(bigTestMap, 1);
+		Configuration config = new Configuration();
+		config.spriteMap = bigTestMap;
+		config.speed = 1;
+		Agent.SETUP(config);
+
 		Point target;
 
 		Player player = new Player(96, 96);
 		Point current = new Point(80, 80);
-		Ghost.setup(player, new ArrayList<>(), new ArrayList<>());
 
 		// scatter behaviour
 
-		Point corner = Ghost.Type.TOP_RIGHT;
+		Ghost.MODE = Ghost.Mode.SCATTER;
+
+		Point corner = Agent.TOP_RIGHT;
 		player.direction = Direction.right;
-		target = Ghost.ambusher(current, player);
+		target = Ghost.ambusher(player);
 		assertTrue(target.x == corner.x && target.y == corner.y);
 
 		// Test chasing behaviour
 		
-		Ghost.toggleScatter();
+		Ghost.MODE = Ghost.Mode.CHASE;
 
 		player.direction = Direction.right;
-		target = Ghost.ambusher(current, player);
+		target = Ghost.ambusher(player);
 		assertTrue(target.x == player.x + 16 * 4 && target.y == player.y);
 
 		player.direction = Direction.left;
-		target = Ghost.ambusher(current, player);
+		target = Ghost.ambusher(player);
 		assertTrue(target.x == player.x - 16 * 4 && target.y == player.y);
 
-		player.direction = Direction.down; target = Ghost.ambusher(current, player);
+		player.direction = Direction.down;
+		target = Ghost.ambusher(player);
 		assertTrue(target.x == player.x && target.y == player.y + 16 * 4);
 
 		player.direction = Direction.up;
-		target = Ghost.ambusher(current, player);
+		target = Ghost.ambusher(player);
 		assertTrue(target.x == player.x && target.y == player.y - 16 * 4);
 	}
 
 	@Test
 	public void ignorant()
 	{
-		Agent.setup(bigTestMap, 1);
+		Configuration config = new Configuration();
+		config.spriteMap = bigTestMap;
+		config.speed = 1;
+		Agent.SETUP(config);
+
 		Point target;
 
 		Player player = new Player(96, 96);
 		Point current = new Point(32, 32);
 
-		Ghost.setup(player, new ArrayList<>(), new ArrayList<>());
-
 		// scatter behaviour
 
-		Point corner = Ghost.Type.BOT_LEFT;
+		Ghost.MODE = Ghost.Mode.SCATTER;
+
+		Point corner = Agent.BOT_LEFT;
 		player.direction = Direction.right;
 
 		target = Ghost.ignorant(current, player);
@@ -175,7 +172,7 @@ public class GhostTest {
 
 		// Test chasing behaviour (in range)
 
-		Ghost.toggleScatter();
+		Ghost.MODE = Ghost.Mode.CHASE;
 
 		target = Ghost.ignorant(current, player);
 		assertTrue(target.x == corner.x && target.y == corner.y);
@@ -191,52 +188,63 @@ public class GhostTest {
 	@Test
 	public void chaser()
 	{
-		Agent.setup(testMap, 1);
+		Configuration config = new Configuration();
+		config.spriteMap = bigTestMap;
+		config.speed = 1;
+		Agent.SETUP(config);
+
 		Point target;
 
 		Player player = new Player(32, 32);
 		Point current = new Point(80, 80);
-		Ghost.setup(player, new ArrayList<>(), new ArrayList<>());
 
 		// scatter behaviour
 
-		Point corner = Ghost.Type.TOP_LEFT;
+		Ghost.MODE = Ghost.Mode.SCATTER;
+
+		Point corner = Agent.TOP_LEFT;
 		player.direction = Direction.right;
-		target = Ghost.chaser(current, player);
-		assertTrue(target.x == corner.x && target.y == corner.y);
+		target = Ghost.chaser(player);
+		System.out.println(target);
+		assertEquals(target, corner);
 
 		// Test chasing behaviour
 
-		Ghost.toggleScatter();
+		Ghost.MODE = Ghost.Mode.CHASE;
 
 		player.direction = Direction.right;
-		target = Ghost.chaser(current, player);
+		target = Ghost.chaser(player);
 		assertTrue(target.x == player.x && target.y == player.y);
 	}
 
 	@Test
 	public void whim()
 	{
-		Agent.setup(bigTestMap, 1);
+		Configuration config = new Configuration();
+		config.spriteMap = bigTestMap;
+		config.speed = 1;
+		Agent.SETUP(config);
+
 		Point target;
 
 		Player player = new Player(32, 32);
 		Point current = new Point(190, 190);
-		Ghost.setup(player, new ArrayList<>(), new ArrayList<>());
 
 		// scatter behaviour
 
-		Point corner = Ghost.Type.BOT_RIGHT;
+		Ghost.MODE = Ghost.Mode.SCATTER;
+
+		Point corner = Agent.BOT_RIGHT;
 		player.direction = Direction.right;
-		target = Ghost.whim(current, player);
+		target = Ghost.whim(player);
 		assertTrue(target.x == corner.x && target.y == corner.y);
 
 		// test chasing phase (no chaser)
 
-		Ghost.toggleScatter();
+		Ghost.MODE = Ghost.Mode.CHASE;
 
 		player.direction = Direction.right;
-		target = Ghost.whim(current, player);
+		target = Ghost.whim(player);
 		assertTrue(target.x == player.x && target.y == player.y);
 
 		// TODO test other behaviour
@@ -262,56 +270,4 @@ public class GhostTest {
 		ghost.direction = null;
 	}
 
-	static Sprite[][] testMap;
-	static // test map
-	{
-		String[][] stringMap = new String[][] {
-			{ "3","1","1","1","1","1","1","1","1","1","1","1","4" },
-			{ "2","p","a","c","i","w","7","7","7","7","7","7","2" },
-			{ "2","1","1","1","1","1","1","1","1","4","7","7","2" },
-			{ "2","2","2","7","7","2","7","7","7","2","7","7","2" },
-			{ "2","7","2","2","7","7","7","2","7","7","7","7","2" },
-			{ "5","1","1","1","1","1","1","1","1","1","1","1","6" }
-		};
-
-		testMap = new Sprite[6][13];
-
-		for (int j=0; j < 6; j++) {
-			for (int i=0; i < 13; i++) {
-				testMap[j][i] = Sprite.getSprite(stringMap[j][i]);
-			}
-		}
-	}
-
-	static Sprite[][] bigTestMap;
-	static // test map
-	{
-		String[][] stringMap = new String[][] {
-			{ "3","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","4" },
-			{ "2","p","a","c","i","w","7","7","7","7","7","7","7","7","7","7","2" },
-			{ "2","1","1","1","1","1","1","1","1","1","1","1","1","4","7","7","2" },
-			{ "2","2","2","7","7","2","7","7","7","7","7","7","7","2","7","7","2" },
-			{ "2","7","2","2","7","7","7","2","2","2","2","2","7","7","7","7","2" },
-			{ "2","7","2","2","7","7","7","2","2","2","2","2","7","7","7","7","2" },
-			{ "2","7","2","2","7","7","7","2","2","2","2","2","7","7","7","7","2" },
-			{ "2","7","2","2","7","7","7","2","2","2","2","2","7","7","7","7","2" },
-			{ "2","7","2","2","7","7","7","2","2","2","2","2","7","7","7","7","2" },
-			{ "2","7","2","2","7","7","7","2","2","2","2","2","7","7","7","7","2" },
-			{ "2","7","2","2","7","7","7","2","2","2","2","2","7","7","7","7","2" },
-			{ "2","7","2","2","7","7","7","2","2","2","2","2","7","7","7","7","2" },
-			{ "2","7","2","2","7","7","7","2","2","2","2","2","7","7","7","7","2" },
-			{ "2","7","2","2","7","7","7","2","2","2","2","2","7","7","7","7","2" },
-			{ "5","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","6" }
-		};
-
-
-		bigTestMap = new Sprite[stringMap.length][stringMap[0].length];
-
-		for (int j=0; j < bigTestMap.length; j++) {
-			for (int i=0; i < bigTestMap[0].length; i++) {
-				bigTestMap[j][i] = Sprite.getSprite(stringMap[j][i]);
-			}
-		}
-	}
-	*/
 }
