@@ -14,7 +14,7 @@ import processing.core.PFont;
 import processing.core.PImage;
 
 public class Game {
-	List<Ghost> GHOSTS = new ArrayList<>();
+	List<Ghost> GHOSTS;
 	Player PLAYER;
 
 	// Configuration settings
@@ -39,20 +39,21 @@ public class Game {
 	public Game(App app)
 	{
 		this.app = app;
+
 		gameObjects = new ArrayList<>();
+		GHOSTS = new ArrayList<>();
 
 		Configuration config = new Configuration("config.json");
 
-		modeControl = new ModeController(config.modeLengths);
-
-		initialLives = config.lives;
-		lives = config.lives;
-		spriteMap = config.spriteMap;
+		this.modeControl = new ModeController(config);
+		this.spriteMap = config.spriteMap;
+		this.initialLives = config.lives;
+		this.lives = config.lives;
 
 		createObjects();
 
 		// setup classes
-		Agent.SETUP(spriteMap, config.speed);
+		Agent.SETUP(config);
 		Ghost.SETUP(config, PLAYER);
 	}
 
@@ -63,9 +64,10 @@ public class Game {
 
 	public void loadAssets()
 	{
-		allSprites = new HashMap<>();
-
 		// load sprites
+		allSprites = new HashMap<>();
+		
+		// Walls
 		allSprites.put(Sprite.horizontal, pathLoad("horizontal"));
 		allSprites.put(Sprite.vertical, pathLoad("vertical"));
 		allSprites.put(Sprite.upLeft, pathLoad("upLeft"));
@@ -73,25 +75,33 @@ public class Game {
 		allSprites.put(Sprite.downLeft, pathLoad("downLeft"));
 		allSprites.put(Sprite.downRight, pathLoad("downRight"));
 
+		// Player
 		allSprites.put(Sprite.playerRight, pathLoad("playerRight"));
 		allSprites.put(Sprite.playerLeft, pathLoad("playerLeft"));
 		allSprites.put(Sprite.playerDown, pathLoad("playerDown"));
 		allSprites.put(Sprite.playerUp, pathLoad("playerUp"));
 		allSprites.put(Sprite.playerClosed, pathLoad("playerClosed"));
 
+		// Ghosts
 		allSprites.put(Sprite.ghostFrightened, pathLoad("frightened"));
 		allSprites.put(Sprite.ghostIgnorant, pathLoad("ignorant"));
 		allSprites.put(Sprite.ghostAmbusher, pathLoad("ambusher"));
 		allSprites.put(Sprite.ghostChaser, pathLoad("chaser"));
 		allSprites.put(Sprite.ghostWhim, pathLoad("whim"));
 
+		// Game objects
 		allSprites.put(Sprite.fruit, pathLoad("fruit"));
 		allSprites.put(Sprite.superFruit, pathLoad("superFruit"));
+		allSprites.put(Sprite.soda, pathLoad("soda"));
 
 		// load font
+		char[] letters = new char[]{
+			'A','E','G','I','M','N','O','R','U','V','W','Y',' '
+		};
+
 		app.textFont(
-			app.createFont("src/main/resources/PressStart2P-Regular.ttf",
-				20, false, new char[]{ 'G','a','m','e','O','v','e','r',' ' }
+			app.createFont(
+				"src/main/resources/PressStart2P-Regular.ttf", 20, false, letters
 			)
 		);
 	}
@@ -105,12 +115,14 @@ public class Game {
 				if (spriteMap[j][i] != null) {
 
 					if (spriteMap[j][i] == Sprite.playerRight) {
+						// create player instance
 						PLAYER = new Player(16 * i, 16 * j);
 					} else if (spriteMap[j][i].isGhost()) {
-						// constructor adds to internal list
+						// create ghost instances
 						GHOSTS.add(new Ghost(16 * i, 16 * j, spriteMap[j][i]));
-					} else if (spriteMap[j][i] == Sprite.fruit) {
-						gameObjects.add(new GameObject(GameObject.Type.fruit, 16 * i, 16 * j));
+					} else if (spriteMap[j][i].isGameObject()) {
+						// create game object instances
+						gameObjects.add(new GameObject(16 * i, 16 * j, spriteMap[j][i]));
 					}
 
 				}
@@ -134,7 +146,7 @@ public class Game {
 
 		// draw scoreboard
 		for (int i=0; i < lives; i++) {
-			app.image(allSprites.get(PLAYER.staticSprite()), 16 + 32 * i, 543);
+			app.image(allSprites.get(Sprite.playerRight), 16 + 32 * i, 543);
 		}
 	}
 
@@ -167,7 +179,7 @@ public class Game {
 	}
 
 	// Tic methods
-	
+
 	public void softReset()
 	{
 		GHOSTS.stream().forEach(Agent::softReset);
@@ -190,7 +202,7 @@ public class Game {
 			app.keyCode = 0;
 
 			// update player
-			PLAYER.tic(this, frames);
+			PLAYER.tic();
 
 			// update ghosts
 			for (Ghost ghost : GHOSTS) {
@@ -208,7 +220,7 @@ public class Game {
 
 	public boolean refreshMovementCache(int keyCode)
 	{
-		Direction direct = PLAYER.getDirection();
+		Direction direct = PLAYER.direction();
 		Integer currentDirection = (direct == null) ? null : direct.KEY_CODE;
 
 		if (keyCode == 32) {

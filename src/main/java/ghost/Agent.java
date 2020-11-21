@@ -1,70 +1,64 @@
 package ghost;
+
 import processing.core.PApplet;
-import java.util.regex.Pattern;
-import java.util.*;
-import java.util.stream.*;
 
-interface Lambda<T, U> {
-	public U eval(T input);
-}
+import java.util.List;
+import java.util.ArrayList;
 
-public class Agent {
+public class Agent extends Coordinate {
 	protected static Sprite[][] spriteMap;
 	protected static int speed = 0;
 
 	protected Direction direction;
-	protected int x, y;
-
 	final Point intialPoint;
 
-	public Agent(int x, int y)
-	{
+	/**
+	* Initialises an agent with an x and a y coordinate.
+	* @param x, the x coordinate
+	* @param y, the y coordinate
+	*/
+	public Agent(int x, int y) {
+		super(x, y);
+
 		// Store initial position for soft reset
 		this.intialPoint = new Point(x, y);
-
 		this.direction = null;
-		this.x = x;
-		this.y = y;
 	}
 
-	public void softReset()
-	{
+	/**
+	 * Initialises internal static variables.
+	 * @param config, a configuration object with the needed data
+	 */
+	public static void SETUP(Configuration config) {
+		Agent.spriteMap = config.spriteMap;
+
+		if (config.speed == 1 || config.speed == 2) {
+			Agent.speed = config.speed;
+		}
+	}
+
+	// Getter and Setter methods
+
+	/**
+	 * Resets an agent to initial position and resets direction. This is used
+	 * when a player loses a life to a ghost, and this method is partially
+	 * overwritten in the sublcasses Player and ghost.
+	 */
+	public void softReset() {
 		this.x = intialPoint.x;
 		this.y = intialPoint.y;
 		this.direction = null;
 	}
 
-	public float displayX()
-	{
-		return (float)(x - 5);
-	}
-
-	public float displayY()
-	{
-		return (float)(y - 5);
-	}
-
-	public int getX()
-	{
-		return x;
-	}
-
-	public int getY()
-	{
-		return y;
-	}
-
-	public Point point()
-	{
-		return new Point(x, y);
-	}
-
-	public Direction getDirection()
-	{
+	/**
+	 * Returns current direction.
+	 * @return current direction
+	 */
+	public Direction direction() {
 		return direction;
 	}
 
-	// Position and Direction
+	// Position and Direction methods
 
 	/**
 	 * Return a point object that is the current Agent's position, but translated
@@ -73,8 +67,7 @@ public class Agent {
 	 * @param magnitude, the integer size of the displacement
 	 * @return A new Point object with translated coordinates
 	 */
-	public Point translate(Direction direction, int magnitude)
-	{
+	public Point translate(Direction direction, int magnitude) {
 		Point point = point();
 
 		if (direction != null) {
@@ -89,15 +82,14 @@ public class Agent {
 		return point;
 	}
 
-	// Navigation
+	// Navigation methods
 
 	/**
 	 * Return a whether a specified direction is valid.
 	 * @param direction, the direction to verify
 	 * @return a boolean representing if the direction is valid
 	 */
-	public boolean validDirection(Direction newDirection)
-	{
+	public boolean validDirection(Direction newDirection) {
 		if (newDirection == null) {
 			return false;
 		}
@@ -127,8 +119,7 @@ public class Agent {
 	 * Returns a list of all valid directions.
 	 * @return the list of valid directions
 	 */
-	public List<Direction> validDirections()
-	{
+	public List<Direction> validDirections() {
 		List<Direction> directions = new ArrayList<>();
 		
 		for (Direction d : Direction.values()) {
@@ -140,26 +131,13 @@ public class Agent {
 		return directions;
 	}
 
-	// App related processes
+	// Misc methods
 
 	/**
-	 * Initialises internal static variables.
-	 * @param map, the game map, made of Sprite objects
-	 * @param speed, the speed, can either be 1 or 2
+	 * Returns a string containing the coordinates and direction.
+	 * @return a string representing the direction and coordinates
 	 */
-	public static void SETUP(Sprite[][] map, int speed)
-	{
-		Agent.spriteMap = map;
-
-		if (speed == 1 || speed == 2) {
-			Agent.speed = speed;
-		}
-	}
-
-	// Misc
-
-	public String toString()
-	{
+	public String toString() {
 		return String.format(
 			"(%s, %s) heading %s",
 			x,

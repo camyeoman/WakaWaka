@@ -29,6 +29,7 @@ public enum Sprite {
 	// game objects
 	fruit,
 	superFruit,
+	soda,
 
 	// walls
 	horizontal,
@@ -49,6 +50,8 @@ public enum Sprite {
 			case "5":  sprite = Sprite.downLeft;       break;
 			case "6":  sprite = Sprite.downRight;      break;
 			case "7":  sprite = Sprite.fruit;          break;
+			case "8":  sprite = Sprite.superFruit;     break;
+			case "9":  sprite = Sprite.soda;           break;
 			case "a":  sprite = Sprite.ghostAmbusher;  break;
 			case "i":  sprite = Sprite.ghostIgnorant;  break;
 			case "c":  sprite = Sprite.ghostChaser;    break;
@@ -71,6 +74,16 @@ public enum Sprite {
 		return ghost;
 	}
 
+	public boolean isGameObject() {
+		boolean gameObject = false;
+		switch (this) {
+			case superFruit:  gameObject = true;  break;
+			case fruit:       gameObject = true;  break;
+			case soda:        gameObject = true;  break;
+		}
+
+		return gameObject;
+	}
 	public boolean isWall() {
 		boolean wall = false;
 		switch (this) {

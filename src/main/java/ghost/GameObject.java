@@ -1,32 +1,31 @@
 package ghost;
 
-import processing.core.PImage;
-import java.util.*;
+import processing.core.PApplet;
 
-public class GameObject {
+public class GameObject extends Coordinate {
 	private Type type;
-	private int x, y;
 
-	public int getX() { return x; }
-	public int getY() { return y; }
+	public GameObject(int x, int y, Sprite sprite) {
+		super(x, y);
 
-	public float displayX() { return (float)(x - 6); }
-	public float displayY() { return (float)(y - 6); }
-
-	public Point point() { return new Point(x, y); }
-
-	public GameObject(Type type, int x, int y) {
-		this.x = x;
-		this.y = y;
-		this.type = type;
+		if (sprite == null) {
+			this.type = null;
+		} else {
+			switch (sprite) {
+				case superFruit:  this.type = Type.superFruit;  break;
+				case fruit:       this.type = Type.fruit;       break;
+				case soda:        this.type = Type.soda;        break;
+			}
+		}
 	}
 
 	public Sprite getSprite() {
 		Sprite sprite = null;
 
 		switch (type) {
-			case fruit:       sprite = Sprite.fruit;       break;
 			case superFruit:  sprite = Sprite.superFruit;  break;
+			case fruit:       sprite = Sprite.fruit;       break;
+			case soda:        sprite = Sprite.soda;        break;
 		}
 
 		return sprite;
@@ -34,7 +33,31 @@ public class GameObject {
 
 	enum Type {
 		fruit,
-		superFruit;
+		superFruit,
+		soda;
+	}
+
+	// collision methods
+
+	public void fruit(Game game) {
+		game.points++;
+	}
+
+	public void superFruit(Game game) {
+		game.modeControl.frightened();
+	}
+
+	public void soda(Game game) {
+		// TODO
+	}
+
+	// Active methods
+	public void tic(Game game) {
+		switch (type) {
+			case superFruit: superFruit(game); break;
+			case fruit: fruit(game); break;
+			case soda: soda(game); break;
+		}
 	}
 
 	public void draw(Game game) {

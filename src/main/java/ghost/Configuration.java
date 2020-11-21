@@ -19,20 +19,26 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class Configuration {
-	Sprite[][] spriteMap;
 
-	// Attributes
+	// Mode control
 	List<Integer> modeLengths;
+	int frightenedDuration;
+
+	// Map file name
 	String fileName;
+
+	// Game attributes
+	Sprite[][] spriteMap;
 	int lives;
 	int speed;
-	App app;
 
 	public Configuration(String configFile)
 	{
 		parseConfig(configFile);
 		parseMap();
 	}
+
+	public Configuration() {}
 
 	// Helper functions
 
@@ -66,6 +72,9 @@ public class Configuration {
 		// Name of map file
 		this.fileName = (String) config.get("map"); 
 
+		// frightened duration
+		this.frightenedDuration= Integer.parseInt(config.get("frightenedLength").toString());
+
 		// Mode lengths
 		String arrayString = ((JSONArray) config.get("modeLengths")).toString();
 		String regex = "(?<=[\\[\\] ,])\\d+(?![0-9.])";
@@ -93,7 +102,7 @@ public class Configuration {
 			Scanner fileReader = new Scanner(f);
 
 			for (int i=0; fileReader.hasNextLine(); i++) {
-				String[] line = extractMatches("[0-7paciw]",fileReader.nextLine());
+				String[] line = extractMatches("[0-9paciw]",fileReader.nextLine());
 
 				if (i > 36 || line.length != 28) {
 					// error

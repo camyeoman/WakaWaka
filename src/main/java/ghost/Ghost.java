@@ -1,8 +1,6 @@
 package ghost;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.Comparator;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -35,11 +33,6 @@ public class Ghost extends Agent {
 		} else {
 			this.type = null;
 		}
-	}
-
-	public void softReset() {
-		super.softReset();
-		this.alive = true;
 	}
 
 	public static void RESET()
@@ -101,6 +94,12 @@ public class Ghost extends Agent {
 		return sprite;
 	}
 
+	public void softReset()
+	{
+		super.softReset();
+		this.alive = true;
+	}
+
 	public Mode getMode()
 	{
 		return MODE;
@@ -153,7 +152,7 @@ public class Ghost extends Agent {
 		if (game.debugMode) {
 			app.beginShape();
 			app.stroke(256,256,256);
-			app.line(x + 9, y + 9, target.x + 9, target.y + 9);
+			app.line(x + 8, y + 8, target.x + 8, target.y + 8);
 			app.endShape();
 		}
 	}
@@ -217,7 +216,7 @@ public class Ghost extends Agent {
 		if (MODE == Mode.FRIGHTENED) {
 			return Type.TOP_RIGHT;
 		} else {
-			Point point = PLAYER.translate(PLAYER.getDirection(), 4 * 16);
+			Point point = PLAYER.translate(PLAYER.direction(), 4 * 16);
 			return point.restrictRange(16*spriteMap[0].length, 16*spriteMap.length);
 		}
 	}
@@ -241,7 +240,7 @@ public class Ghost extends Agent {
 			return chaser(PLAYER);
 		} else {
 			Point chaser = CHASER.point();
-			Point target = PLAYER.translate(PLAYER.getDirection(), 2 * 16);
+			Point target = PLAYER.translate(PLAYER.direction(), 2 * 16);
 
 			int X = chaser.x + 2 * ( target.x - chaser.x );
 			int Y = chaser.y + 2 * ( target.y - chaser.y );
