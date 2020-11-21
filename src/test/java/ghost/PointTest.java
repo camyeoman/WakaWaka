@@ -68,7 +68,6 @@ public class PointTest {
 
 		point = new Point(10, 10).restrictRange(50, 50);
 		assertTrue(point.x == 10 && point.y == 10);
-
 	}
 
 	@Test
@@ -84,15 +83,42 @@ public class PointTest {
 		Point point, testPoint;
 
 		point = new Point(16 + 5, 16);
-		testPoint = point.gridSnap(Direction.left);
-		assertTrue(testPoint.x == 16 && testPoint.y == 16);
-		testPoint = point.gridSnap(Direction.right);
-		assertTrue(testPoint.x == 32 && testPoint.y == 16);
+		assertEquals(point.gridSnap(Direction.left), new Point(16, 16));
+		assertEquals(point.gridSnap(Direction.right), new Point(32, 16));
 
 		point = new Point(16, 16 - 5);
-		testPoint = point.gridSnap(Direction.up);
-		assertTrue(testPoint.x == 16 && testPoint.y == 0);
-		testPoint = point.gridSnap(Direction.down);
-		assertTrue(testPoint.x == 16 && testPoint.y == 16);
+		assertEquals(point.gridSnap(Direction.up), new Point(16, 0));
+		assertEquals(point.gridSnap(Direction.down), new Point(16, 16));
+
+		point = new Point(16, 16);
+		for (Direction d : Direction.values()) {
+			assertEquals(point, point.gridSnap(d));
+		}
+	}
+
+	@Test
+	public void equals() {
+		Point[] pointsA = new Point[]{
+			new Point(16,  16), new Point(32,  16), new Point(48,  16),
+			new Point(64,  16), new Point(80,  16), new Point(96,  16)
+		};
+
+		Point[] pointsB = new Point[]{
+			new Point(16,  16), new Point(32,  16), new Point(48,  16),
+			new Point(64,  16), new Point(80,  16), new Point(96,  16)
+		};
+
+		Point[] pointsC = new Point[]{
+			new Point(17,  17), new Point(33,  17), new Point(49,  17),
+			new Point(65,  17), new Point(81,  17), new Point(97,  17)
+		};
+
+		for (int i=0; i < pointsA.length; i++) {
+			assertTrue(pointsA[i] != pointsB[i]);
+			assertEquals(pointsA[i], pointsB[i]);
+			assertNotEquals(pointsA[i], pointsC[i]);
+		}
+
+		assertNotEquals(new Point(1, 1),"hello");
 	}
 }

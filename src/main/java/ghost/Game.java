@@ -24,7 +24,7 @@ public class Game {
 
 	// Objects
 	ModeController modeControl;
-	List<GameObject> gameObjects;
+	List<GameObject> GAME_OBJECTS;
 
 	// Map
 	private Sprite[][] spriteMap;
@@ -40,7 +40,7 @@ public class Game {
 	{
 		this.app = app;
 
-		gameObjects = new ArrayList<>();
+		GAME_OBJECTS = new ArrayList<>();
 		GHOSTS = new ArrayList<>();
 
 		Configuration config = new Configuration("config.json");
@@ -54,7 +54,7 @@ public class Game {
 
 		// setup classes
 		Agent.SETUP(config);
-		Ghost.SETUP(config, PLAYER);
+		Ghost.SETUP(config);
 	}
 
 	private PImage pathLoad(String str)
@@ -122,7 +122,7 @@ public class Game {
 						GHOSTS.add(new Ghost(16 * i, 16 * j, spriteMap[j][i]));
 					} else if (spriteMap[j][i].isGameObject()) {
 						// create game object instances
-						gameObjects.add(new GameObject(16 * i, 16 * j, spriteMap[j][i]));
+						GAME_OBJECTS.add(new GameObject(16 * i, 16 * j, spriteMap[j][i]));
 					}
 
 				}
@@ -152,18 +152,6 @@ public class Game {
 
 	public void drawGameObjects(App app)
 	{
-		for (int i=0; i < gameObjects.size(); i++) {
-			GameObject obj = gameObjects.get(i);
-			obj.draw(this);
-			if (obj.point().distance(PLAYER.point()) < 1) {
-				points++;
-				gameObjects.remove(i--);
-			}
-		}
-
-		if (gameObjects.size() == 0) {
-			endScreen(app, true);
-		}
 	}
 
 	public void endScreen(App app, boolean won)
@@ -187,30 +175,46 @@ public class Game {
 		lives--;
 	}
 
+	public void drawGame(App app)
+	{
+		drawMap(app);
+		PLAYER.draw(this, frames);
+
+		GAME_OBJECTS.stream()
+			.forEach(g -> g.draw(this));
+
+		GHOSTS.stream()
+			.filter(g -> g.alive)
+			.forEach(g -> g.draw(this, frames));
+	}
+	
 	public void tic(App app)
 	{
 		if (lives > 0) {
-			drawMap(app);
-			drawGameObjects(app);
+			// Draw
+			drawGame(app);
 
-			GHOSTS.stream()
-				.filter(g -> g.alive)
-				.forEach(g -> g.draw(this, frames));
-
-			// update player direction based using input
+			// Update
 			refreshMovementCache(app.keyCode);
 			app.keyCode = 0;
+			Ghost.MODE = modeControl.update();
 
-			// update player
+			// Player
 			PLAYER.tic();
 
-			// update ghosts
-			for (Ghost ghost : GHOSTS) {
-				if (!ghost.tic(this)) {
-					softReset();
-					break;
-				}
-			}
+			// Game objects
+			GAME_OBJECTS.stream()
+				.forEach(g -> g.tic(this));
+
+			// Ghosts
+			GHOSTS.stream()
+				.filter(g -> g.alive)
+				.forEach(g -> g.tic(this));
+
+			// Remove eaten game objects
+			GAME_OBJECTS = GAME_OBJECTS.stream()
+				.filter(obj -> !obj.isEaten())
+				.collect(Collectors.toList());
 
 			frames++;
 		} else {

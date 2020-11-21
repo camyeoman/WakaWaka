@@ -4,6 +4,11 @@ import processing.core.PApplet;
 
 public class GameObject extends Coordinate {
 	private Type type;
+	private boolean eaten;
+
+	public boolean isEaten() {
+		return eaten;
+	}
 
 	public GameObject(int x, int y, Sprite sprite) {
 		super(x, y);
@@ -44,7 +49,9 @@ public class GameObject extends Coordinate {
 	}
 
 	public void superFruit(Game game) {
+		//System.out.println("super fruit");
 		game.modeControl.frightened();
+		//System.out.println(game.modeControl);
 	}
 
 	public void soda(Game game) {
@@ -53,10 +60,14 @@ public class GameObject extends Coordinate {
 
 	// Active methods
 	public void tic(Game game) {
-		switch (type) {
-			case superFruit: superFruit(game); break;
-			case fruit: fruit(game); break;
-			case soda: soda(game); break;
+		if (point().distance(game.PLAYER.point()) < 10) {
+			eaten = true;
+
+			switch (type) {
+				case superFruit:  superFruit(game);  break;
+				case fruit:       fruit(game);       break;
+				case soda:        soda(game);        break;
+			}
 		}
 	}
 

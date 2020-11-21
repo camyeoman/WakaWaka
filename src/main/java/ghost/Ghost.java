@@ -1,18 +1,20 @@
 package ghost;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Arrays;
 import java.util.stream.Collectors;
+import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.List;
 
 import processing.core.PImage;
 import processing.core.PApplet;
+
 
 import static java.lang.Math.abs;
 
 public class Ghost extends Agent {
 	static private Ghost CHASER;
-	static private Mode MODE;
+	static Mode MODE;
 
 	protected boolean alive;
 	final Type type;
@@ -35,13 +37,10 @@ public class Ghost extends Agent {
 		}
 	}
 
-	public static void RESET()
+	public static void SETUP(Configuration config)
 	{
-		Ghost.MODE = Mode.SCATTER;
-	}
+		MODE = Mode.SCATTER;
 
-	public static void SETUP(Configuration config, Player player)
-	{
 		List<Point> pointList = new ArrayList<>();
 		for (int j=0; j < spriteMap.length; j++) {
 			for (int i=0; i < spriteMap[0].length; i++) {
@@ -52,26 +51,10 @@ public class Ghost extends Agent {
 		}
 
 		// Get corners
-		Point bottomRight = new Point(16 * spriteMap[0].length, 16 * spriteMap.length);
-		pointList.sort((a, b) -> a.distance(bottomRight) - b.distance(bottomRight));
-		Type.BOT_RIGHT = pointList.get(0);
-
-		Point bottomLeft = new Point(0 , 16 * spriteMap.length);
-		pointList.sort((a, b) -> a.distance(bottomLeft) - b.distance(bottomLeft));
-		Type.BOT_LEFT = pointList.get(0);
-
-		Point topRight = new Point(16 * spriteMap[0].length, 0);
-		pointList.sort((a, b) -> a.distance(topRight) - b.distance(topRight));
-		Type.TOP_RIGHT = pointList.get(0);
-
-		Point topLeft = new Point(0 , 0);
-		pointList.sort((a, b) -> a.distance(topLeft) - b.distance(topLeft));
-		Type.TOP_LEFT = pointList.get(0);
-	}
-
-	public static void UPDATE_MODE(Game game)
-	{
-		MODE = game.modeControl.update();
+		Type.BOT_RIGHT = new Point(16 * spriteMap[0].length, 16 * spriteMap.length);
+		Type.BOT_LEFT = new Point(0 , 16 * spriteMap.length);
+		Type.TOP_RIGHT = new Point(16 * spriteMap[0].length, 0);
+		Type.TOP_LEFT = new Point(0 , 0);
 	}
 
 	// Getter and Setter methods
@@ -107,71 +90,76 @@ public class Ghost extends Agent {
 
 	// Game related methods
 
-	public boolean tic(Game game)
+	public void tic(Game game)
 	{
-		int frames = game.frames;
+		direction = nextDirection(game.PLAYER);
 
-		List<Ghost> ghosts = game.GHOSTS.stream()
-			.filter(g -> g.alive && g.type == Type.chaser)
-			.collect(Collectors.toList());
+		// collision detection
 
-		CHASER = (ghosts.size() > 0) ? ghosts.get(0) : null;
+		Point player = game.PLAYER.point();
+		if ((x == player.x || y == player.y) && point().distance(player) < 15) {
+			if (type == Type.chaser) {
+				List<Ghost> chasers = game.GHOSTS.stream()
+					.filter(g -> g.alive && g.type == Type.chaser)
+					.collect(Collectors.toList());
 
-		// decide direction based on ghost type and mode
+				CHASER = (chasers.size() > 0) ? chasers.get(0) : null;
+			}
 
-		List<Direction> validMoves = validDirections();
-		Point target = target(game.PLAYER);
-
-		validMoves.sort( (a, b) -> {
-				return abs(translate(a,1).distance(target))
-							 - abs(translate(b,1).distance(target));
-		});
-
-		direction = validMoves.get(0);
-
-		if (collide(game.PLAYER)) {
-			// player collision
-			return false;
+			if (MODE == Mode.FRIGHTENED) {
+				alive = false;
+			} else {
+				game.softReset();
+				game.points--;
+			}
 		} else {
-			// Move ghost in specified direction
+			// Move ghost
 			Point point = translate(direction, 1);
 			this.x = point.x;
 			this.y = point.y;
-
-			return true;
 		}
 	}
 
 	public void draw(Game game, int frames)
 	{
 		App app = game.app;
-
 		app.image(game.allSprites.get(getSprite()), displayX(), displayY());
-		Point target = target(game.PLAYER);
 
-		if (game.debugMode) {
+		if (game.debugMode && MODE != Mode.FRIGHTENED) {
+			Point target = target(game.PLAYER);
 			app.beginShape();
 			app.stroke(256,256,256);
-			app.line(x + 8, y + 8, target.x + 8, target.y + 8);
+			if (MODE == Mode.SCATTER) {
+				app.line(x + 8, y + 8, target.x, target.y);
+			} else {
+				app.line(x + 8, y + 8, target.x + 8, target.y + 8);
+			}
 			app.endShape();
 		}
 	}
 
-	public boolean collide(Player PLAYER)
-	{
-		Point player = PLAYER.point();
+	// Navigation
 
-		if ((x == player.x || y == player.y) && point().distance(player) < 10) {
-			if (MODE == Mode.FRIGHTENED) {
-				alive = false;
-			}
-			return true;
+	public Direction nextDirection(Player PLAYER)
+	{
+		List<Direction> valid = validDirections();
+
+		if (valid.size() > 1) {
+			Point target = target(PLAYER);
+			valid.sort( (a, b) -> {
+					return abs(translate(a,1).distance(target))
+								 - abs(translate(b,1).distance(target));
+			});
+
 		}
 
-		return false;
+		if (MODE == Mode.FRIGHTENED) {
+			int random = new Random().nextInt(valid.size());
+			return valid.get(random);
+		} else  {
+			return valid.get(0);
+		}
 	}
-
-	// Navigation
 
 	public List<Direction> validDirections()
 	{
@@ -189,31 +177,20 @@ public class Ghost extends Agent {
 
 	public Point target(Player PLAYER)
 	{
-		if (MODE == Mode.FRIGHTENED) {
-
-			// return random point as target
-			int x = (int) Math.random() * (spriteMap[0].length + 1);
-			int y = (int) Math.random() * (spriteMap.length + 1);
-			return new Point(x, y);
-
+		if (type == Type.ambusher) {
+			return Ghost.ambusher(PLAYER);
+		} else if (type == Type.ignorant) {
+			return Ghost.ignorant(point(), PLAYER);
+		} else if (type == Type.chaser) {
+			return Ghost.chaser(PLAYER);
 		} else {
-
-			if (type == Type.ambusher) {
-				return Ghost.ambusher(PLAYER);
-			} else if (type == Type.ignorant) {
-				return Ghost.ignorant(point(), PLAYER);
-			} else if (type == Type.chaser) {
-				return Ghost.chaser(PLAYER);
-			} else {
-				return Ghost.whim(PLAYER);
-			}
-
+			return Ghost.whim(PLAYER);
 		}
 	}
 
 	public static Point ambusher(Player PLAYER)
 	{
-		if (MODE == Mode.FRIGHTENED) {
+		if (MODE == Mode.SCATTER) {
 			return Type.TOP_RIGHT;
 		} else {
 			Point point = PLAYER.translate(PLAYER.direction(), 4 * 16);
@@ -223,7 +200,7 @@ public class Ghost extends Agent {
 
 	public static Point chaser(Player PLAYER)
 	{
-		if (MODE == Mode.FRIGHTENED) {
+		if (MODE == Mode.SCATTER) {
 			return Type.TOP_LEFT;
 		} else {
 			Point point = PLAYER.point();
@@ -233,7 +210,7 @@ public class Ghost extends Agent {
 
 	public static Point whim(Player PLAYER)
 	{
-		if (MODE == Mode.FRIGHTENED) {
+		if (MODE == Mode.SCATTER) {
 			return Type.BOT_RIGHT;
 		} else if (CHASER == null) {
 			// target player
@@ -253,7 +230,7 @@ public class Ghost extends Agent {
 	public static Point ignorant(Point current, Player PLAYER)
 	{
 		int distance = abs(PLAYER.point().distance(current));
-		if (MODE == Mode.FRIGHTENED || distance <= 8 * 16) {
+		if (MODE == Mode.SCATTER || distance <= 8 * 16) {
 			return Type.BOT_LEFT;
 		} else {
 			return chaser(PLAYER);

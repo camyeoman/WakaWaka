@@ -46,15 +46,14 @@ public class ModeController {
 	 * @return the current mode of the game
 	 */
 	public Ghost.Mode update() {
-		if (modeQueue.size() == 0) {
-			buildQueue();
-			return update();
-		}
-
 		Node node = modeQueue.get(0);
 
 		if (!node.tic()) {
 			modeQueue.remove(0);
+
+			if (modeQueue.size() == 0) {
+				buildQueue();
+			}
 		}
 
 		return node.mode;
@@ -98,7 +97,7 @@ public class ModeController {
 		 * @return string showing frames left of mode
 		 */
 		public String toString() {
-			return framesLeft + " frames left";
+			return framesLeft + " " + mode;
 		}
 	}
 }

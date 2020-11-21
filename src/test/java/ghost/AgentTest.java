@@ -83,7 +83,7 @@ public class AgentTest extends TestTools {
 	{
 		Agent agent;
 
-		// test behavuiour on grid squares, i.e % 16 == 0
+		// test behaviour on grid squares, i.e % 16 == 0
 		testValidDirection(new Boolean[]{false, true, false, true}, new Agent(16*8, 16*3));
 		testValidDirection(new Boolean[]{false, false, false, false}, new Agent(16, 16*4));
 		testValidDirection(new Boolean[]{false, true, true, true}, new Agent(16*10, 16));
