@@ -7,6 +7,9 @@ public class Agent extends Coordinate {
 	protected static Sprite[][] spriteMap;
 	protected static int speed = 0;
 
+	// Corners of Map
+	static Point BOT_RIGHT, TOP_RIGHT, BOT_LEFT, TOP_LEFT;
+
 	protected Direction direction;
 	final Point intialPoint;
 
@@ -29,6 +32,12 @@ public class Agent extends Coordinate {
 	 */
 	public static void SETUP(Configuration config) {
 		Agent.spriteMap = config.spriteMap;
+
+		// Get Corners
+		BOT_RIGHT = new Point(16 * spriteMap[0].length, 16 * spriteMap.length);
+		TOP_RIGHT = new Point(16 * spriteMap[0].length, 0);
+		BOT_LEFT = new Point(0 , 16 * spriteMap.length);
+		TOP_LEFT = new Point(0 , 0);
 
 		if (config.speed == 1 || config.speed == 2) {
 			Agent.speed = config.speed;
