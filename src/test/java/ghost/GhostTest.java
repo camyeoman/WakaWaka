@@ -50,7 +50,7 @@ public class GhostTest extends TestTools {
 		config.spriteMap = testMap;
 		Ghost.SETUP(config);
 
-		assertEquals(Ghost.spriteMap, testMap);
+		assertEquals(Ghost.SPRITE_MAP, testMap);
 	}
 
 	@Test
@@ -104,6 +104,26 @@ public class GhostTest extends TestTools {
 		}
 	}
 
+	private void testValidDirect(Direction direction, Boolean[] expected, Ghost ghost)
+	{
+		ghost.direction = direction;
+
+		for (int i=0; i < 4; i++) {
+			Direction testDirection = Direction.values()[i];
+			boolean contained = ghost.validDirections().contains(testDirection);
+
+			if (!contained == expected[i]) {
+				System.out.printf("%s should be %s\n",
+					Arrays.toString(expected), ghost.validDirections()
+				);
+			}
+
+			assertTrue(contained == expected[i]);
+		}
+
+		ghost.direction = null;
+	}
+
 	@Test
 	public void ambusher()
 	{
@@ -119,7 +139,7 @@ public class GhostTest extends TestTools {
 
 		// scatter behaviour
 
-		Ghost.MODE = Ghost.Mode.SCATTER;
+		Ghost.setMode(Ghost.Mode.SCATTER);
 
 		Point corner = Agent.TOP_RIGHT;
 		player.direction = Direction.right;
@@ -128,7 +148,7 @@ public class GhostTest extends TestTools {
 
 		// Test chasing behaviour
 		
-		Ghost.MODE = Ghost.Mode.CHASE;
+		Ghost.setMode(Ghost.Mode.CHASE);
 
 		player.direction = Direction.right;
 		target = Ghost.ambusher(player);
@@ -162,7 +182,7 @@ public class GhostTest extends TestTools {
 
 		// scatter behaviour
 
-		Ghost.MODE = Ghost.Mode.SCATTER;
+		Ghost.setMode(Ghost.Mode.SCATTER);
 
 		Point corner = Agent.BOT_LEFT;
 		player.direction = Direction.right;
@@ -172,7 +192,7 @@ public class GhostTest extends TestTools {
 
 		// Test chasing behaviour (in range)
 
-		Ghost.MODE = Ghost.Mode.CHASE;
+		Ghost.setMode(Ghost.Mode.CHASE);
 
 		target = Ghost.ignorant(current, player);
 		assertTrue(target.x == corner.x && target.y == corner.y);
@@ -200,7 +220,7 @@ public class GhostTest extends TestTools {
 
 		// scatter behaviour
 
-		Ghost.MODE = Ghost.Mode.SCATTER;
+		Ghost.setMode(Ghost.Mode.SCATTER);
 
 		Point corner = Agent.TOP_LEFT;
 		player.direction = Direction.right;
@@ -210,7 +230,7 @@ public class GhostTest extends TestTools {
 
 		// Test chasing behaviour
 
-		Ghost.MODE = Ghost.Mode.CHASE;
+		Ghost.setMode(Ghost.Mode.CHASE);
 
 		player.direction = Direction.right;
 		target = Ghost.chaser(player);
@@ -232,7 +252,7 @@ public class GhostTest extends TestTools {
 
 		// scatter behaviour
 
-		Ghost.MODE = Ghost.Mode.SCATTER;
+		Ghost.setMode(Ghost.Mode.SCATTER);
 
 		Point corner = Agent.BOT_RIGHT;
 		player.direction = Direction.right;
@@ -241,33 +261,13 @@ public class GhostTest extends TestTools {
 
 		// test chasing phase (no chaser)
 
-		Ghost.MODE = Ghost.Mode.CHASE;
+		Ghost.setMode(Ghost.Mode.CHASE);
 
 		player.direction = Direction.right;
 		target = Ghost.whim(player);
 		assertTrue(target.x == player.x && target.y == player.y);
 
 		// TODO test other behaviour
-	}
-
-	private void testValidDirect(Direction direction, Boolean[] expected, Ghost ghost)
-	{
-		ghost.direction = direction;
-
-		for (int i=0; i < 4; i++) {
-			Direction testDirection = Direction.values()[i];
-			boolean contained = ghost.validDirections().contains(testDirection);
-
-			if (!contained == expected[i]) {
-				System.out.printf("%s should be %s\n",
-					Arrays.toString(expected), ghost.validDirections()
-				);
-			}
-
-			assertTrue(contained == expected[i]);
-		}
-
-		ghost.direction = null;
 	}
 
 }
