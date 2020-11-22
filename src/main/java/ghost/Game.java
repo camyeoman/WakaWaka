@@ -27,7 +27,7 @@ public class Game {
 	List<GameObject> GAME_OBJECTS;
 
 	// Map
-	private Sprite[][] spriteMap;
+	private Sprite[][] SPRITE_MAP;
 
 	// Sprites
 	Map<Sprite, PImage> allSprites;
@@ -46,7 +46,7 @@ public class Game {
 		Configuration config = new Configuration("config.json");
 
 		this.modeControl = new ModeController(config);
-		this.spriteMap = config.spriteMap;
+		this.SPRITE_MAP = config.spriteMap;
 		this.initialLives = config.lives;
 		this.lives = config.lives;
 
@@ -112,17 +112,17 @@ public class Game {
 	{
 		for (int j=0; j < 36; j++) {
 			for (int i=0; i < 28; i++) {
-				if (spriteMap[j][i] != null) {
+				if (SPRITE_MAP[j][i] != null) {
 
-					if (spriteMap[j][i] == Sprite.playerRight) {
+					if (SPRITE_MAP[j][i] == Sprite.playerRight) {
 						// create player instance
 						PLAYER = new Player(16 * i, 16 * j);
-					} else if (spriteMap[j][i].isGhost()) {
+					} else if (SPRITE_MAP[j][i].isGhost()) {
 						// create ghost instances
-						GHOSTS.add(new Ghost(16 * i, 16 * j, spriteMap[j][i]));
-					} else if (spriteMap[j][i].isGameObject()) {
+						GHOSTS.add(new Ghost(16 * i, 16 * j, SPRITE_MAP[j][i]));
+					} else if (SPRITE_MAP[j][i].isGameObject()) {
 						// create game object instances
-						GAME_OBJECTS.add(new GameObject(16 * i, 16 * j, spriteMap[j][i]));
+						GAME_OBJECTS.add(new GameObject(16 * i, 16 * j, SPRITE_MAP[j][i]));
 					}
 
 				}
@@ -138,8 +138,8 @@ public class Game {
 
 		for (int j=0; j < 36; j++) {
 			for (int i=0; i < 28; i++) {
-				if (spriteMap[j][i] != null && spriteMap[j][i].isWall()) {
-					app.image(allSprites.get(spriteMap[j][i]), 16 * i, 16 * j);
+				if (SPRITE_MAP[j][i] != null && SPRITE_MAP[j][i].isWall()) {
+					app.image(allSprites.get(SPRITE_MAP[j][i]), 16 * i, 16 * j);
 				}
 			}
 		}
@@ -199,7 +199,7 @@ public class Game {
 		}
 
 		// Update ghost mode
-		Ghost.MODE = modeControl.update();
+		Ghost.setMode(modeControl.update());
 
 		// Tic player
 		PLAYER.tic();
