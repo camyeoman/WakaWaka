@@ -1,22 +1,19 @@
 package ghost;
+
 import java.util.stream.Collectors;
-import java.util.Comparator;
+import static java.lang.Math.abs;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.List;
 
-import static java.lang.Math.abs;
-
 public class Ghost extends Agent {
-	static Mode MODE = Mode.SCATTER;
 	static private Ghost CHASER;
+	static private Mode MODE;
 
 	protected boolean alive;
 	final Type type;
 
-	public Ghost(int x, int y, Sprite typeOfGhost)
-	{
+	public Ghost(int x, int y, Sprite typeOfGhost) {
 		super(x, y);
 		this.alive = true;
 
@@ -35,16 +32,23 @@ public class Ghost extends Agent {
 
 	// Getter and Setter methods
 
-	public Sprite getSprite()
-	{
+	public Sprite getSprite() {
 		Sprite sprite = null;
 
 		if (MODE != Mode.FRIGHTENED) {
 			switch (type) {
-				case ambusher:  sprite = Sprite.ghostAmbusher;  break;
-				case ignorant:  sprite = Sprite.ghostIgnorant;  break;
-				case chaser:    sprite = Sprite.ghostChaser;    break;
-				case whim:      sprite = Sprite.ghostWhim;      break;
+				case ambusher:
+					sprite = Sprite.ghostAmbusher;
+					break;
+				case ignorant:
+					sprite = Sprite.ghostIgnorant;
+					break;
+				case chaser:
+					sprite = Sprite.ghostChaser;
+					break;
+				case whim:
+					sprite = Sprite.ghostWhim;
+					break;
 			}
 		} else {
 			sprite = Sprite.ghostFrightened;
@@ -53,21 +57,18 @@ public class Ghost extends Agent {
 		return sprite;
 	}
 
-	public void softReset()
-	{
+	public void softReset() {
 		super.softReset();
 		this.alive = true;
 	}
 
-	public Mode getMode()
-	{
-		return MODE;
+	public static void setMode(Mode mode) {
+		MODE = (mode != null) ? mode : MODE;
 	}
 
 	// Game related methods
 
-	public boolean tic(List<Ghost> GHOSTS, Player PLAYER)
-	{
+	public boolean tic(List<Ghost> GHOSTS, Player PLAYER) {
 		direction = nextDirection(PLAYER);
 
 		// collision detection
@@ -97,8 +98,7 @@ public class Ghost extends Agent {
 		return true;
 	}
 
-	public void draw(Game game)
-	{
+	public void draw(Game game) {
 		int frames = game.frames;
 		App app = game.app;
 
@@ -119,8 +119,7 @@ public class Ghost extends Agent {
 
 	// Navigation
 
-	public Direction nextDirection(Player PLAYER)
-	{
+	public Direction nextDirection(Player PLAYER) {
 		List<Direction> valid = validDirections();
 
 		if (valid.size() > 1) {
@@ -140,8 +139,7 @@ public class Ghost extends Agent {
 		}
 	}
 
-	public List<Direction> validDirections()
-	{
+	public List<Direction> validDirections() {
 		// unless cornered, a ghost cannot turn backwards
 		List<Direction> valid = super.validDirections();
 
@@ -154,8 +152,7 @@ public class Ghost extends Agent {
 		}
 	}
 
-	public Point target(Player PLAYER)
-	{
+	public Point target(Player PLAYER) {
 		if (type == Type.ambusher) {
 			return Ghost.ambusher(PLAYER);
 		} else if (type == Type.ignorant) {
@@ -167,28 +164,25 @@ public class Ghost extends Agent {
 		}
 	}
 
-	public static Point ambusher(Player PLAYER)
-	{
+	public static Point ambusher(Player PLAYER) {
 		if (MODE == Mode.SCATTER) {
 			return Agent.TOP_RIGHT;
 		} else {
 			Point point = PLAYER.translate(PLAYER.direction(), 4 * 16);
-			return point.restrictRange(16*spriteMap[0].length, 16*spriteMap.length);
+			return point.restrictRange(16*SPRITE_MAP[0].length, 16*SPRITE_MAP.length);
 		}
 	}
 
-	public static Point chaser(Player PLAYER)
-	{
+	public static Point chaser(Player PLAYER) {
 		if (MODE == Mode.SCATTER) {
 			return Agent.TOP_LEFT;
 		} else {
 			Point point = PLAYER.point();
-			return point.restrictRange(16*spriteMap[0].length, 16*spriteMap.length);
+			return point.restrictRange(16*SPRITE_MAP[0].length, 16*SPRITE_MAP.length);
 		}
 	}
 
-	public static Point whim(Player PLAYER)
-	{
+	public static Point whim(Player PLAYER) {
 		if (MODE == Mode.SCATTER) {
 			return Agent.BOT_RIGHT;
 		} else if (CHASER == null) {
@@ -202,12 +196,11 @@ public class Ghost extends Agent {
 			int Y = chaser.y + 2 * ( target.y - chaser.y );
 
 			Point point = new Point(X, Y);
-			return point.restrictRange(16*spriteMap[0].length, 16*spriteMap.length);
+			return point.restrictRange(16*SPRITE_MAP[0].length, 16*SPRITE_MAP.length);
 		}
 	}
 
-	public static Point ignorant(Point current, Player PLAYER)
-	{
+	public static Point ignorant(Point current, Player PLAYER) {
 		int distance = abs(PLAYER.point().distance(current));
 		if (MODE == Mode.SCATTER || distance <= 8 * 16) {
 			return Agent.BOT_LEFT;
@@ -218,16 +211,14 @@ public class Ghost extends Agent {
 
 	// Types of GHOSTS and modes
 
-	enum Type
-	{
+	enum Type {
 		ambusher,
 		ignorant,
 		chaser,
 		whim;
 	}
 
-	enum Mode
-	{
+	enum Mode {
 		FRIGHTENED,
 		CHASE,
 		SCATTER;
