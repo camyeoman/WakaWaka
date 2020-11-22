@@ -1,15 +1,4 @@
 package ghost;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.HashMap;
-import java.util.Comparator;
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
-import processing.core.PImage;
-import processing.core.PApplet;
 
 public enum Sprite {
 	// player sprites
