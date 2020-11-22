@@ -1,13 +1,25 @@
 package ghost;
 
-import processing.core.PApplet;
-
+/**
+ * Player represents the player character 'waka'.
+ */
 public class Player extends Agent {
+	/**
+	 * The direction set by user input, to be queued
+	 */
 	private Direction queuedDirection;
+
+	/**
+	 * If the player mouth is open.
+	 */
 	private boolean open;
 
 	/**
-	* Initialises a player with an x and a y coordinate.
+	* Initialises a player instance with an x and a y coordinate. Intially the
+	* the player's mouth is open and the queuedDirection is null.  This
+	* constructor inherits from {@link ghost.Agent#Agent(int, int)}, meaning
+	* that, the direction is initially set to null and a point object is created
+	* which represents the intial position.
 	* @param x, the x coordinate
 	* @param y, the y coordinate
 	*/
@@ -27,12 +39,6 @@ public class Player extends Agent {
 	public void softReset() {
 		super.softReset();
 		this.queuedDirection = null;
-	}
-
-	public void setQuedDirection(Direction newDirection) {
-		if (newDirection != null) {
-			this.queuedDirection = newDirection;
-		}
 	}
 
 	/**
@@ -76,6 +82,7 @@ public class Player extends Agent {
 			this.direction = this.queuedDirection;
 		}
 
+		// Move in current direction if it is valid
 		if (direction != null && validDirection(direction)) {
 			Point point = translate(direction, 1);
 			this.x = point.x;
@@ -89,10 +96,11 @@ public class Player extends Agent {
 	 * the next time the player is able to change direction.
 	 * @param newDirection, the new direction to que
 	 */
-	public boolean readInput(int keyCode)
-	{
+	public boolean readInput(int keyCode) {
 		int current = (direction == null) ? 0 : direction.KEY_CODE;
+
 		if (direction != null || keyCode != current) {
+
 			switch (keyCode) {
 				case 37:
 					queuedDirection = Direction.left;
@@ -120,11 +128,7 @@ public class Player extends Agent {
 	 * @param game, the current game object
 	 */
 	public void draw(Game game) {
-		int frames = game.frames;
-		App app = game.app;
-		
-
-		Sprite sprite = getSprite(frames);
-		app.image(game.allSprites.get(sprite), displayX(), displayY());
+		Sprite sprite = getSprite(game.frames);
+		game.app.image(game.allSprites.get(sprite), displayX(), displayY());
 	}
 }
