@@ -10,7 +10,7 @@ public class Ghost extends Agent {
 	static private Ghost CHASER;
 	static private Mode MODE;
 
-	protected boolean alive;
+	private boolean alive;
 	final Type type;
 
 	public Ghost(int x, int y, Sprite typeOfGhost) {
