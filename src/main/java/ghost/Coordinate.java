@@ -9,21 +9,21 @@ public class Coordinate {
 	}
 
 	/**
-	 * Returns x, but offset by 5 and cast to a float. This is only used to
-	 * align the sprite when rendering the game.
+	 * Returns x, but offset by 5. This is only used to align the sprite when
+	 * rendering the game.
 	 * @return offset x value
 	 */
-	public float displayX() {
-		return (float)(x - 5);
+	public int displayX() {
+		return (x - 5);
 	}
 
 	/**
-	 * Returns y, but offset by 5 and cast to a float. This is only used to
-	 * align the sprite when rendering the game.
+	 * Returns y, but offset by 5. This is only used to align the sprite when
+	 * rendering the game.
 	 * @return offset y value
 	 */
-	public float displayY() {
-		return (float)(y - 5);
+	public int displayY() {
+		return (y - 5);
 	}
 
 	/**
