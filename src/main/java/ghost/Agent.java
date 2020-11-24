@@ -112,7 +112,7 @@ public class Agent extends Coordinate {
 
 	/**
 	 * Return a whether a specified direction is valid.
-	 * @param direction, the direction to verify
+	 * @param newDirection, the direction to verify
 	 * @return a boolean representing if the direction is valid
 	 */
 	public boolean validDirection(Direction newDirection) {
