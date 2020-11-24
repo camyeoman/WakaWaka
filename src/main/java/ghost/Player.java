@@ -33,8 +33,7 @@ public class Player extends Agent {
 
 	/**
 	 * Resets player to initial position and resets all directions. This
-	 * partially overwrites the super method of Agent to properlly reset
-	 * the player object by including the queuedDirection attribute.
+	 * partially overwrites the super method of Agent.
 	 */
 	public void softReset() {
 		super.softReset();
@@ -94,7 +93,7 @@ public class Player extends Agent {
 	 * Sets the queuedDirection attribute. This is used to interface with
 	 * user input to move the player, as the user input is stored for
 	 * the next time the player is able to change direction.
-	 * @param newDirection, the new direction to que
+	 * @param keyCode, the integer keyCode associated with a key
 	 */
 	public boolean readInput(int keyCode) {
 		int current = (direction == null) ? 0 : direction.KEY_CODE;
@@ -124,11 +123,9 @@ public class Player extends Agent {
 
 	/**
 	 * Draws the player.
-	 * @param frames, the number of frames elapsed since the game began
 	 * @param game, the current game object
 	 */
 	public void draw(Game game) {
-		Sprite sprite = getSprite(game.frames);
-		game.app.image(game.allSprites.get(sprite), displayX(), displayY());
+		game.draw(getSprite(game.frames), displayX(), displayY(), null);
 	}
 }

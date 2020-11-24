@@ -10,7 +10,14 @@ public class Ghost extends Agent {
 	static private Ghost CHASER;
 	static private Mode MODE;
 
+	/**
+	 * Whether the ghost is alive
+	 */
 	private boolean alive;
+
+	/**
+	 * Type of ghost
+	 */
 	final Type type;
 
 	public Ghost(int x, int y, Sprite typeOfGhost) {
@@ -32,6 +39,29 @@ public class Ghost extends Agent {
 
 	// Getter and Setter methods
 
+	/**
+	 * Returns if the ghost is alive.
+	 * @return if the ghost is alive
+	 */
+	public boolean isAlive() {
+		return alive;
+	}
+
+	/**
+	 * Resets ghost to initial position and sets alive to true. This
+	 * partially overwrites the super method of Agent.
+	 */
+	public void softReset() {
+		super.softReset();
+		this.alive = true;
+	}
+
+	/**
+	 * Returns a Sprite based on the type of ghost and if the ghost is
+	 * frightened. If the mode is FRIGHTENED return the frightened sprite,
+	 * else return the sprite determined by the type of ghost.
+	 * @return a Sprite representing current state
+	 */
 	public Sprite getSprite() {
 		Sprite sprite = null;
 
@@ -57,13 +87,12 @@ public class Ghost extends Agent {
 		return sprite;
 	}
 
-	public void softReset() {
-		super.softReset();
-		this.alive = true;
-	}
-
 	public static void setMode(Mode mode) {
 		MODE = (mode != null) ? mode : MODE;
+	}
+
+	public static Mode getMode() {
+		return MODE;
 	}
 
 	// Game related methods
@@ -99,22 +128,15 @@ public class Ghost extends Agent {
 	}
 
 	public void draw(Game game) {
-		int frames = game.frames;
-		App app = game.app;
+		Point target = null;
 
-		app.image(game.allSprites.get(getSprite()), displayX(), displayY());
-
-		if (game.debugMode && MODE != Mode.FRIGHTENED) {
-			Point target = target(game.PLAYER);
-			app.beginShape();
-			app.stroke(256,256,256);
-			if (MODE == Mode.SCATTER) {
-				app.line(x + 8, y + 8, target.x, target.y);
-			} else {
-				app.line(x + 8, y + 8, target.x + 8, target.y + 8);
-			}
-			app.endShape();
+		if (MODE != Mode.FRIGHTENED && MODE != null) {
+			target = target(game.PLAYER);
+			target.x += (MODE == Mode.SCATTER) ? 0 : 8;
+			target.y += (MODE == Mode.SCATTER) ? 0 : 8;
 		}
+
+		game.draw(getSprite(), displayX(), displayY(), target);
 	}
 
 	// Navigation
