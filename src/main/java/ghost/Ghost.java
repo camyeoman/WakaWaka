@@ -7,8 +7,8 @@ import java.util.Random;
 import java.util.List;
 
 public class Ghost extends Agent {
-	static private Ghost CHASER;
-	static private Mode MODE;
+	private static Ghost CHASER;
+	private static Mode MODE;
 
 	/**
 	 * Whether the ghost is alive
@@ -45,6 +45,36 @@ public class Ghost extends Agent {
 	 */
 	public boolean isAlive() {
 		return alive;
+	}
+
+	/**
+	 * Returns current mode.
+	 * @return the current mode
+	 */
+	public static Mode getMode() {
+		return MODE;
+	}
+
+	/**
+	 * Returns current mode.
+	 * @return the current mode
+	 */
+	public static Ghost getChaser() {
+		return CHASER;
+	}
+
+	/**
+	 * Sets mode.
+	 */
+	public static void setMode(Mode mode) {
+		MODE = mode;
+	}
+
+	/**
+	 * Sets chaser.
+	 */
+	public static void setChaser(Ghost chaser) {
+		CHASER = chaser;
 	}
 
 	/**
@@ -87,44 +117,58 @@ public class Ghost extends Agent {
 		return sprite;
 	}
 
-	public static void setMode(Mode mode) {
-		MODE = (mode != null) ? mode : MODE;
-	}
-
-	public static Mode getMode() {
-		return MODE;
-	}
-
 	// Game related methods
 
-	public boolean tic(List<Ghost> GHOSTS, Player PLAYER) {
+	public static void TIC(Game game) {
+		// Update mode
+		MODE = game.modeControl.update();
+
+		for (Ghost ghost : game.GHOSTS) {
+			Boolean result = ghost.evolve(game.PLAYER);
+
+			// replace the chaser if collision occurs
+			if (result == null) {
+				List<Ghost> chasers = game.GHOSTS.stream()
+					.filter(g -> g.type == Ghost.Type.chaser && g.isAlive())
+					.collect(Collectors.toList());
+				
+				CHASER = (chasers.size() > 0) ? chasers.get(0) : null;
+			}
+
+			if (result == null || !result) {
+				game.softReset();
+				game.lives--;
+			}
+		}
+	}
+
+	public Boolean evolve(Player PLAYER) {
+
 		direction = nextDirection(PLAYER);
 
 		// collision detection
 
 		Point player = PLAYER.point();
-		if ((x == player.x || y == player.y) && point().distance(player) < 15) {
-			if (type == Type.chaser) {
-				List<Ghost> chasers = GHOSTS.stream()
-					.filter(g -> g.alive && g.type == Type.chaser)
-					.collect(Collectors.toList());
-
-				CHASER = (chasers.size() > 0) ? chasers.get(0) : null;
-			}
+		if (point().distance(player) < 16 && (x == player.x || y == player.y)) {
 
 			if (MODE == Mode.FRIGHTENED) {
 				alive = false;
+
+				// null means get new chaser
+				return (type == Type.chaser) ? null : true;
 			} else {
+				// false means soft reset the game
 				return false;
 			}
+
 		} else {
 			// Move ghost
 			Point point = translate(direction, 1);
 			this.x = point.x;
 			this.y = point.y;
-		}
 
-		return true;
+			return true;
+		}
 	}
 
 	public void draw(Game game) {
@@ -132,34 +176,14 @@ public class Ghost extends Agent {
 
 		if (MODE != Mode.FRIGHTENED && MODE != null) {
 			target = target(game.PLAYER);
-			target.x += (MODE == Mode.SCATTER) ? 0 : 8;
-			target.y += (MODE == Mode.SCATTER) ? 0 : 8;
+			target.x += (MODE == Mode.SCATTER) ? 8 : 0;
+			target.y += (MODE == Mode.SCATTER) ? 8 : 0;
 		}
 
 		game.draw(getSprite(), displayX(), displayY(), target);
 	}
 
 	// Navigation
-
-	public Direction nextDirection(Player PLAYER) {
-		List<Direction> valid = validDirections();
-
-		if (valid.size() > 1) {
-			Point target = target(PLAYER);
-			valid.sort( (a, b) -> {
-					return abs(translate(a,1).distance(target))
-								 - abs(translate(b,1).distance(target));
-			});
-
-		}
-
-		if (MODE == Mode.FRIGHTENED) {
-			int random = new Random().nextInt(valid.size());
-			return valid.get(random);
-		} else  {
-			return valid.get(0);
-		}
-	}
 
 	public List<Direction> validDirections() {
 		// unless cornered, a ghost cannot turn backwards
@@ -171,6 +195,25 @@ public class Ghost extends Agent {
 				.collect(Collectors.toList());
 		} else {
 			return valid;
+		}
+	}
+
+	public Direction nextDirection(Player PLAYER) {
+		List<Direction> valid = validDirections();
+
+		if (valid.size() > 1) {
+			Point target = target(PLAYER);
+			valid.sort( (a, b) -> {
+					return abs(translate(a,1).distance(target))
+								 - abs(translate(b,1).distance(target));
+			});
+		}
+
+		if (MODE == Mode.FRIGHTENED) {
+			int random = new Random().nextInt(valid.size());
+			return valid.get(random);
+		} else  {
+			return valid.get(0);
 		}
 	}
 
@@ -209,7 +252,7 @@ public class Ghost extends Agent {
 			return Agent.BOT_RIGHT;
 		} else if (CHASER == null) {
 			// target player
-			return chaser(PLAYER);
+			return PLAYER.point();
 		} else {
 			Point chaser = CHASER.point();
 			Point target = PLAYER.translate(PLAYER.direction(), 2 * 16);
@@ -218,6 +261,7 @@ public class Ghost extends Agent {
 			int Y = chaser.y + 2 * ( target.y - chaser.y );
 
 			Point point = new Point(X, Y);
+
 			return point.restrictRange(16*SPRITE_MAP[0].length, 16*SPRITE_MAP.length);
 		}
 	}
@@ -225,9 +269,9 @@ public class Ghost extends Agent {
 	public static Point ignorant(Point current, Player PLAYER) {
 		int distance = abs(PLAYER.point().distance(current));
 		if (MODE == Mode.SCATTER || distance <= 8 * 16) {
-			return Agent.BOT_LEFT;
+			return new Point(0, 16 * SPRITE_MAP.length);
 		} else {
-			return chaser(PLAYER);
+			return PLAYER.point();
 		}
 	}
 

@@ -11,11 +11,15 @@ interface lambdaTest<T, U, V> {
 
 public class AgentTest extends TestTools {
 	static {
-		Configuration config = new Configuration();
-		config.spriteMap = testMap;
-		config.speed = 1;
-
+		Configuration config = new Configuration("src/test/resources/config1.json");
 		Agent.SETUP(config);
+	}
+
+	@Test
+	public void SETUP() {
+		Configuration config = new Configuration("src/test/resources/config1.json");
+		Agent.SETUP(config);
+		assertArrayEquals(Agent.SPRITE_MAP, map1);
 	}
 
 	@Test
@@ -71,11 +75,6 @@ public class AgentTest extends TestTools {
 				assertEquals(agent.intialPoint, point);
 			}
 		}
-	}
-
-	public void SETUP() {
-		Configuration config = new Configuration();
-		config.speed = 5;
 	}
 
 	@Test
@@ -140,41 +139,14 @@ public class AgentTest extends TestTools {
 		testValidDirections(new Boolean[]{ true, false, false, true }, agent);
 	}
 
-	/*
 	@Test
-	public void getterAndSetterMethods()
+	public void testToString()
 	{
-		Point[] points = new Point[]{
-			new Point(16,  16), new Point(32,  16), new Point(48,  16),
-			new Point(64,  16), new Point(80,  16), new Point(96,  16)
-		};
-
-		for (Point point : points) {
-			Agent agent = new Agent(point.x, point.y);
-			Direction direction = agent.direction();
-
-			assertEquals(agent.displayX(), a - 5); 
-			assertEquals(agent.displayY(), b - 5); 
-			assertEquals(agent.getX(), a); 
-			assertEquals(agent.getY(), b); 
-
-			assertNull(direction);
-			assertEquals(agent.toString(), String.format("(%s, %s) heading null", a, b));
-			agent.direction = Direction.right;
-			assertEquals(agent.toString(), String.format("(%s, %s) heading right", a, b));
-		}
-
+		Agent agent = new Agent(3, 1);
+		assertEquals(agent.toString(), "(3, 1) heading null");
+		agent.direction = Direction.right;
+		assertEquals(agent.toString(), "(3, 1) heading right");
 	}
-
-		Agent agent = new Agent(16, 16);
-		for (int i=-10; i < 10; i++) {
-			if (i==2||i==1) {
-				assertTrue(Agent.speed == i);
-			} else {
-				assertTrue(Agent.speed == 1 || Agent.speed == 2);
-			}
-		}
-	*/
 
 	// Testing functions
 

@@ -68,6 +68,11 @@ public class PointTest {
 
 		point = new Point(10, 10).restrictRange(50, 50);
 		assertTrue(point.x == 10 && point.y == 10);
+
+		// Extra
+
+		point = new Point (224, 160).restrictRange(448, 576);
+		assertTrue(point.x == 224 && point.y == 160);
 	}
 
 	@Test

@@ -25,7 +25,7 @@ public class Configuration {
 	int frightenedDuration;
 
 	// Map file name
-	String fileName;
+	String mapFile;
 
 	// Game attributes
 	Sprite[][] spriteMap;
@@ -70,7 +70,7 @@ public class Configuration {
 
 
 		// Name of map file
-		this.fileName = (String) config.get("map"); 
+		this.mapFile = (String) config.get("map"); 
 
 		// frightened duration
 		this.frightenedDuration= Integer.parseInt(config.get("frightenedLength").toString());
@@ -98,7 +98,7 @@ public class Configuration {
 		spriteMap = new Sprite[36][28];
 
 		try {
-			File f = new File(fileName);
+			File f = new File(mapFile);
 			Scanner fileReader = new Scanner(f);
 
 			for (int i=0; fileReader.hasNextLine(); i++) {

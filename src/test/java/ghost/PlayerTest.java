@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.*;
 
-public class PlayerTest {
+public class PlayerTest extends TestTools {
 	/* Visualisation of test map
 			0123456789012
 		 0*************
@@ -14,27 +14,6 @@ public class PlayerTest {
 		 4* **   *    *
 		 5*************
 	*/
-	static Sprite[][] testMap;
-	static // test map
-	{
-		String[][] stringMap = new String[][] {
-			{ "3","1","1","1","1","1","1","1","1","1","1","1","4" },
-			{ "2","p","a","c","i","w","7","7","7","7","7","7","2" },
-			{ "2","1","1","1","1","1","1","1","1","4","7","7","2" },
-			{ "2","2","2","7","7","2","7","7","7","2","7","7","2" },
-			{ "2","7","2","2","7","7","7","2","7","7","7","7","2" },
-			{ "5","1","1","1","1","1","1","1","1","1","1","1","6" }
-		};
-
-		testMap = new Sprite[6][13];
-
-		for (int j=0; j < 6; j++) {
-			for (int i=0; i < 13; i++) {
-				testMap[j][i] = Sprite.getSprite(stringMap[j][i]);
-			}
-		}
-	}
-		
 	@Test
 	public void constructor()
 	{

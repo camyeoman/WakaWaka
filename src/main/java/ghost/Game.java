@@ -54,7 +54,6 @@ public class Game {
 
 		// setup classes
 		Agent.SETUP(config);
-		Ghost.SETUP(config);
 	}
 
 	private PImage pathLoad(String str)
@@ -132,13 +131,14 @@ public class Game {
 
 	// Draw methods
 	
-	public void draw(Sprite sprite, int x, int y, Point target) {
+	public void draw(Sprite sprite, int x, int y, Point target)
+	{
 		app.image(allSprites.get(sprite), x, y);
 
 		if (debugMode && target != null) {
 			app.beginShape();
 			app.stroke(256,256,256);
-			app.line(x + 8, y + 8, target.x, target.y);
+			app.line(x + 16, y + 16, target.x + 5, target.y + 5);
 			app.endShape();
 		}
 	}
@@ -161,10 +161,6 @@ public class Game {
 		}
 	}
 
-	public void drawGameObjects(App app)
-	{
-	}
-
 	public void endScreen(App app, boolean won)
 	{
 		app.background(0,0,0);
@@ -174,7 +170,6 @@ public class Game {
 		} else {
 			app.text("Game Over", 134, 288);
 		}
-
 	}
 
 	// Tic methods
@@ -209,9 +204,6 @@ public class Game {
 			PLAYER.readInput(app.keyCode);
 		}
 
-		// Update ghost mode
-		Ghost.setMode(modeControl.update());
-
 		// Tic player
 		PLAYER.tic();
 
@@ -237,12 +229,7 @@ public class Game {
 
 		// Tic ghosts
 
-		for (Ghost ghost : GHOSTS) {
-			if (!ghost.tic(GHOSTS, PLAYER)) {
-				softReset();
-				lives--;
-			}
-		}
+		Ghost.TIC(this);
 
 		// Remove eaten game objects
 		GAME_OBJECTS = GAME_OBJECTS.stream()
