@@ -109,16 +109,21 @@ public class PointTest {
 		};
 
 		Point[] pointsC = new Point[]{
-			new Point(17,  17), new Point(33,  17), new Point(49,  17),
+			new Point(17,  15), new Point(33,  17), new Point(49,  17),
 			new Point(65,  17), new Point(81,  17), new Point(97,  17)
 		};
 
 		for (int i=0; i < pointsA.length; i++) {
-			assertTrue(pointsA[i] != pointsB[i]);
+
+			// Equal points
 			assertEquals(pointsA[i], pointsB[i]);
+
+			// Not equal points
 			assertNotEquals(pointsA[i], pointsC[i]);
+
 		}
 
-		assertNotEquals(new Point(1, 1),"hello");
+		// Different type
+		assertNotEquals(new Point(1, 1), "hello");
 	}
 }
