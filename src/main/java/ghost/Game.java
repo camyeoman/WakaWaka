@@ -131,6 +131,17 @@ public class Game {
 	}
 
 	// Draw methods
+	
+	public void draw(Sprite sprite, int x, int y, Point target) {
+		app.image(allSprites.get(sprite), x, y);
+
+		if (debugMode && target != null) {
+			app.beginShape();
+			app.stroke(256,256,256);
+			app.line(x + 8, y + 8, target.x, target.y);
+			app.endShape();
+		}
+	}
 
 	public void drawMap(App app)
 	{
@@ -184,7 +195,7 @@ public class Game {
 			.forEach(g -> g.draw(this));
 
 		GHOSTS.stream()
-			.filter(g -> g.alive)
+			.filter(g -> g.isAlive())
 			.forEach(g -> g.draw(this));
 	}
 	
