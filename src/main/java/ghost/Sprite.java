@@ -29,7 +29,7 @@ public enum Sprite {
 
 	// altered state ghosts
 	frightened("frightened",  "alteredGhost"),
-	invisible("invisible",    "alteredGhost");
+	invisible("invisible",  "alteredGhost");
 
 	private final String type;
 	final String filePath;
