@@ -100,8 +100,9 @@ public class Player extends Agent {
 		}
 	}
 
-	public void TIC() {
-
+	public void TIC(Game game) {
+		game.PLAYER.evolve(game.app.keyCode);
+		game.app.keyCode = 0;
 	}
 
 	/**

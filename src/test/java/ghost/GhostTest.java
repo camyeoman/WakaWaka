@@ -20,7 +20,7 @@ public class GhostTest extends TestTools {
 				for (Sprite s : ghosts) {
 					Ghost g = new Ghost(i, j, s);
 					assertNotNull(g);
-					assertEquals(g.intialPoint, g.point());
+					assertEquals(g.initialPoint, g.point());
 					assertTrue(g.getX() == i && g.getY() == j);
 				}
 			}
@@ -345,7 +345,6 @@ public class GhostTest extends TestTools {
 	{
 		Agent.SETUP(new Configuration("src/test/resources/config1.json"));
 
-
 		for (Sprite sprite : Sprite.values()) {
 
 			Ghost ghost = new Ghost(16, 16, sprite);
@@ -378,8 +377,57 @@ public class GhostTest extends TestTools {
 	}
 
 	@Test
-	public void TIC() {
+	public void TIC()
+	{
 		App app = new App();
-		Game game = new Game(app, "config.json");
+		Game game = new Game(app, "src/test/resources/simpleConfig.json");
+
+		Ghost ghost = game.GHOSTS.get(1);
+		Ghost newChaser = game.GHOSTS.get(0);
+
+		assertSame(Ghost.CHASER(), ghost);
+
+		/*
+		for (Ghost.Type type : Ghost.Type.values()) {
+			int count = (int) game.GHOSTS.stream()
+				.filter(g -> g.type == Ghost.Type.ambusher)
+				.count();
+
+			assertSame(count, 1);
+		}
+
+		expected(game.PLAYER.point(), new Point(16 + i, 304));
+		assertEquals(game.PLAYER.point(), new Point(16 + i, 304));
+		*/
+
+		for (int i=0; i < 7 * 60; i++) {
+			assertEquals(Ghost.MODE(), Ghost.Mode.SCATTER);
+
+			if (i != 0 && ghost.point().equals(ghost.initialPoint)) {
+				assertEquals(ghost.point(), new Point(16 * 26, 304));
+				break;
+			} else {
+				assertEquals(ghost.point(), new Point(16 * 26 - i, 304));
+			}
+
+			Ghost.TIC(game);
+		}
+
+		game.modeControl.queueMode(Ghost.Mode.FRIGHTENED);
+
+		for (int i=0; i < 384; i++) {
+			Ghost.TIC(game);
+			System.out.println(game.modeControl);
+			if (i < 300) {
+				assertEquals(Ghost.MODE(), Ghost.Mode.FRIGHTENED);
+			}
+		}
+
+		game.modeControl.queueMode(Ghost.Mode.FRIGHTENED);
+		Ghost.TIC(game);
+		assertFalse(ghost.isAlive());
+
+
+		App.runSketch(new String[]{""}, app);
 	}
 }

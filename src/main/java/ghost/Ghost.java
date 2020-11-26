@@ -27,6 +27,7 @@ public class Ghost extends Agent {
 		if (typeOfGhost == Sprite.ambusher) {
 			this.type = Type.ambusher;
 		} else if (typeOfGhost == Sprite.chaser) {
+			CHASER = (CHASER == null) ? this : null;
 			this.type = Type.chaser;
 		} else if (typeOfGhost == Sprite.ignorant) {
 			this.type = Type.ignorant;
@@ -59,7 +60,7 @@ public class Ghost extends Agent {
 	 * Returns current mode.
 	 * @return the current mode
 	 */
-	public static Ghost getChaser() {
+	public static Ghost CHASER() {
 		return CHASER;
 	}
 
@@ -172,8 +173,17 @@ public class Ghost extends Agent {
 
 		if (MODE != Mode.FRIGHTENED && MODE != null) {
 			target = target(game.PLAYER);
-			target.x += (MODE == Mode.SCATTER) ? 8 : 0;
-			target.y += (MODE == Mode.SCATTER) ? 8 : 0;
+
+			List<Point> corners = new ArrayList<>();
+			corners.add(Agent.TOP_RIGHT);
+			corners.add(Agent.TOP_LEFT);
+			corners.add(Agent.BOT_RIGHT);
+			corners.add(Agent.BOT_LEFT);
+
+			if (!corners.contains(target)) {
+				target.x += 7;
+				target.y += 7;
+			}
 		}
 
 		game.draw(getSprite(), displayX(), displayY(), target);

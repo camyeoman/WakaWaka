@@ -28,7 +28,7 @@ public class AgentTest extends TestTools {
 		Agent agent = new Agent(1, 1);
 		assertNotNull(agent);
 		assertNull(agent.direction());
-		assertEquals(agent.intialPoint, new Point(1, 1));
+		assertEquals(agent.initialPoint, new Point(1, 1));
 		assertEquals(agent.point(), new Point(1, 1));
 	}
 
@@ -71,8 +71,8 @@ public class AgentTest extends TestTools {
 				agent.y = newPoint.y;
 
 				agent.softReset();
-				assertEquals(agent.intialPoint, agent.point());
-				assertEquals(agent.intialPoint, point);
+				assertEquals(agent.initialPoint, agent.point());
+				assertEquals(agent.initialPoint, point);
 			}
 		}
 	}

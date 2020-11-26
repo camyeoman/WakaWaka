@@ -16,6 +16,10 @@ public class TestTools {
 		);
 	}
 
+	public void expected(Object a, Object b) {
+		System.out.println(a + " expected " + b);
+	}
+
 	static {
 		String[][] stringMap;
 

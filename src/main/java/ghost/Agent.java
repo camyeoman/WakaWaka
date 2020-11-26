@@ -30,7 +30,7 @@ public class Agent extends Coordinate {
 	/**
 	 * Initial position as a point.
 	 */
-	final Point intialPoint;
+	final Point initialPoint;
 
 	/**
 	* Initialises an agent with an x and a y coordinate.
@@ -41,7 +41,7 @@ public class Agent extends Coordinate {
 		super(x, y);
 
 		// Store initial position for soft reset
-		this.intialPoint = new Point(x, y);
+		this.initialPoint = new Point(x, y);
 		this.direction = null;
 	}
 
@@ -79,8 +79,8 @@ public class Agent extends Coordinate {
 	 * overwritten in the sublcasses Player and ghost.
 	 */
 	public void softReset() {
-		this.x = intialPoint.x;
-		this.y = intialPoint.y;
+		this.x = initialPoint.x;
+		this.y = initialPoint.y;
 		this.direction = null;
 	}
 
