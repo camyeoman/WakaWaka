@@ -30,6 +30,14 @@ public class Player extends Agent {
 	}
 
 	// Getter and Setter methods
+	
+	/**
+	 * Returns the queued direction.
+	 * @return queuedDirection
+	 */
+	public Direction queuedDirection() {
+		return queuedDirection;
+	}
 
 	/**
 	 * Resets player to initial position and resets all directions. This
@@ -76,9 +84,12 @@ public class Player extends Agent {
 	 * is valid, it is set as the current direction. If the direction is
 	 * valid the player is moved in said direction.
 	 */
-	public void tic() {
+	public void evolve(int keyCode) {
+		keyboardInput(keyCode);
+
 		if (validDirection(queuedDirection)) {
 			this.direction = this.queuedDirection;
+			queuedDirection = null;
 		}
 
 		// Move in current direction if it is valid
@@ -89,13 +100,19 @@ public class Player extends Agent {
 		}
 	}
 
+	public void TIC() {
+
+	}
+
 	/**
-	 * Sets the queuedDirection attribute. This is used to interface with
-	 * user input to move the player, as the user input is stored for
-	 * the next time the player is able to change direction.
-	 * @param keyCode, the integer keyCode associated with a key
+	 * Returns if the keyCode is valid and sets the queuedDirection attribute.
+	 * This is used to interface with user input to change the player direction.
+	 * queuedDirection is stored for the next time the player is able to change
+	 * direction.
+	 * @param keyCode, an integer keyCode
+	 * @return if the keyCode given was a valid
 	 */
-	public boolean readInput(int keyCode) {
+	public boolean keyboardInput(int keyCode) {
 		int current = (direction == null) ? 0 : direction.KEY_CODE;
 
 		if (direction != null || keyCode != current) {
@@ -115,10 +132,10 @@ public class Player extends Agent {
 					break;
 			}
 
-			return true;
 		}
 
-		return false;
+		// if the keyCode is valid
+		return keyCode >= 37 && keyCode <= 40;
 	}
 
 	/**
