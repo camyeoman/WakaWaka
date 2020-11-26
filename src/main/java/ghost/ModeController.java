@@ -5,7 +5,9 @@ import java.util.ArrayList;
 public class ModeController {
 	private List<Node> modeQueue;
 	final List<Integer> modeLengths;
+
 	final int frightenedDuration;
+	final int invisibleDuration;
 
 	/**
 	* Initialises an ModeController with a modeLengths and frightened Duration
@@ -14,6 +16,8 @@ public class ModeController {
 	*/
 	public ModeController(Configuration config) {
 		this.frightenedDuration = config.frightenedDuration;
+		this.invisibleDuration = 10;
+
 		this.modeLengths = config.modeLengths;
 		this.modeQueue = new ArrayList<>();
 
@@ -34,8 +38,12 @@ public class ModeController {
 	 * Adds frightened mode to the beginning of the queue with duration as
 	 * specified in the constructor with the frightenedDuration attribute.
 	 */
-	public void frightened() {
-		modeQueue.add(0, new Node(frightenedDuration, Ghost.Mode.FRIGHTENED));
+	public void queueMode(Ghost.Mode mode) {
+		if (mode == Ghost.Mode.FRIGHTENED) {
+			modeQueue.add(0, new Node(frightenedDuration, mode));
+		} else if (mode == Ghost.Mode.INVISIBLE) {
+			modeQueue.add(0, new Node(invisibleDuration, mode));
+		}
 	}
 
 

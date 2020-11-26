@@ -6,7 +6,6 @@ import processing.core.PImage;
 import org.json.simple.JSONArray; 
 import org.json.simple.JSONObject; 
 import java.util.*;
-import java.util.regex.*;
 
 public class App extends PApplet {
 	public static final int HEIGHT = 576;
@@ -15,7 +14,7 @@ public class App extends PApplet {
 	Game game;
 
 	public App() {
-		game = new Game(this);
+		game = new Game(this, "config.json");
 	}
 
 	public void setup() {
@@ -36,7 +35,7 @@ public class App extends PApplet {
 			//game = new Game(this);
 		}
 
-		game.run(this);
+		game.run();
 	}
 
 	public static void main(String[] args) {

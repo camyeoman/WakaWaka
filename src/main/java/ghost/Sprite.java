@@ -2,31 +2,42 @@ package ghost;
 
 public enum Sprite {
 	// player sprites
-	playerUp,
-	playerDown,
-	playerLeft,
-	playerRight,
-	playerClosed,
+	playerClosed("playerClosed",    "player"),
+	playerRight("playerRight",      "player"),
+	playerLeft("playerLeft",        "player"),
+	playerDown("playerDown",        "player"),
+	playerUp("playerUp",            "player"),
 
 	// ghost sprites
-	ghostAmbusher,
-	ghostIgnorant,
-	ghostChaser,
-	ghostWhim,
-	ghostFrightened,
-
-	// game objects
-	fruit,
-	superFruit,
-	soda,
+	ambusher("ambusher",      "ghost"),
+	ignorant("ignorant",      "ghost"),
+	chaser("chaser",          "ghost"),
+	whim("whim",              "ghost"),
 
 	// walls
-	horizontal,
-	vertical,
-	upLeft,
-	upRight,
-	downLeft,
-	downRight;
+	horizontal("horizontal",  "wall"),
+	downRight("downRight",    "wall"),
+	downLeft("downLeft",      "wall"),
+	vertical("vertical",      "wall"),
+	upRight("upRight",        "wall"),
+	upLeft("upLeft",          "wall"),
+
+	// game objects
+	superFruit("superFruit",  "gameObject"),
+	fruit("fruit",            "gameObject"),
+	soda("soda",              "gameObject"),
+
+	// altered state ghosts
+	frightened("frightened",  "alteredGhost"),
+	invisible("invisible",    "alteredGhost");
+
+	private final String type;
+	final String filePath;
+
+	Sprite(String name, String type) {
+		this.filePath = "src/main/resources/" + name + ".png";
+		this.type = type;
+	}
 
 	public static Sprite getSprite(String character) {
 		Sprite sprite = null;
@@ -41,10 +52,10 @@ public enum Sprite {
 			case "7":  sprite = Sprite.fruit;          break;
 			case "8":  sprite = Sprite.superFruit;     break;
 			case "9":  sprite = Sprite.soda;           break;
-			case "a":  sprite = Sprite.ghostAmbusher;  break;
-			case "i":  sprite = Sprite.ghostIgnorant;  break;
-			case "c":  sprite = Sprite.ghostChaser;    break;
-			case "w":  sprite = Sprite.ghostWhim;      break;
+			case "a":  sprite = Sprite.ambusher;       break;
+			case "i":  sprite = Sprite.ignorant;       break;
+			case "c":  sprite = Sprite.chaser;         break;
+			case "w":  sprite = Sprite.whim;           break;
 			case "p":  sprite = Sprite.playerRight;    break;
 		}
 
@@ -52,38 +63,14 @@ public enum Sprite {
 	}
 
 	public boolean isGhost() {
-		boolean ghost = false;
-		switch (this) {
-			case ghostAmbusher:  ghost = true;  break;
-			case ghostIgnorant:  ghost = true;  break;
-			case ghostChaser:    ghost = true;  break;
-			case ghostWhim:      ghost = true;  break;
-		}
-
-		return ghost;
+		return type.equals("ghost");
 	}
 
 	public boolean isGameObject() {
-		boolean gameObject = false;
-		switch (this) {
-			case superFruit:  gameObject = true;  break;
-			case fruit:       gameObject = true;  break;
-			case soda:        gameObject = true;  break;
-		}
-
-		return gameObject;
+		return type.equals("gameObject");
 	}
-	public boolean isWall() {
-		boolean wall = false;
-		switch (this) {
-			case horizontal:  wall = true;  break;
-			case vertical:    wall = true;  break;
-			case upLeft:      wall = true;  break;
-			case upRight:     wall = true;  break;
-			case downLeft:    wall = true;  break;
-			case downRight:   wall = true;  break;
-		}
 
-		return wall;
+	public boolean isWall() {
+		return type.equals("wall");
 	}
 }

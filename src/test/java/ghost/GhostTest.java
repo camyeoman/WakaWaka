@@ -11,17 +11,14 @@ public class GhostTest extends TestTools {
 	{
 		Ghost ghost;
 
-		Sprite[] ghosts = new Sprite[]{
-			Sprite.ghostAmbusher,
-			Sprite.ghostIgnorant,
-			Sprite.ghostChaser,
-			Sprite.ghostWhim
-		};
+		List<Sprite> ghosts = Arrays.stream(Sprite.values())
+			.filter(sprite -> sprite.isGhost())
+			.collect(Collectors.toList());
 
 		for (int j=-10; j < 10; j++) {
 			for (int i=-10; i < 10; i++) {
-				for (Sprite c : ghosts) {
-					Ghost g = new Ghost(i, j, c);
+				for (Sprite s : ghosts) {
+					Ghost g = new Ghost(i, j, s);
 					assertNotNull(g);
 					assertEquals(g.intialPoint, g.point());
 					assertTrue(g.getX() == i && g.getY() == j);
@@ -29,27 +26,27 @@ public class GhostTest extends TestTools {
 			}
 		}
 
-		assertTrue((new Ghost(1,1,ghosts[0])).type == Ghost.Type.ambusher);
-		assertTrue((new Ghost(1,1,ghosts[1])).type == Ghost.Type.ignorant);
-		assertTrue((new Ghost(1,1,ghosts[2])).type == Ghost.Type.chaser);
-		assertTrue((new Ghost(1,1,ghosts[3])).type == Ghost.Type.whim);
+		Ghost ambusher = new Ghost(1,1,Sprite.ambusher);
+		Ghost ignorant = new Ghost(1,1,Sprite.ignorant);
+		Ghost chaser = new Ghost(1,1,Sprite.chaser);
+		Ghost whim = new Ghost(1,1,Sprite.whim);
 
-		for (int i=0; i < 4; i++) {
-			ghost = new Ghost(1,1,Sprite.values()[i]);
-			assertNotNull(ghost);
-			assertNull(ghost.type);
-		}
+		assertEquals(ambusher.type, Ghost.Type.ambusher);
+		assertEquals(ignorant.type, Ghost.Type.ignorant);
+		assertEquals(chaser.type, Ghost.Type.chaser);
+		assertEquals(whim.type, Ghost.Type.whim);
 
+		assertNotNull(new Ghost(1,1,null));
 	}
 
 	@Test
 	public void validDirections()
 	{
 		Sprite[] ghosts = new Sprite[]{
-			Sprite.ghostAmbusher,
-			Sprite.ghostIgnorant,
-			Sprite.ghostChaser,
-			Sprite.ghostWhim
+			Sprite.ambusher,
+			Sprite.ignorant,
+			Sprite.chaser,
+			Sprite.whim
 		};
 
 		for (Sprite character : ghosts) {
@@ -159,7 +156,7 @@ public class GhostTest extends TestTools {
 
 		Point target;
 
-		Ghost ghost = new Ghost(144, 144, Sprite.ghostIgnorant);
+		Ghost ghost = new Ghost(144, 144, Sprite.ignorant);
 		Player player = new Player(160, 160);
 
 		// scatter behaviour
@@ -183,7 +180,7 @@ public class GhostTest extends TestTools {
 
 		// Test chasing behaviour (out of range)
 
-		ghost = new Ghost(400, 400, Sprite.ghostIgnorant);
+		ghost = new Ghost(400, 400, Sprite.ignorant);
 
 		target = Ghost.ignorant(ghost.point(), player);
 		assertEquals(ghost.target(player), target);
@@ -197,7 +194,7 @@ public class GhostTest extends TestTools {
 
 		Point target;
 
-		Ghost ghost = new Ghost(80, 80, Sprite.ghostChaser);
+		Ghost ghost = new Ghost(80, 80, Sprite.chaser);
 		Player player = new Player(32, 32);
 
 		// scatter behaviour
@@ -227,7 +224,7 @@ public class GhostTest extends TestTools {
 
 		Point target;
 
-		Ghost ghost = new Ghost(80, 80, Sprite.ghostWhim);
+		Ghost ghost = new Ghost(80, 80, Sprite.whim);
 		Player player = new Player(32, 32);
 
 		// scatter behaviour
@@ -251,7 +248,7 @@ public class GhostTest extends TestTools {
 
 		// chasing with chaser present on the map
 
-		Ghost.setChaser(new Ghost(0, 0, Sprite.ghostChaser));
+		Ghost.setChaser(new Ghost(0, 0, Sprite.chaser));
 		
 		player = new Player(0, 16);
 		player.direction = Direction.right;
@@ -283,8 +280,8 @@ public class GhostTest extends TestTools {
 		
 		// x axis
 		Player player = new Player(48, 16);
-		Ghost ghost = new Ghost(16, 16, Sprite.ghostAmbusher);
-		Ghost chaser = new Ghost(16, 16, Sprite.ghostChaser);
+		Ghost ghost = new Ghost(16, 16, Sprite.ambusher);
+		Ghost chaser = new Ghost(16, 16, Sprite.chaser);
 
 		for (int i=0; true; i++) {
 			Direction direction = (i==0) ? null : Direction.right;
@@ -302,7 +299,7 @@ public class GhostTest extends TestTools {
 
 		// yaxis
 		player = new Player(11*16, 1*16);
-		ghost = new Ghost(11*16, 2*16, Sprite.ghostAmbusher);
+		ghost = new Ghost(11*16, 2*16, Sprite.ambusher);
 
 		assertTrue(ghost.evolve(player));
 		assertFalse(ghost.evolve(player));
@@ -313,8 +310,8 @@ public class GhostTest extends TestTools {
 		// Frightented mode
 
 		ghost.setMode(Ghost.Mode.CHASE);
-		chaser = new Ghost(32, 16, Sprite.ghostChaser);
-		ghost = new Ghost(32, 16, Sprite.ghostAmbusher);
+		chaser = new Ghost(32, 16, Sprite.chaser);
+		ghost = new Ghost(32, 16, Sprite.ambusher);
 
 		ghost.setMode(Ghost.Mode.FRIGHTENED);
 		player = new Player(36, 16);
@@ -327,10 +324,11 @@ public class GhostTest extends TestTools {
 	}
 
 	@Test
-	public void softReset() {
+	public void softReset()
+	{
 		Agent.SETUP(new Configuration("src/test/resources/config1.json"));
 
-		Ghost ghost = new Ghost(16, 16, Sprite.ghostChaser);
+		Ghost ghost = new Ghost(16, 16, Sprite.chaser);
 		Player player = new Player(48, 16);
 
 		for (int i=0; i < 16; i++) {
@@ -343,14 +341,16 @@ public class GhostTest extends TestTools {
 	}
 
 	@Test
-	public void getSprite() {
+	public void getSprite()
+	{
 		Agent.SETUP(new Configuration("src/test/resources/config1.json"));
 
 
 		for (Sprite sprite : Sprite.values()) {
-			if (sprite.isGhost()) {
-				Ghost ghost = new Ghost(16, 16, sprite);
 
+			Ghost ghost = new Ghost(16, 16, sprite);
+
+			if (sprite.isGhost()) {
 				Ghost.MODE = Ghost.Mode.SCATTER;
 				assertEquals(ghost.getSprite(), sprite);
 
@@ -361,10 +361,25 @@ public class GhostTest extends TestTools {
 				assertEquals(ghost.getSprite(), sprite);
 
 				Ghost.MODE = Ghost.Mode.FRIGHTENED;
-				assertEquals(ghost.getSprite(), Sprite.ghostFrightened);
+				assertEquals(ghost.getSprite(), Sprite.frightened);
+
+				Ghost.MODE = Ghost.Mode.INVISIBLE;
+				assertEquals(ghost.getSprite(), Sprite.invisible);
+			} else {
+
+				for (Ghost.Mode mode : Ghost.Mode.values()) {
+					Ghost.MODE = mode;
+					assertNull(ghost.getSprite());
+				}
+
 			}
 		}
 
-		Ghost.MODE = Ghost.Mode.FRIGHTENED;
+	}
+
+	@Test
+	public void TIC() {
+		App app = new App();
+		Game game = new Game(app, "config.json");
 	}
 }

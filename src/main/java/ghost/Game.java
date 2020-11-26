@@ -14,41 +14,41 @@ import processing.core.PFont;
 import processing.core.PImage;
 
 public class Game {
+	// Configuration settings
+	final int initialLives;
+	final App app;
+
+	final ModeController modeControl;
+	final Sprite[][] SPRITE_MAP;
+
+	Map<Sprite, PImage> allSprites;
+	List<GameObject> GAME_OBJECTS;
 	List<Ghost> GHOSTS;
 	Player PLAYER;
 
-	// Configuration settings
-	int initialLives, lives, speed;
+	// Dynamic Attributes
 	boolean debugMode;
-	App app;
+	int frames;
+	int points;
+	int lives;
+	int speed;
 
-	// Objects
-	ModeController modeControl;
-	List<GameObject> GAME_OBJECTS;
-
-	// Map
-	private Sprite[][] SPRITE_MAP;
-
-	// Sprites
-	Map<Sprite, PImage> allSprites;
-
-	// Attributes
-	int frames = 0;
-	int points = 0;
-
-	public Game(App app)
+	public Game(App app, String configFile)
 	{
 		this.app = app;
 
 		GAME_OBJECTS = new ArrayList<>();
 		GHOSTS = new ArrayList<>();
 
-		Configuration config = new Configuration("config.json");
+		Configuration config = new Configuration(configFile);
 
 		this.modeControl = new ModeController(config);
 		this.SPRITE_MAP = config.spriteMap;
+
 		this.initialLives = config.lives;
 		this.lives = config.lives;
+		this.points = 0;
+		this.frames = 0;
 
 		createObjects();
 
@@ -56,53 +56,22 @@ public class Game {
 		Agent.SETUP(config);
 	}
 
-	private PImage pathLoad(String str)
-	{
-		return app.loadImage("src/main/resources/" + str + ".png");
-	}
-
 	public void loadAssets()
 	{
 		// load sprites
 		allSprites = new HashMap<>();
 		
-		// Walls
-		allSprites.put(Sprite.horizontal, pathLoad("horizontal"));
-		allSprites.put(Sprite.vertical, pathLoad("vertical"));
-		allSprites.put(Sprite.upLeft, pathLoad("upLeft"));
-		allSprites.put(Sprite.upRight, pathLoad("upRight"));
-		allSprites.put(Sprite.downLeft, pathLoad("downLeft"));
-		allSprites.put(Sprite.downRight, pathLoad("downRight"));
-
-		// Player
-		allSprites.put(Sprite.playerRight, pathLoad("playerRight"));
-		allSprites.put(Sprite.playerLeft, pathLoad("playerLeft"));
-		allSprites.put(Sprite.playerDown, pathLoad("playerDown"));
-		allSprites.put(Sprite.playerUp, pathLoad("playerUp"));
-		allSprites.put(Sprite.playerClosed, pathLoad("playerClosed"));
-
-		// Ghosts
-		allSprites.put(Sprite.ghostFrightened, pathLoad("frightened"));
-		allSprites.put(Sprite.ghostIgnorant, pathLoad("ignorant"));
-		allSprites.put(Sprite.ghostAmbusher, pathLoad("ambusher"));
-		allSprites.put(Sprite.ghostChaser, pathLoad("chaser"));
-		allSprites.put(Sprite.ghostWhim, pathLoad("whim"));
-
-		// Game objects
-		allSprites.put(Sprite.fruit, pathLoad("fruit"));
-		allSprites.put(Sprite.superFruit, pathLoad("superFruit"));
-		allSprites.put(Sprite.soda, pathLoad("soda"));
+		for (Sprite sprite : Sprite.values()) {
+			allSprites.put(sprite, app.loadImage(sprite.filePath));
+		}
 
 		// load font
 		char[] letters = new char[]{
 			'A','E','G','I','M','N','O','R','U','V','W','Y',' '
 		};
 
-		app.textFont(
-			app.createFont(
-				"src/main/resources/PressStart2P-Regular.ttf", 20, false, letters
-			)
-		);
+		String filePath = "src/main/resources/PressStart2P-Regular.ttf";
+		app.textFont(app.createFont(filePath, 20, false, letters));
 	}
 
 	// Active methods
@@ -143,7 +112,7 @@ public class Game {
 		}
 	}
 
-	public void drawMap(App app)
+	public void drawMap()
 	{
 		app.background(0,0,0);
 
@@ -181,13 +150,14 @@ public class Game {
 		lives--;
 	}
 
-	public void draw(App app)
+	public void draw()
 	{
-		drawMap(app);
+		drawMap();
 		PLAYER.draw(this);
 
 		GAME_OBJECTS.stream()
-			.forEach(g -> g.draw(this));
+			.filter(obj -> !obj.isEaten())
+			.forEach(obj -> obj.draw(this));
 
 		GHOSTS.stream()
 			.filter(g -> g.isAlive())
@@ -207,40 +177,17 @@ public class Game {
 		app.keyCode = 0;
 
 		// Tic Game objects
-
-		for (GameObject obj : GAME_OBJECTS) {
-			if (!obj.tic(PLAYER)) {
-
-				switch (obj.type) {
-					case superFruit:
-						GameObject.superFruit(this);
-						break;
-					case fruit:
-						GameObject.fruit(this);
-						break;
-					case soda:
-						GameObject.superFruit(this);
-						break;
-				}
-
-			}
-		}
+		GameObject.TIC(this);
 
 		// Tic ghosts
-
 		Ghost.TIC(this);
-
-		// Remove eaten game objects
-		GAME_OBJECTS = GAME_OBJECTS.stream()
-			.filter(obj -> !obj.isEaten())
-			.collect(Collectors.toList());
 
 		frames++;
 	}
 
-	public void run(App app)
+	public void run()
 	{
-		draw(app);
+		draw();
 		tic(app.keyCode);
 
 		// reset keyCode

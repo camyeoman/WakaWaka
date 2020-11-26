@@ -2,6 +2,10 @@ package ghost;
 
 import processing.core.PApplet;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+
 public class GameObject extends Coordinate {
 	private boolean eaten;
 	final Type type;
@@ -26,27 +30,13 @@ public class GameObject extends Coordinate {
 	}
 
 	public Sprite getSprite() {
-		Sprite sprite = null;
-
-		switch (type) {
-			case superFruit:  sprite = Sprite.superFruit;  break;
-			case fruit:       sprite = Sprite.fruit;       break;
-			case soda:        sprite = Sprite.soda;        break;
-		}
-
-		return sprite;
-	}
-
-	enum Type {
-		fruit,
-		superFruit,
-		soda;
+		return (type == null) ? null : type.sprite;
 	}
 
 	// collision methods
 
 	public static void superFruit(Game game) {
-		game.modeControl.frightened();
+		game.modeControl.queueMode(Ghost.Mode.FRIGHTENED);
 	}
 
 	public static void fruit(Game game) {
@@ -54,11 +44,32 @@ public class GameObject extends Coordinate {
 	}
 
 	public static void soda(Game game) {
-		// TODO
+		game.modeControl.queueMode(Ghost.Mode.INVISIBLE);
 	}
 
 	// Active methods
-	public boolean tic(Player PLAYER) {
+
+	public static void TIC(Game game) {
+		for (GameObject obj : game.GAME_OBJECTS) {
+
+			if (!obj.isEaten() && !obj.evolve(game.PLAYER)) {
+				switch (obj.type) {
+					case superFruit:
+						superFruit(game);
+						break;
+					case fruit:
+						fruit(game);
+						break;
+					case soda:
+						soda(game);
+						break;
+				}
+			}
+
+		}
+	}
+
+	public boolean evolve(Player PLAYER) {
 		if (point().distance(PLAYER.point()) < 10) {
 			eaten = true;
 			return false;
@@ -69,11 +80,22 @@ public class GameObject extends Coordinate {
 
 	public void draw(Game game) {
 		// Draw GameObjects
-		App app = game.app;
-		app.image(game.allSprites.get(getSprite()), x, y);
+		game.draw(getSprite(), x, y, null);
 	}
 
 	public String toString() {
 		return String.format("( %s, %s )",this.x,this.y);
+	}
+
+	enum Type {
+		fruit(Sprite.fruit),
+		superFruit(Sprite.superFruit),
+		soda(Sprite.soda);
+
+		Sprite sprite;
+
+		Type(Sprite sprite) {
+			this.sprite = sprite;
+		}
 	}
 }

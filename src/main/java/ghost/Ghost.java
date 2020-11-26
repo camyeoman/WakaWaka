@@ -24,13 +24,13 @@ public class Ghost extends Agent {
 		super(x, y);
 		this.alive = true;
 
-		if (typeOfGhost == Sprite.ghostAmbusher) {
+		if (typeOfGhost == Sprite.ambusher) {
 			this.type = Type.ambusher;
-		} else if (typeOfGhost == Sprite.ghostChaser) {
+		} else if (typeOfGhost == Sprite.chaser) {
 			this.type = Type.chaser;
-		} else if (typeOfGhost == Sprite.ghostIgnorant) {
+		} else if (typeOfGhost == Sprite.ignorant) {
 			this.type = Type.ignorant;
-		} else if (typeOfGhost == Sprite.ghostWhim) {
+		} else if (typeOfGhost == Sprite.whim) {
 			this.type = Type.whim;
 		} else {
 			this.type = null;
@@ -51,7 +51,7 @@ public class Ghost extends Agent {
 	 * Returns current mode.
 	 * @return the current mode
 	 */
-	public static Mode getMode() {
+	public static Mode MODE() {
 		return MODE;
 	}
 
@@ -95,23 +95,16 @@ public class Ghost extends Agent {
 	public Sprite getSprite() {
 		Sprite sprite = null;
 
-		if (MODE != Mode.FRIGHTENED) {
-			switch (type) {
-				case ambusher:
-					sprite = Sprite.ghostAmbusher;
-					break;
-				case ignorant:
-					sprite = Sprite.ghostIgnorant;
-					break;
-				case chaser:
-					sprite = Sprite.ghostChaser;
-					break;
-				case whim:
-					sprite = Sprite.ghostWhim;
-					break;
-			}
+		if (type == null) {
+			return sprite;
+		}
+
+		if (MODE == Mode.INVISIBLE) {
+			sprite = Sprite.invisible;
+		} else if (MODE == Mode.FRIGHTENED) {
+			sprite = Sprite.frightened;
 		} else {
-			sprite = Sprite.ghostFrightened;
+			sprite = (type == null) ? null : type.sprite;
 		}
 
 		return sprite;
@@ -124,26 +117,29 @@ public class Ghost extends Agent {
 		MODE = game.modeControl.update();
 
 		for (Ghost ghost : game.GHOSTS) {
-			Boolean result = ghost.evolve(game.PLAYER);
 
-			// replace the chaser if collision occurs
-			if (result == null) {
-				List<Ghost> chasers = game.GHOSTS.stream()
-					.filter(g -> g.type == Ghost.Type.chaser && g.isAlive())
-					.collect(Collectors.toList());
-				
-				CHASER = (chasers.size() > 0) ? chasers.get(0) : null;
+			if (ghost.isAlive()) {
+				Boolean result = ghost.evolve(game.PLAYER);
+				// replace the chaser if collision occurs
+				if (result == null) {
+					List<Ghost> chasers = game.GHOSTS.stream()
+						.filter(g -> g.type == Ghost.Type.chaser && g.isAlive())
+						.collect(Collectors.toList());
+					
+					CHASER = (chasers.size() > 0) ? chasers.get(0) : null;
+				}
+
+				if (result == null || !result) {
+					game.softReset();
+					game.lives--;
+				}
+
 			}
 
-			if (result == null || !result) {
-				game.softReset();
-				game.lives--;
-			}
 		}
 	}
 
 	public Boolean evolve(Player PLAYER) {
-
 		direction = nextDirection(PLAYER);
 
 		// collision detection
@@ -278,13 +274,20 @@ public class Ghost extends Agent {
 	// Types of GHOSTS and modes
 
 	enum Type {
-		ambusher,
-		ignorant,
-		chaser,
-		whim;
+		ambusher(Sprite.ambusher),
+		ignorant(Sprite.ignorant),
+		chaser(Sprite.chaser),
+		whim(Sprite.whim);
+
+		Sprite sprite;
+
+		Type(Sprite sprite) {
+			this.sprite = sprite;
+		}
 	}
 
 	enum Mode {
+		INVISIBLE,
 		FRIGHTENED,
 		CHASE,
 		SCATTER;

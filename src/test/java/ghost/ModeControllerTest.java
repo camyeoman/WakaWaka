@@ -102,7 +102,7 @@ public class ModeControllerTest extends TestTools {
 		str = "[320 SCATTER, 1200 CHASE]";
 		assertEquals(ctrl.toString(), str);
 
-		ctrl.frightened();
+		ctrl.queueMode(Ghost.Mode.FRIGHTENED);
 
 		formatStr = "[%s FRIGHTENED, 320 SCATTER, 1200 CHASE]";
 		// currently is [300 CHASE, 320 SCATTER, 1200 CHASE]
