@@ -8,7 +8,7 @@ import java.util.List;
 
 public class Ghost extends Agent {
 	private static Ghost CHASER;
-	private static Mode MODE;
+	static Mode MODE;
 
 	/**
 	 * Whether the ghost is alive
@@ -156,10 +156,10 @@ public class Ghost extends Agent {
 
 				// null means get new chaser
 				return (type == Type.chaser) ? null : true;
-			} else {
-				// false means soft reset the game
-				return false;
 			}
+
+			// false means soft reset the game
+			return false;
 
 		} else {
 			// Move ghost

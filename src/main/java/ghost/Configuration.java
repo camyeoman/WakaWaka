@@ -24,6 +24,9 @@ public class Configuration {
 	List<Integer> modeLengths;
 	int frightenedDuration;
 
+	// Error
+	final Errors error;
+
 	// Map file name
 	String mapFile;
 
@@ -32,13 +35,19 @@ public class Configuration {
 	int lives;
 	int speed;
 
-	public Configuration(String configFile)
-	{
-		parseConfig(configFile);
-		parseMap();
+	enum Errors {
+		fileNotFound,
+		parseException;
 	}
 
-	public Configuration() {}
+	public Configuration(String configFile) {
+		Errors tempError = parseConfig(configFile);
+		error = (tempError == null) ? parseMap() : tempError;
+	}
+
+	public Configuration() {
+		error = null;
+	}
 
 	// Helper functions
 
@@ -54,26 +63,26 @@ public class Configuration {
 
 	// Parsing functions
 
-	public void parseConfig(String configFileName)
+	public Errors parseConfig(String configFileName)
 	{
 		JSONObject config = null;
+
 		try {
 			Object file = new JSONParser().parse(new FileReader(configFileName)); 
 			config = (JSONObject) file;
-		} catch (Exception e) {}
-		/*
-			catch (FileNotFoundException e) {
-			} catch (IOException e) {
-			} catch (ParseException e) {
-			}
-		*/
-
+		} catch (FileNotFoundException e) {
+			return Errors.fileNotFound;
+		} catch (ParseException e) {
+			return Errors.parseException;
+		} catch (IOException e) {}
 
 		// Name of map file
 		this.mapFile = (String) config.get("map"); 
 
 		// frightened duration
-		this.frightenedDuration= Integer.parseInt(config.get("frightenedLength").toString());
+		this.frightenedDuration = Integer.parseInt(
+			config.get("frightenedLength").toString()
+		);
 
 		// Mode lengths
 		String arrayString = ((JSONArray) config.get("modeLengths")).toString();
@@ -90,9 +99,11 @@ public class Configuration {
 
 		// Lives
 		lives = Integer.parseInt(config.get("lives").toString());
+
+		return null;
 	}
 
-	public void parseMap()
+	public Errors parseMap()
 	{
 		// string map
 		spriteMap = new Sprite[36][28];
@@ -103,19 +114,14 @@ public class Configuration {
 
 			for (int i=0; fileReader.hasNextLine(); i++) {
 				String[] line = extractMatches("[0-9paciw]",fileReader.nextLine());
-
-				if (i > 36 || line.length != 28) {
-					// error
-					return;
-				} else {
-					spriteMap[i] = Arrays.stream(line)
-						.map(c -> Sprite.getSprite(c))
-						.toArray(Sprite[]::new);
-				}
+				spriteMap[i] = Arrays.stream(line)
+					.map(c -> Sprite.getSprite(c))
+					.toArray(Sprite[]::new);
 			}
 		} catch (FileNotFoundException e) {
-			return;
+			return Errors.fileNotFound;
 		}
+
+		return null;
 	}
 }
-

@@ -200,12 +200,11 @@ public class Game {
 
 		if (app.keyCode == 32) {
 			debugMode = (debugMode) ? false : true;
-		} else if (app.keyCode <= 40 && app.keyCode >= 37) {
-			PLAYER.readInput(app.keyCode);
 		}
 
 		// Tic player
-		PLAYER.tic();
+		PLAYER.evolve(app.keyCode);
+		app.keyCode = 0;
 
 		// Tic Game objects
 
