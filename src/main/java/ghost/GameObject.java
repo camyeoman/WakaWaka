@@ -33,6 +33,10 @@ public class GameObject extends Coordinate {
 		return (type == null) ? null : type.sprite;
 	}
 
+	public void reset() {
+		this.eaten = false;
+	}
+
 	// collision methods
 
 	public static void superFruit(Game game) {
@@ -81,10 +85,6 @@ public class GameObject extends Coordinate {
 	public void draw(Game game) {
 		// Draw GameObjects
 		game.draw(getSprite(), x, y, null);
-	}
-
-	public String toString() {
-		return String.format("( %s, %s )",this.x,this.y);
 	}
 
 	enum Type {

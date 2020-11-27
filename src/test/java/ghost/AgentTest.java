@@ -55,7 +55,7 @@ public class AgentTest extends TestTools {
 	}
 
 	@Test
-	public void softReset() {
+	public void reset() {
 		Point[] points = new Point[]{
 			new Point(16,  16), new Point(32,  16), new Point(48,  16),
 			new Point(64,  16), new Point(80,  16), new Point(96,  16)
@@ -70,7 +70,7 @@ public class AgentTest extends TestTools {
 				agent.x = newPoint.x;
 				agent.y = newPoint.y;
 
-				agent.softReset();
+				agent.reset();
 				assertEquals(agent.initialPoint, agent.point());
 				assertEquals(agent.initialPoint, point);
 			}

@@ -40,7 +40,7 @@ public class PlayerTest extends TestTools {
 	}
 
 	@Test
-	public void softReset() {
+	public void reset() {
 		Agent.SETUP(new Configuration("src/test/resources/config1.json"));
 
 		Player player = new Player(16, 16);
@@ -58,7 +58,7 @@ public class PlayerTest extends TestTools {
 		}
 
 		assertEquals(player.point(), new Point(32, 16));
-		player.softReset();
+		player.reset();
 		assertEquals(player.point(), new Point(16, 16));
 	}
 

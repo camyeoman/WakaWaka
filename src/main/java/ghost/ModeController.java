@@ -35,7 +35,7 @@ public class ModeController {
 	}
 
 	/**
-	 * Adds frightened mode to the beginning of the queue with duration as
+	 * Adds specified mode to the beginning of the queue with duration as
 	 * specified in the constructor with the frightenedDuration attribute.
 	 */
 	public void queueMode(Ghost.Mode mode) {

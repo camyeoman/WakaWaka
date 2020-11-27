@@ -73,4 +73,8 @@ public enum Sprite {
 	public boolean isWall() {
 		return type.equals("wall");
 	}
+
+	public static boolean occupiable(Sprite sprite) {
+		return sprite == null || !sprite.isWall();
+	}
 }

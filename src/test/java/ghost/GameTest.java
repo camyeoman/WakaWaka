@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.*;
 
-public class GameTest {
+public class GameTest extends TestTools {
 	/* Visualisation of test map
 			0123456789012
 		 0*************
@@ -21,15 +21,6 @@ public class GameTest {
 		App app = new App();
 		assertNotNull(app.game);
 		assertNotNull(app.game.app);
-	}
-
-	@Test
-	public void setUp()
-	{
-		App app = new App();
-		System.out.println(app.game);
-		Game game = app.game;
-		//assertTrue(game.initLives == game.lives);
 	}
 
 }

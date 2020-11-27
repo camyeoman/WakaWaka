@@ -113,7 +113,8 @@ public class GhostTest extends TestTools {
 	@Test
 	public void ambusher()
 	{
-		Agent.SETUP(new Configuration("src/test/resources/config1.json"));
+		Configuration config = new Configuration("src/test/resources/config1.json");
+		Agent.SETUP(config);
 
 		Point target;
 
@@ -123,7 +124,7 @@ public class GhostTest extends TestTools {
 
 		Ghost.MODE = Ghost.Mode.SCATTER;
 
-		Point corner = Agent.TOP_RIGHT;
+		Point corner = config.corners.get("topRight");
 		player.direction = Direction.right;
 		target = Ghost.ambusher(player);
 		assertTrue(target.x == corner.x && target.y == corner.y);
@@ -152,7 +153,8 @@ public class GhostTest extends TestTools {
 	@Test
 	public void ignorant()
 	{
-		Agent.SETUP(new Configuration("src/test/resources/config1.json"));
+		Configuration config = new Configuration("src/test/resources/config1.json");
+		Agent.SETUP(config);
 
 		Point target;
 
@@ -163,7 +165,7 @@ public class GhostTest extends TestTools {
 
 		Ghost.MODE = Ghost.Mode.SCATTER;
 
-		Point corner = Agent.BOT_LEFT;
+		Point corner = config.corners.get("botLeft");
 		player.direction = Direction.right;
 
 		target = Ghost.ignorant(ghost.point(), player);
@@ -190,7 +192,8 @@ public class GhostTest extends TestTools {
 	@Test
 	public void chaser()
 	{
-		Agent.SETUP(new Configuration("src/test/resources/config1.json"));
+		Configuration config = new Configuration("src/test/resources/config1.json");
+		Agent.SETUP(config);
 
 		Point target;
 
@@ -201,7 +204,7 @@ public class GhostTest extends TestTools {
 
 		Ghost.MODE = Ghost.Mode.SCATTER;
 
-		Point corner = Agent.TOP_LEFT;
+		Point corner = config.corners.get("topLeft");
 		player.direction = Direction.right;
 		target = Ghost.chaser(player);
 		assertEquals(target, ghost.target(player));
@@ -220,7 +223,8 @@ public class GhostTest extends TestTools {
 	@Test
 	public void whim()
 	{
-		Agent.SETUP(new Configuration("src/test/resources/config1.json"));
+		Configuration config = new Configuration("src/test/resources/config1.json");
+		Agent.SETUP(config);
 
 		Point target;
 
@@ -231,7 +235,7 @@ public class GhostTest extends TestTools {
 
 		Ghost.MODE = Ghost.Mode.SCATTER;
 
-		Point corner = Agent.BOT_RIGHT;
+		Point corner = config.corners.get("botRight");
 		player.direction = Direction.right;
 		target = Ghost.whim(player);
 		assertEquals(ghost.target(player), target);
@@ -324,7 +328,7 @@ public class GhostTest extends TestTools {
 	}
 
 	@Test
-	public void softReset()
+	public void reset()
 	{
 		Agent.SETUP(new Configuration("src/test/resources/config1.json"));
 
@@ -336,8 +340,69 @@ public class GhostTest extends TestTools {
 		}
 
 		assertEquals(ghost.point(), new Point(32, 16));
-		ghost.softReset();
+		ghost.reset();
 		assertEquals(ghost.point(), new Point(16, 16));
+	}
+
+	@Test
+	public void TIC() {
+		App app = new App("src/test/resources/simpleConfig.json");
+		Game game = app.game;
+
+		// Test player killing ghost
+
+		Ghost ghost = game.GHOSTS.get(0);
+		for (int i=0; ghost.getX() > 31; i++) {
+			assertEquals(ghost.point(), new Point(416-i, 304));
+			Ghost.TIC(game);
+		}
+
+		game.modeControl.queueMode(Ghost.Mode.FRIGHTENED);
+
+		game.ticGame();
+		assertFalse(ghost.isAlive());
+
+		app = new App("src/test/resources/simpleConfig.json");
+		game = app.game;
+
+		// Test ghost killing player
+
+		ghost = game.GHOSTS.get(0);
+		for (int i=0; ghost.getX() > 31; i++) {
+			assertEquals(ghost.point(), new Point(416-i, 304));
+			Ghost.TIC(game);
+		}
+
+		game.ticGame();
+		assertTrue(ghost.isAlive());
+		assertSame(game.lives, 1);
+	}
+
+	@Test
+	public void draw() {
+		App app = new App("src/test/resources/simpleConfig.json");
+		Game game = app.game;
+
+		App.runSketch(new String[]{"App"}, app);
+		app.setup();
+
+		Ghost ghost = game.GHOSTS.get(0);
+		ghost.draw(game);
+
+		// Debug mode active
+
+		game.debugMode = true;
+
+		// Not frightened
+		Ghost.setMode(Ghost.Mode.SCATTER);
+		ghost.draw(game);
+
+		// frightened
+		Ghost.setMode(Ghost.Mode.FRIGHTENED);
+		ghost.draw(game);
+
+		app.dispose();
+
 	}
 
 	@Test
@@ -374,60 +439,5 @@ public class GhostTest extends TestTools {
 			}
 		}
 
-	}
-
-	@Test
-	public void TIC()
-	{
-		App app = new App();
-		Game game = new Game(app, "src/test/resources/simpleConfig.json");
-
-		Ghost ghost = game.GHOSTS.get(1);
-		Ghost newChaser = game.GHOSTS.get(0);
-
-		assertSame(Ghost.CHASER(), ghost);
-
-		/*
-		for (Ghost.Type type : Ghost.Type.values()) {
-			int count = (int) game.GHOSTS.stream()
-				.filter(g -> g.type == Ghost.Type.ambusher)
-				.count();
-
-			assertSame(count, 1);
-		}
-
-		expected(game.PLAYER.point(), new Point(16 + i, 304));
-		assertEquals(game.PLAYER.point(), new Point(16 + i, 304));
-		*/
-
-		for (int i=0; i < 7 * 60; i++) {
-			assertEquals(Ghost.MODE(), Ghost.Mode.SCATTER);
-
-			if (i != 0 && ghost.point().equals(ghost.initialPoint)) {
-				assertEquals(ghost.point(), new Point(16 * 26, 304));
-				break;
-			} else {
-				assertEquals(ghost.point(), new Point(16 * 26 - i, 304));
-			}
-
-			Ghost.TIC(game);
-		}
-
-		game.modeControl.queueMode(Ghost.Mode.FRIGHTENED);
-
-		for (int i=0; i < 384; i++) {
-			Ghost.TIC(game);
-			System.out.println(game.modeControl);
-			if (i < 300) {
-				assertEquals(Ghost.MODE(), Ghost.Mode.FRIGHTENED);
-			}
-		}
-
-		game.modeControl.queueMode(Ghost.Mode.FRIGHTENED);
-		Ghost.TIC(game);
-		assertFalse(ghost.isAlive());
-
-
-		App.runSketch(new String[]{""}, app);
 	}
 }

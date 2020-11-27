@@ -15,38 +15,51 @@ import processing.core.PFont;
 
 public class Game {
 	// Configuration settings
+	final ModeController modeControl;
+	final Sprite[][] SPRITE_MAP;
 	final int initialLives;
 	final App app;
 
-	final ModeController modeControl;
-	final Sprite[][] SPRITE_MAP;
-
 	Map<Sprite, PImage> allSprites;
 	List<GameObject> GAME_OBJECTS;
+	List<Point> corners;
 	List<Ghost> GHOSTS;
 	Player PLAYER;
 
 	// Dynamic Attributes
+
 	boolean debugMode;
+	Boolean won;
+
+	int waitCounter;
 	int frames;
 	int points;
 	int lives;
-	int speed;
 
 	public Game(App app, String configFile)
 	{
 		this.app = app;
 
+		// null means in progress, i.e not won or lost
+		this.won = null;
+
 		GAME_OBJECTS = new ArrayList<>();
 		GHOSTS = new ArrayList<>();
+		corners = new ArrayList<>();
 
+		// create config object
 		Configuration config = new Configuration(configFile);
 
+		// setup classes
+		Agent.SETUP(config);
+
+		// setup game instance
 		this.modeControl = new ModeController(config);
 		this.SPRITE_MAP = config.spriteMap;
 
 		this.initialLives = config.lives;
 		this.lives = config.lives;
+		this.waitCounter = 0;
 		this.points = 0;
 		this.frames = 0;
 
@@ -71,9 +84,15 @@ public class Game {
 			}
 		}
 
-		// setup classes
-		Agent.SETUP(config);
+		List<Ghost> chasers = GHOSTS.stream()
+			.filter(g -> g.isAlive() && g.type == Ghost.Type.chaser)
+			.collect(Collectors.toList());
+
+		if (chasers.size() > 0) {
+			Ghost.setChaser(chasers.get(0));
+		}
 	}
+
 
 	public void loadAssets()
 	{
@@ -81,7 +100,9 @@ public class Game {
 		allSprites = new HashMap<>();
 		
 		for (Sprite sprite : Sprite.values()) {
-			allSprites.put(sprite, app.loadImage(sprite.filePath));
+			if (sprite != null) {
+				allSprites.put(sprite, app.loadImage(sprite.filePath));
+			}
 		}
 
 		// load font
@@ -97,6 +118,10 @@ public class Game {
 	
 	public void draw(Sprite sprite, int x, int y, Point target)
 	{
+		if (sprite == null) {
+			return;
+		}
+
 		app.image(allSprites.get(sprite), x, y);
 
 		if (debugMode && target != null) {
@@ -120,19 +145,48 @@ public class Game {
 
 	// Tic methods
 
-	public void softReset()
+	public void reset()
 	{
-		GHOSTS.stream().forEach(Agent::softReset);
-		PLAYER.softReset();
-		lives--;
+		// Reset positions and attributes
+		GHOSTS.stream().forEach(Agent::reset);
+		PLAYER.reset();
+
+		if (lives > 0) {
+			lives--;
+		}
+
+		if (won != null) {
+
+		}
 	}
 
-	public void hardReset()
+	public void checkWin()
 	{
+		int objectsLeft = (int) GAME_OBJECTS.stream()
+			.filter(obj -> !obj.isEaten())
+			.count();
 
+		if (objectsLeft == 0 || lives == 0) {
+
+			// store result of game
+			won = (lives == 0) ? false : true;
+
+			// reset all game entities
+			GHOSTS.stream().forEach(Agent::reset);
+			PLAYER.reset();
+			GAME_OBJECTS.stream().forEach(GameObject::reset);
+
+			// reset game attributes
+			frames = 0;
+			points = 0;
+			lives = initialLives;
+
+			// Que 10 seconds of waiting with end screen
+			waitCounter = 60 * 10;
+		}
 	}
 
-	public void run()
+	public void drawGame()
 	{
 		// Draw map
 		app.background(0,0,0);
@@ -140,7 +194,9 @@ public class Game {
 		for (int j=0; j < 36; j++) {
 			for (int i=0; i < 28; i++) {
 				if (SPRITE_MAP[j][i] != null && SPRITE_MAP[j][i].isWall()) {
-					app.image(allSprites.get(SPRITE_MAP[j][i]), 16 * i, 16 * j);
+					if (allSprites.get(SPRITE_MAP[j][i]) != null) {
+						app.image(allSprites.get(SPRITE_MAP[j][i]), 16 * i, 16 * j);
+					}
 				}
 			}
 		}
@@ -156,15 +212,22 @@ public class Game {
 			PLAYER.draw(this);
 		}
 
-		GAME_OBJECTS.stream()
-			.filter(obj -> !obj.isEaten())
-			.forEach(obj -> obj.draw(this));
+		for (GameObject obj : GAME_OBJECTS) {
+			if (!obj.isEaten()) {
+				obj.draw(this);
+			}
+		}
 
-		GHOSTS.stream()
-			.filter(g -> g.isAlive())
-			.forEach(g -> g.draw(this));
+		for (Ghost ghost : GHOSTS) {
+			if (ghost.isAlive()) {
+				ghost.draw(this);
+			}
+		}
+	}
 
-		// Update state of game
+	public void ticGame()
+	{
+		Ghost.MODE = modeControl.update();
 
 		if (app.keyCode == 32) {
 			debugMode = (debugMode) ? false : true;
@@ -175,5 +238,25 @@ public class Game {
 		Ghost.TIC(this);
 
 		frames++;
+	}
+
+	public void run()
+	{
+		if (waitCounter < 1) {
+			if (won != null) {
+				won = null;
+			}
+
+			drawGame();
+			ticGame();
+			checkWin();
+		} else {
+			// only need to draw once
+			if (waitCounter == 60 * 10) {
+				endScreen(won);
+			}
+
+			waitCounter--;
+		}
 	}
 }

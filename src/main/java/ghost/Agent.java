@@ -1,35 +1,22 @@
 package ghost;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Super class to Player and Ghost, containing most of the basic functionality.
  */
 public class Agent extends Coordinate {
-	/**
-	 * A map of sprites representing the game map.
-	 */
+	/** A map of sprites representing the game map.  */
 	protected static Sprite[][] SPRITE_MAP;
 
-	/**
-	 * An integer value representing the speed.
-	 */
+	/** An integer value representing the speed.  */
 	protected static int speed = 0;
 
-	/**
-	 * Corners of SPRITE_MAP.
-	 */
-	static Point BOT_RIGHT, TOP_RIGHT, BOT_LEFT, TOP_LEFT;
-
-	/**
-	 * Current direction.
-	 */
+	/** Current direction.  */
 	protected Direction direction;
 
-	/**
-	 * Initial position as a point.
-	 */
+	/** Initial position as a point.  */
 	final Point initialPoint;
 
 	/**
@@ -46,17 +33,12 @@ public class Agent extends Coordinate {
 	}
 
 	/**
-	 * Initialises internal static variables.
-	 * @param config, a configuration object with the needed data
+	 * Initialises internal static variables for Agent and children.
+	 * @param config, a configuration object
 	 */
 	public static void SETUP(Configuration config) {
 		Agent.SPRITE_MAP = config.spriteMap;
-
-		// Get Corners
-		BOT_RIGHT = new Point(16 * SPRITE_MAP[0].length, 16 * SPRITE_MAP.length);
-		TOP_RIGHT = new Point(16 * SPRITE_MAP[0].length, 0);
-		BOT_LEFT = new Point(0 , 16 * SPRITE_MAP.length);
-		TOP_LEFT = new Point(0 , 0);
+		Ghost.SETUP(config);
 
 		if (config.speed == 1 || config.speed == 2) {
 			Agent.speed = config.speed;
@@ -78,7 +60,7 @@ public class Agent extends Coordinate {
 	 * when a player loses a life to a ghost, and this method is partially
 	 * overwritten in the sublcasses Player and ghost.
 	 */
-	public void softReset() {
+	public void reset() {
 		this.x = initialPoint.x;
 		this.y = initialPoint.y;
 		this.direction = null;
@@ -125,7 +107,7 @@ public class Agent extends Coordinate {
 
 			try {
 				Sprite sprite = SPRITE_MAP[point.y/16][point.x/16];
-				return !sprite.isWall();
+				return Sprite.occupiable(sprite);
 			} catch (IndexOutOfBoundsException e) {
 				return false;
 			}

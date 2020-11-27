@@ -46,12 +46,11 @@ public class Point {
 
 	public boolean equals(Object obj)
 	{
-		if (!(obj instanceof Point)) {
-			return false;
+		if (obj instanceof Point) {
+			Point point = (Point) obj;
+			return x == point.x && y == point.y;
 		}
-
-		Point point = (Point) obj;
-		return x == point.x && y == point.y;
+		return false;
 	}
 
 	public String toString() { return String.format("(%s, %s)", x, y); }

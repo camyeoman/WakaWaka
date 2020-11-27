@@ -43,8 +43,8 @@ public class Player extends Agent {
 	 * Resets player to initial position and resets all directions. This
 	 * partially overwrites the super method of Agent.
 	 */
-	public void softReset() {
-		super.softReset();
+	public void reset() {
+		super.reset();
 		this.queuedDirection = null;
 	}
 

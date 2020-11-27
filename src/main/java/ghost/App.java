@@ -13,6 +13,10 @@ public class App extends PApplet {
 
 	Game game;
 
+	public App(String fileName) {
+		game = new Game(this, fileName);
+	}
+
 	public App() {
 		game = new Game(this, "config.json");
 	}
@@ -27,14 +31,6 @@ public class App extends PApplet {
 	}
 
 	public void draw() {
-		if (game.lives < 1) {
-			try {
-				Thread.sleep(10 * 1000);
-			} catch (Exception e) {}
-
-			//game = new Game(this);
-		}
-
 		game.run();
 	}
 
