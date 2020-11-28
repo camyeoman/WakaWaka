@@ -2,34 +2,54 @@ package ghost;
 
 import processing.core.PApplet;
 import processing.core.PImage;
-
 import org.json.simple.JSONArray; 
 import org.json.simple.JSONObject; 
-import java.util.*;
 
+/**
+ * Rendering class.
+ */
 public class App extends PApplet {
-	public static final int HEIGHT = 576;
-	public static final int WIDTH = 448;
+	static final int HEIGHT = 576;
+	static final int WIDTH = 448;
 
-	Game game;
+	/**
+	 * Instance of game, manages all logic.
+	 */
+	final Game game;
 
+	/**
+	 * Initialise a App instance from a specific config file.
+	 * @param fileName, the file path to a json config file
+	 */
 	public App(String fileName) {
 		game = new Game(this, fileName);
 	}
 
+	/**
+	 * Default constructor using 'config.json'.
+	 */
 	public App() {
 		game = new Game(this, "config.json");
 	}
 
+	/**
+	 * Load PImages and PFont.
+	 */
 	public void setup() {
 		frameRate(60);
 		game.loadAssets();
 	}
 
+	/**
+	 * Initialise size of game window
+	 */
 	public void settings() {
 		size(WIDTH, HEIGHT);
 	}
 
+	/**
+	 * Main loop of program called 60 times a second.
+	 */
 	public void draw() {
 		game.run();
 	}
