@@ -4,41 +4,50 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Super class to Player and Ghost, containing most of the basic functionality.
+ * Super class to Player and Ghost. Interprets the game map
+ * and deals with basic movement.
  */
 public class Agent extends Coordinate {
-	/** A map of sprites representing the game map.  */
+	/**
+	 * A map of sprites representing the game map.
+	 */
 	protected static Sprite[][] SPRITE_MAP;
 
-	/** An integer value representing the speed.  */
+	/**
+	 * An integer representing the speed in range [1,2].
+	 */
 	protected static int speed = 0;
 
-	/** Current direction.  */
+	/**
+	 * Current direction.
+	 */
 	protected Direction direction;
 
-	/** Initial position as a point.  */
+	/**
+	 * Initial position as a point.
+	 */
 	final Point initialPoint;
 
 	/**
-	* Initialises an agent with an x and a y coordinate.
+	* Initialises an agent with a given position.
 	* @param x, the x coordinate
 	* @param y, the y coordinate
 	*/
 	public Agent(int x, int y) {
 		super(x, y);
 
-		// Store initial position for soft reset
+		// Store initial position for reset
 		this.initialPoint = new Point(x, y);
 		this.direction = null;
 	}
 
 	/**
-	 * Initialises internal static variables for Agent and children.
+	 * Initialises internal variables for Agent and its children.
 	 * @param config, a configuration object
 	 */
 	public static void SETUP(Configuration config) {
 		Agent.SPRITE_MAP = config.spriteMap;
-		Ghost.SETUP(config);
+		Ghost.setChaser(null);
 
 		if (config.speed == 1 || config.speed == 2) {
 			Agent.speed = config.speed;
@@ -125,7 +134,7 @@ public class Agent extends Coordinate {
 
 	/**
 	 * Returns a list of all valid directions.
-	 * @return the list of valid directions
+	 * @return a list of valid directions
 	 */
 	public List<Direction> validDirections() {
 		List<Direction> directions = new ArrayList<>();
@@ -139,10 +148,8 @@ public class Agent extends Coordinate {
 		return directions;
 	}
 
-	// Misc methods
-
 	/**
-	 * Returns a string containing the coordinates and direction.
+	 * Returns a string displaying the coordinates and direction.
 	 * @return a string representing the direction and coordinates
 	 */
 	public String toString() {
