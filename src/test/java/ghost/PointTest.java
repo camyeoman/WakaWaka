@@ -5,27 +5,25 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.*;
 
 public class PointTest {
-	/* Visualisation of test map
-			0123456789012
-		 0*************
-		 1*C        B *
-		 2**********  *
-		 3***  *  A*  *
-		 4*D**   *    *
-		 5*************
-	*/
 
+	/**
+	 * Test point constructor with given x and y.
+	 */
 	@Test
-	public void constructor()
-	{
+	public void constructor() {
+
 		Point point = new Point(1, 1);
 		assertNotNull(point);
 		assertTrue(point.x == 1 && point.y == 1);
+
 	}
 
+	/**
+	 * Test getting the distance between two point objects.
+	 */
 	@Test
-	public void distance()
-	{
+	public void distance() {
+
 		Point a, b;
 
 		// Horizontal
@@ -42,11 +40,15 @@ public class PointTest {
 		a = new Point(5, 5);
 		b = new Point(0, 2);
 		assertTrue(a.distance(b) == 6);
+
 	}
 
+	/**
+	 * Test restricting the range of a point with upper bounds.
+	 */
 	@Test
-	public void restrictRange()
-	{
+	public void restrictRange() {
+
 		Point point;
 
 		// Horizontal
@@ -73,18 +75,27 @@ public class PointTest {
 
 		point = new Point (224, 160).restrictRange(448, 576);
 		assertTrue(point.x == 224 && point.y == 160);
+
 	}
 
+	/**
+	 * Test the string representation of the state of a point.
+	 */
 	@Test
-	public void testToString()
-	{
+	public void testToString() {
+
 		Point point = new Point(1, 1);
 		assertEquals(point.toString(), "(1, 1)");
+
 	}
 
 
+	/**
+	 * Test snapping to a 16 pixel grid squares.
+	 */
 	@Test
 	public void gridSnap() {
+
 		Point point, testPoint;
 
 		point = new Point(16 + 5, 16);
@@ -96,13 +107,19 @@ public class PointTest {
 		assertEquals(point.gridSnap(Direction.down), new Point(16, 16));
 
 		point = new Point(16, 16);
+
 		for (Direction d : Direction.values()) {
 			assertEquals(point, point.gridSnap(d));
 		}
+
 	}
 
+	/**
+	 * Test the equals method.
+	 */
 	@Test
 	public void equals() {
+
 		Point[] pointsA = new Point[]{
 			new Point(16,  16), new Point(32,  16), new Point(48,  16),
 			new Point(64,  16), new Point(80,  16), new Point(96,  16)
@@ -130,5 +147,7 @@ public class PointTest {
 
 		// Different type
 		assertNotEquals(new Point(1, 1), "hello");
+
 	}
+
 }
