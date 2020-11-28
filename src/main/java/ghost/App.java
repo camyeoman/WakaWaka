@@ -7,6 +7,7 @@ import processing.core.PImage;
  * Rendering class.
  */
 public class App extends PApplet {
+
 	static final int HEIGHT = 576;
 	static final int WIDTH = 448;
 
@@ -55,4 +56,5 @@ public class App extends PApplet {
 	public static void main(String[] args) {
 		PApplet.main("ghost.App");
 	}
+
 }
