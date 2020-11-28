@@ -10,9 +10,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.json.simple.parser.ParseException;
+import org.json.simple.parser.JSONParser;
 import org.json.simple.JSONObject; 
 import org.json.simple.JSONArray; 
-import org.json.simple.parser.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -21,36 +22,48 @@ import java.io.Reader;
 import java.io.File;
 
 /**
- * An class used to parse user files and then transfer the parsed data to the
- * other classes in setup.
+ * Parse and store data from files.
  */
 public class Configuration {
 
-	/** Time in seconds for each mode */
+	/**
+	 * Time in seconds for each mode, alternating between SCATTER and CHASE.
+	 */
 	List<Integer> modeLengths;
 
-	/** Duration of the frightened duration found in config file */
+	/**
+	 * Duration of the frightened duration found in config file
+	 */
 	int frightenedDuration;
 
-	/** Store any errors that occur */
+	/**
+	 * Store any errors that occur
+	 */
 	final Errors error;
 
-	/** File path to map text file found in config file */
+	/**
+	 * File path to map text file found in config file
+	 */
 	String mapFile;
 
-	/** Store the game map as a 2D array of Sprite objects.  */
+	/**
+	 * Store the game map as a 2D array of Sprite objects.
+	 */
 	Sprite[][] spriteMap;
 
-	/** Number of lives for player found in config file */
+	/**
+	 * Number of lives for player found in config file
+	 */
 	int lives;
 
-	/** Speed of all moving game entities found in config file */
+	/**
+	 * Speed of all moving game entities found in config file
+	 */
 	int speed;
 
-	/** For storing the corners of the map */
-	Map<String, Point> corners;
-
-	/** For returning specific errors */
+	/**
+	 * For returning specific errors
+	 */
 	enum Errors {
 		fileNotFound,
 		parseException;
@@ -63,19 +76,19 @@ public class Configuration {
 	 */
 	public Configuration(String configFile) {
 		Errors tempError = parseConfig(configFile);
+
+		// only parse map if no errors
 		error = (tempError == null) ? parseMap() : tempError;
 	}
 
 	/**
 	 * Empty constructor, allows the user to populate the config object manually.
 	 * This is used for testing when a specific attribute is created manually for
-	 * testing and not put into a test file.
+	 * testing.
 	 */
 	public Configuration() {
-		// Error is final variable, must be initialised
 		error = null;
 	}
-
 
 	// Helper functions
 
@@ -86,8 +99,7 @@ public class Configuration {
 	 * @param rawString, the string to be parsed
 	 * @return all matches of the regular expression found in the string
 	 */
-	private static String[] extractMatches(String regex, String rawString)
-	{
+	private static String[] extractMatches(String regex, String rawString) {
 		// returns all the matches of a regular expression
 		Matcher match = Pattern.compile(regex).matcher(rawString);
 		List<String> matches = new ArrayList<>();
@@ -105,8 +117,7 @@ public class Configuration {
 	 * @param configFilePath, the relative file path of the config file
 	 * @return the error that occured, or null if none occured
 	 */
-	public Errors parseConfig(String configFilePath)
-	{
+	public Errors parseConfig(String configFilePath) {
 		JSONObject config = null;
 
 		try {
@@ -151,8 +162,7 @@ public class Configuration {
 	* errors occur return them.
 	* @return the error that occured, or null if none occured
 	*/
-	public Errors parseMap()
-	{
+	public Errors parseMap() {
 		spriteMap = new Sprite[36][28];
 
 		// Parse map file, if it exists
@@ -164,6 +174,8 @@ public class Configuration {
 			for (int i=0; fileReader.hasNextLine(); i++) {
 				// Note that valid characters are 0,1,2,3,4,5,6,7,8,9,p,a,c,i,w
 				String[] line = extractMatches("[0-9paciw]",fileReader.nextLine());
+
+				// convert characters to Sprites
 				spriteMap[i] = Arrays.stream(line)
 					.map(c -> Sprite.getSprite(c))
 					.toArray(Sprite[]::new);
@@ -172,18 +184,7 @@ public class Configuration {
 			return Errors.fileNotFound;
 		}
 
-		// Get corners of map
-
-		int width  = 16 * spriteMap[0].length;
-		int height = 16 * spriteMap.length;
-
-		corners = new HashMap<String, Point>();
-
-		corners.put("botRight", new Point(width, height));
-		corners.put("botLeft" , new Point(0, height));
-		corners.put("topRight", new Point(width, 0));
-		corners.put("topLeft" , new Point(0, 0));
-
 		return null;
 	}
+
 }
