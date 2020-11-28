@@ -1,14 +1,29 @@
 package ghost;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-import java.util.*;
-import java.util.stream.*;
+
+import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class GhostTest extends TestTools {
+
+	/**
+	 * Test ghost constructor for all types of ghost.
+	 */
 	@Test
-	public void constructor()
-	{
+	public void constructor() {
+
 		Ghost ghost;
 
 		List<Sprite> ghosts = Arrays.stream(Sprite.values())
@@ -37,11 +52,40 @@ public class GhostTest extends TestTools {
 		assertEquals(whim.type, Ghost.Type.whim);
 
 		assertNotNull(new Ghost(1,1,null));
+
 	}
 
+	/**
+	 * Helper function for testing valid direction.
+	 */
+	private void testValidDirect(Direction direction, Boolean[] expected, Ghost ghost) {
+
+		ghost.direction = direction;
+
+		for (int i=0; i < 4; i++) {
+			Direction testDirection = Direction.values()[i];
+			boolean contained = ghost.validDirections().contains(testDirection);
+
+			if (!contained == expected[i]) {
+				System.out.printf("%s should be %s\n",
+					Arrays.toString(expected), ghost.validDirections()
+				);
+			}
+
+			assertTrue(contained == expected[i]);
+		}
+
+		ghost.direction = null;
+
+	}
+
+	/**
+	 * Test the valid directions, partially overwritten from
+	 * the super class Agent.
+	 */
 	@Test
-	public void validDirections()
-	{
+	public void validDirections() {
+
 		Sprite[] ghosts = new Sprite[]{
 			Sprite.ambusher,
 			Sprite.ignorant,
@@ -88,31 +132,15 @@ public class GhostTest extends TestTools {
 			// null case
 			testValidDirect(null, new Boolean[]{ false, false, false, false },  D);
 		}
+
 	}
 
-	private void testValidDirect(Direction direction, Boolean[] expected, Ghost ghost)
-	{
-		ghost.direction = direction;
-
-		for (int i=0; i < 4; i++) {
-			Direction testDirection = Direction.values()[i];
-			boolean contained = ghost.validDirections().contains(testDirection);
-
-			if (!contained == expected[i]) {
-				System.out.printf("%s should be %s\n",
-					Arrays.toString(expected), ghost.validDirections()
-				);
-			}
-
-			assertTrue(contained == expected[i]);
-		}
-
-		ghost.direction = null;
-	}
-
+	/**
+	 * Test the navigation behaviour of ghost which are of class ambusher.
+	 */
 	@Test
-	public void ambusher()
-	{
+	public void ambusher() {
+
 		Configuration config = new Configuration("src/test/resources/config1.json");
 		Agent.SETUP(config);
 
@@ -122,16 +150,16 @@ public class GhostTest extends TestTools {
 
 		// scatter behaviour
 
-		Ghost.MODE = Ghost.Mode.SCATTER;
+		Ghost.setMode(Ghost.Mode.SCATTER);
 
-		Point corner = config.corners.get("topRight");
+		Point corner = new Point(16 * config.spriteMap[0].length, 0);
 		player.direction = Direction.right;
 		target = Ghost.ambusher(player);
 		assertTrue(target.x == corner.x && target.y == corner.y);
 
 		// Test chasing behaviour
 		
-		Ghost.MODE = Ghost.Mode.CHASE;
+		Ghost.setMode(Ghost.Mode.CHASE);
 
 		player.direction = Direction.right;
 		target = Ghost.ambusher(player);
@@ -148,11 +176,15 @@ public class GhostTest extends TestTools {
 		player.direction = Direction.up;
 		target = Ghost.ambusher(player);
 		assertTrue(target.x == player.x && target.y == player.y - 16 * 4);
+
 	}
 
+	/**
+	 * Test the navigation behaviour of ghost which are of class ambusher.
+	 */
 	@Test
-	public void ignorant()
-	{
+	public void ignorant() {
+
 		Configuration config = new Configuration("src/test/resources/config1.json");
 		Agent.SETUP(config);
 
@@ -163,9 +195,9 @@ public class GhostTest extends TestTools {
 
 		// scatter behaviour
 
-		Ghost.MODE = Ghost.Mode.SCATTER;
+		ghost.setMode(Ghost.Mode.SCATTER);
 
-		Point corner = config.corners.get("botLeft");
+		Point corner = new Point(0, 16 * config.spriteMap.length);
 		player.direction = Direction.right;
 
 		target = Ghost.ignorant(ghost.point(), player);
@@ -174,7 +206,7 @@ public class GhostTest extends TestTools {
 
 		// Test chasing behaviour (in range)
 
-		Ghost.MODE = Ghost.Mode.CHASE;
+		ghost.setMode(Ghost.Mode.CHASE);
 
 		target = Ghost.ignorant(ghost.point(), player);
 		assertEquals(ghost.target(player), target);
@@ -187,11 +219,15 @@ public class GhostTest extends TestTools {
 		target = Ghost.ignorant(ghost.point(), player);
 		assertEquals(ghost.target(player), target);
 		assertTrue(target.x == player.x && target.y == player.y);
+
 	}
 
+	/**
+	 * Test the navigation behaviour of ghost which are of class ambusher.
+	 */
 	@Test
-	public void chaser()
-	{
+	public void chaser() {
+
 		Configuration config = new Configuration("src/test/resources/config1.json");
 		Agent.SETUP(config);
 
@@ -202,9 +238,9 @@ public class GhostTest extends TestTools {
 
 		// scatter behaviour
 
-		Ghost.MODE = Ghost.Mode.SCATTER;
+		ghost.setMode(Ghost.Mode.SCATTER);
 
-		Point corner = config.corners.get("topLeft");
+		Point corner = new Point(0, 0);
 		player.direction = Direction.right;
 		target = Ghost.chaser(player);
 		assertEquals(target, ghost.target(player));
@@ -212,17 +248,21 @@ public class GhostTest extends TestTools {
 
 		// Test chasing behaviour
 
-		Ghost.MODE = Ghost.Mode.CHASE;
+		ghost.setMode(Ghost.Mode.CHASE);
 
 		player.direction = Direction.right;
 		target = Ghost.chaser(player);
 		assertEquals(target, ghost.target(player));
 		assertTrue(target.x == player.x && target.y == player.y);
+
 	}
 
+	/**
+	 * Test the navigation behaviour of ghost which are of class whim.
+	 */
 	@Test
-	public void whim()
-	{
+	public void whim() {
+
 		Configuration config = new Configuration("src/test/resources/config1.json");
 		Agent.SETUP(config);
 
@@ -233,9 +273,9 @@ public class GhostTest extends TestTools {
 
 		// scatter behaviour
 
-		Ghost.MODE = Ghost.Mode.SCATTER;
+		ghost.setMode(Ghost.Mode.SCATTER);
 
-		Point corner = config.corners.get("botRight");
+		Point corner = new Point(16 * config.spriteMap[0].length, 16 * config.spriteMap.length);
 		player.direction = Direction.right;
 		target = Ghost.whim(player);
 		assertEquals(ghost.target(player), target);
@@ -243,7 +283,7 @@ public class GhostTest extends TestTools {
 
 		// test chasing phase (no chaser)
 
-		Ghost.MODE = Ghost.Mode.CHASE;
+		ghost.setMode(Ghost.Mode.CHASE);
 
 		player.direction = Direction.right;
 		target = Ghost.whim(player);
@@ -273,11 +313,15 @@ public class GhostTest extends TestTools {
 		player.direction = Direction.right;
 		assertEquals(ghost.target(player), Ghost.whim(player));
 		assertEquals(Ghost.whim(player), new Point(64,32));
+
 	}
 
+	/**
+	 * Test updating the internal state of a ghost through the evolve method.
+	 */
 	@Test
-	public void evolve()
-	{
+	public void evolve() {
+
 		Agent.SETUP(new Configuration("src/test/resources/config1.json"));
 
 		// test normal moving and basic collision
@@ -325,11 +369,15 @@ public class GhostTest extends TestTools {
 		ghost.setMode(Ghost.Mode.SCATTER);
 		assertFalse(chaser.evolve(player));
 		assertFalse(ghost.evolve(player));
+
 	}
 
+	/**
+	 * Test reset, which is partially overwritten from the super class Agent.
+	 */
 	@Test
-	public void reset()
-	{
+	public void reset() {
+
 		Agent.SETUP(new Configuration("src/test/resources/config1.json"));
 
 		Ghost ghost = new Ghost(16, 16, Sprite.chaser);
@@ -342,24 +390,28 @@ public class GhostTest extends TestTools {
 		assertEquals(ghost.point(), new Point(32, 16));
 		ghost.reset();
 		assertEquals(ghost.point(), new Point(16, 16));
+
 	}
 
+	/**
+	 * Test evolving all ghosts in a game instance, using the static TIC method.
+	 */
 	@Test
 	public void TIC() {
+
 		App app = new App("src/test/resources/simpleConfig.json");
 		Game game = app.game;
 
 		// Test player killing ghost
 
-		Ghost ghost = game.GHOSTS.get(0);
+		Ghost ghost = game.ghosts.get(0);
 		for (int i=0; ghost.getX() > 31; i++) {
 			assertEquals(ghost.point(), new Point(416-i, 304));
 			Ghost.TIC(game);
 		}
 
-		game.modeControl.queueMode(Ghost.Mode.FRIGHTENED);
-
-		game.ticGame();
+		Ghost.setMode(Ghost.Mode.FRIGHTENED);
+		Ghost.TIC(game);
 		assertFalse(ghost.isAlive());
 
 		app = new App("src/test/resources/simpleConfig.json");
@@ -367,26 +419,32 @@ public class GhostTest extends TestTools {
 
 		// Test ghost killing player
 
-		ghost = game.GHOSTS.get(0);
+		ghost = game.ghosts.get(0);
 		for (int i=0; ghost.getX() > 31; i++) {
 			assertEquals(ghost.point(), new Point(416-i, 304));
 			Ghost.TIC(game);
 		}
 
-		game.ticGame();
+		Ghost.setMode(Ghost.Mode.CHASE);
+		Ghost.TIC(game);
 		assertTrue(ghost.isAlive());
 		assertSame(game.lives, 1);
+
 	}
 
+	/**
+	 * Test drawing a ghost instance including the debug mode.
+	 */
 	@Test
 	public void draw() {
+
 		App app = new App("src/test/resources/simpleConfig.json");
 		Game game = app.game;
 
 		App.runSketch(new String[]{"App"}, app);
 		app.setup();
 
-		Ghost ghost = game.GHOSTS.get(0);
+		Ghost ghost = game.ghosts.get(0);
 		ghost.draw(game);
 
 		// Debug mode active
@@ -405,9 +463,46 @@ public class GhostTest extends TestTools {
 
 	}
 
+	/**
+	 * Test if isCorner returns the correct answer to whether or not a point is a
+	 * corner.
+	 */
 	@Test
-	public void getSprite()
-	{
+	public void isCorner() {
+
+		Agent.SETUP(new Configuration("src/test/resources/simpleConfig.json"));
+
+		int width = 16 * Agent.SPRITE_MAP[0].length;
+		int height = 16 * Agent.SPRITE_MAP.length;
+
+		List<Point> corners = new ArrayList<>();
+		corners.add(new Point(0,     0));
+		corners.add(new Point(width, 0));
+
+		corners.add(new Point(0,     height));
+		corners.add(new Point(width, height));
+
+		Point[] points = new Point[]{
+			new Point(16,  16), new Point(32,  16), new Point(48,  16),
+			new Point(64,  16), new Point(80,  16), new Point(96,  16)
+		};
+
+		for (Point point : points) {
+			assertFalse(Ghost.isCorner(point));
+		}
+
+		for (Point point : corners) {
+			assertTrue(Ghost.isCorner(point));
+		}
+
+	}
+
+	/**
+	 * Test getSprite returns the correct sprite object for each state.
+	 */
+	@Test
+	public void getSprite() {
+
 		Agent.SETUP(new Configuration("src/test/resources/config1.json"));
 
 		for (Sprite sprite : Sprite.values()) {
@@ -415,19 +510,19 @@ public class GhostTest extends TestTools {
 			Ghost ghost = new Ghost(16, 16, sprite);
 
 			if (sprite.isGhost()) {
-				Ghost.MODE = Ghost.Mode.SCATTER;
+				ghost.setMode(Ghost.Mode.SCATTER);
 				assertEquals(ghost.getSprite(), sprite);
 
-				Ghost.MODE = Ghost.Mode.CHASE;
+				ghost.setMode(Ghost.Mode.CHASE);
 				assertEquals(ghost.getSprite(), sprite);
 
-				Ghost.MODE = null;
+				ghost.setMode(null);
 				assertEquals(ghost.getSprite(), sprite);
 
-				Ghost.MODE = Ghost.Mode.FRIGHTENED;
+				ghost.setMode(Ghost.Mode.FRIGHTENED);
 				assertEquals(ghost.getSprite(), Sprite.frightened);
 
-				Ghost.MODE = Ghost.Mode.INVISIBLE;
+				ghost.setMode(Ghost.Mode.INVISIBLE);
 				assertEquals(ghost.getSprite(), Sprite.invisible);
 			} else {
 
@@ -437,7 +532,9 @@ public class GhostTest extends TestTools {
 				}
 
 			}
+
 		}
 
 	}
+
 }
