@@ -4,12 +4,24 @@
 package ghost;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class AppTest {
-    @Test 
-    public void simpleTest() {
-        App classUnderTest = new App();
-        assertNotNull(classUnderTest);
-    }
+
+	/**
+	 * Test the default constructor and the secondary constructor that loads a
+	 * specific test config.
+	 */
+	@Test 
+	public void simpleTest() {
+
+		App app = new App();
+		assertNotNull(app);
+
+		app = new App("src/test/resources/simpleConfig.json");
+		assertNotNull(app);
+
+	}
+
 }
