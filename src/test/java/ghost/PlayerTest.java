@@ -1,69 +1,65 @@
 package ghost;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-import java.util.*;
+
+import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class PlayerTest extends TestTools {
-	/* Visualisation of test map
-			0123456789012
-		 0*************
-		 1*           *
-		 2**********  *
-		 3***  *   *  *
-		 4* **   *    *
-		 5*************
-	*/
+
+	/**
+	 * Test constructor for a player object.
+	 */
 	@Test
-	public void constructor()
-	{
+	public void constructor() {
+
 		Agent.SETUP(new Configuration("src/test/resources/config1.json"));
 
 		Player player = new Player(1, 1);
 		assertNotNull(player);
-	}
-
-	@Test
-	public void getSprite()
-	{
-		Agent.SETUP(new Configuration("src/test/resources/config1.json"));
-
-		int counter = 0;
-		Player player = new Player(16, 16);
-		for (Direction d : Direction.values()) {
-			player.direction = d;
-			counter = 8;
-			//assertEquals(player.getSprite(counter++), player.sprites.get(d));
-			//assertEquals(player.getSprite(counter), player.sprites.get(d));
-		}
 
 	}
 
+	/**
+	 * Test reset, which is partially overwritten from Agent.
+	 */
 	@Test
 	public void reset() {
+
 		Agent.SETUP(new Configuration("src/test/resources/config1.json"));
 
 		Player player = new Player(16, 16);
 
-		// Keycodes
-		// Left - 37
-		// Up - 38
-		// Right - 39
-		// Down - 40
-
-		// set direction to right
 		for (int i=0; i < 16; i++) {
-			player.evolve(39);
+			player.evolve(Direction.right.KEY_CODE);
 			assertEquals(player.direction(), Direction.right);
 		}
 
 		assertEquals(player.point(), new Point(32, 16));
+
 		player.reset();
+
 		assertEquals(player.point(), new Point(16, 16));
+
 	}
 
+	/**
+	 * Update player position, accepting a keyCode for direction.
+	 */
 	@Test
 	public void evolve() {
+
 		Agent.SETUP(new Configuration("src/test/resources/config1.json"));
 
 		Player player = new Player(16, 16);
@@ -111,11 +107,15 @@ public class PlayerTest extends TestTools {
 			assertEquals(player.direction(), Direction.up);
 			assertEquals(player.point(), new Point(16*10, 16 * 4 - (i+1)));
 		}
+
 	}
 
-	
+	/**
+	 * Queue a direction associated with the given keyCode.
+	 */
 	@Test
 	public void keyboardInput() {
+
 		Agent.SETUP(new Configuration("src/test/resources/config1.json"));
 
 		// Keycodes
@@ -150,6 +150,51 @@ public class PlayerTest extends TestTools {
 				assertEquals(player.queuedDirection(), direction);
 			}
 		}
+
+	}
+
+	/**
+	 * Queue a direction associated with the given keyCode.
+	 */
+	@Test
+	public void getSprite() {
+
+		Agent.SETUP(new Configuration("src/test/resources/config1.json"));
+
+		Player player = new Player(10 * 16, 16);
+
+		// null direction
+		assertNull(player.direction());
+		assertEquals(player.getSprite(0), Sprite.playerRight);
+
+		// head down
+		player.evolve(Direction.down.KEY_CODE);
+		assertEquals(player.getSprite(0), Sprite.playerDown);
+		assertEquals(player.getSprite(8), Sprite.playerClosed);
+		assertEquals(player.getSprite(8), Sprite.playerDown);
+		assertEquals(player.getSprite(5), Sprite.playerDown);
+
+		// head up
+		player.evolve(Direction.up.KEY_CODE);
+		assertEquals(player.getSprite(0), Sprite.playerUp);
+		assertEquals(player.getSprite(8), Sprite.playerClosed);
+		assertEquals(player.getSprite(8), Sprite.playerUp);
+		assertEquals(player.getSprite(5), Sprite.playerUp);
+
+
+		// head right
+		player.evolve(Direction.right.KEY_CODE);
+		assertEquals(player.getSprite(0), Sprite.playerRight);
+		assertEquals(player.getSprite(8), Sprite.playerClosed);
+		assertEquals(player.getSprite(8), Sprite.playerRight);
+		assertEquals(player.getSprite(5), Sprite.playerRight);
+
+		// head left
+		player.evolve(Direction.left.KEY_CODE);
+		assertEquals(player.getSprite(0), Sprite.playerLeft);
+		assertEquals(player.getSprite(8), Sprite.playerClosed);
+		assertEquals(player.getSprite(8), Sprite.playerLeft);
+		assertEquals(player.getSprite(5), Sprite.playerLeft);
 
 	}
 
