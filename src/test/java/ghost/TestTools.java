@@ -5,22 +5,40 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 public class TestTools {
+
+	/**
+	 * Manually entered map.
+	 */
 	static Sprite[][] map1;
 
+	/**
+	 * Helper function to get string representation.
+	 */
 	public String getString(int x, int y, Direction direction) {
+
 		return String.format(
 			"(%s, %s) heading %s",
 			x,
 			y,
 			(direction==null ? "null" : direction)
 		);
+
 	}
 
+	/**
+	 * Compare the expected and actual value.
+	 */
 	public void expected(Object a, Object b) {
+
 		System.out.println(a + " expected " + b);
+
 	}
 
+	/**
+	 * Parse manually entered representation.
+	 */
 	static {
+
 		String[][] stringMap;
 
 		stringMap = new String[][] {
@@ -69,5 +87,7 @@ public class TestTools {
 				map1[j][i] = Sprite.getSprite(stringMap[j][i]);
 			}
 		}
+
 	}
+
 }
