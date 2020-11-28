@@ -2,8 +2,6 @@ package ghost;
 
 import processing.core.PApplet;
 import processing.core.PImage;
-import org.json.simple.JSONArray; 
-import org.json.simple.JSONObject; 
 
 /**
  * Rendering class.
