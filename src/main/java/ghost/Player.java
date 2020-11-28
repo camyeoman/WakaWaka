@@ -57,9 +57,8 @@ public class Player extends Agent {
 	 * @return a Sprite representing current state
 	 */
 	public Sprite getSprite(int frames) {
-		// toggle whether Waka has mouth open
-		if (frames % 8 == 0) {
-			open = (open) ? false : true;
+		if (frames > 0 && frames % 8 == 0) {
+			open = !open;
 		}
 
 		Sprite sprite = null;
@@ -100,9 +99,22 @@ public class Player extends Agent {
 		}
 	}
 
+	/**
+	 * Update the state of player by interfacing with the game class.
+	 * Uses the app.keyCode to read user input.
+	 * @param game, the game instance
+	 */
 	public void TIC(Game game) {
 		game.PLAYER.evolve(game.app.keyCode);
 		game.app.keyCode = 0;
+	}
+
+	/**
+	 * Draws the player.
+	 * @param game, the current game object
+	 */
+	public void draw(Game game) {
+		game.draw(getSprite(game.frames), displayX(), displayY(), null);
 	}
 
 	/**
@@ -137,13 +149,5 @@ public class Player extends Agent {
 
 		// if the keyCode is valid
 		return keyCode >= 37 && keyCode <= 40;
-	}
-
-	/**
-	 * Draws the player.
-	 * @param game, the current game object
-	 */
-	public void draw(Game game) {
-		game.draw(getSprite(game.frames), displayX(), displayY(), null);
 	}
 }
