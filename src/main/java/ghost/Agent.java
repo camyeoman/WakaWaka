@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Super class to Player and Ghost. Interprets the game map
- * and deals with basic movement.
+ * Super class to Player and Ghost. Interprets the game map and deals with
+ * basic movement.
  */
 public class Agent extends Coordinate {
+
 	/**
 	 * A map of sprites representing the game map.
 	 */
@@ -34,11 +35,13 @@ public class Agent extends Coordinate {
 	* @param y, the y coordinate
 	*/
 	public Agent(int x, int y) {
+
 		super(x, y);
 
 		// Store initial position for reset
 		this.initialPoint = new Point(x, y);
 		this.direction = null;
+
 	}
 
 	/**
@@ -46,12 +49,14 @@ public class Agent extends Coordinate {
 	 * @param config, a configuration object
 	 */
 	public static void SETUP(Configuration config) {
+
 		Agent.SPRITE_MAP = config.spriteMap;
 		Ghost.setChaser(null);
 
 		if (config.speed == 1 || config.speed == 2) {
 			Agent.speed = config.speed;
 		}
+
 	}
 
 	// Getter and Setter methods
@@ -70,9 +75,11 @@ public class Agent extends Coordinate {
 	 * overwritten in the sublcasses Player and ghost.
 	 */
 	public void reset() {
+
 		this.x = initialPoint.x;
 		this.y = initialPoint.y;
 		this.direction = null;
+
 	}
 
 	// Position and Direction methods
@@ -85,18 +92,28 @@ public class Agent extends Coordinate {
 	 * @return A new Point object with translated coordinates
 	 */
 	public Point translate(Direction direction, int magnitude) {
+
 		Point point = point();
 
 		if (direction != null) {
 			switch (direction) {
-				case right:  point.x += speed * magnitude;  break;
-				case down:   point.y += speed * magnitude;  break;
-				case left:   point.x -= speed * magnitude;  break;
-				case up:     point.y -= speed * magnitude;  break;
+				case right:
+					point.x += speed * magnitude;
+					break;
+				case down:
+					point.y += speed * magnitude;
+					break;
+				case left:
+					point.x -= speed * magnitude;
+					break;
+				case up:
+					point.y -= speed * magnitude;
+					break;
 			}
 		}
 
 		return point;
+
 	}
 
 	// Navigation methods
@@ -107,6 +124,7 @@ public class Agent extends Coordinate {
 	 * @return a boolean representing if the direction is valid
 	 */
 	public boolean validDirection(Direction newDirection) {
+
 		if (newDirection == null) {
 			return false;
 		}
@@ -130,6 +148,7 @@ public class Agent extends Coordinate {
 			}
 
 		}
+
 	}
 
 	/**
@@ -137,6 +156,7 @@ public class Agent extends Coordinate {
 	 * @return a list of valid directions
 	 */
 	public List<Direction> validDirections() {
+
 		List<Direction> directions = new ArrayList<>();
 		
 		for (Direction d : Direction.values()) {
@@ -146,6 +166,7 @@ public class Agent extends Coordinate {
 		}
 
 		return directions;
+
 	}
 
 	/**
@@ -153,11 +174,14 @@ public class Agent extends Coordinate {
 	 * @return a string representing the direction and coordinates
 	 */
 	public String toString() {
+
 		return String.format(
 			"(%s, %s) heading %s",
 			x,
 			y,
 			(direction==null ? "null" : direction)
 		);
+
 	}
+
 }
