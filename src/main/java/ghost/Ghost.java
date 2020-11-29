@@ -343,8 +343,8 @@ public class Ghost extends Agent {
 	}
 
 	/**
-	 * The target of a amusher type of ghost. This target varies
-	 * with the mode and the player position.
+	 * The target of a amusher type of ghost. This target varies with the mode
+	 * and the player position.
 	 * @param player, a player object
 	 * @return the target point
 	 */
@@ -361,8 +361,9 @@ public class Ghost extends Agent {
 	}
 
 	/**
-	 * The target of a ignorant type of ghost. This target varies
-	 * with the mode and the player position.
+	 * The target of a ignorant type of ghost. This target varies with the mode
+	 * and the player position.
+	 * @param current, the current position of the ghost
 	 * @param player, a player object
 	 * @return the target point
 	 */
@@ -379,8 +380,8 @@ public class Ghost extends Agent {
 	}
 
 	/**
-	 * The target of a chaser type of ghost. This target varies
-	 * with the mode and the player position.
+	 * The target of a chaser type of ghost. This target varies with the mode and
+	 * the player position.
 	 * @param player, a player object
 	 * @return the target point
 	 */
@@ -396,8 +397,8 @@ public class Ghost extends Agent {
 	}
 
 	/**
-	 * The target of a whim type of ghost. This target varies
-	 * with the mode and the player position.
+	 * The target of a whim type of ghost. This target varies with the mode and
+	 * the player position.
 	 * @param player, a player object
 	 * @return the target point
 	 */
