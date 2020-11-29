@@ -122,12 +122,12 @@ public class GameObject extends Coordinate {
 	/**
 	 * Returns false if the player is close enough and sets the state to eaten,
 	 * else returns true if the player was not close enough.
-	 * @param PLAYER, a player object
+	 * @param player, a player object
 	 * @return returns true for no interaction between game object and player
 	 */
-	public boolean evolve(Player PLAYER) {
+	public boolean evolve(Player player) {
 
-		if (point().distance(PLAYER.point()) < 10) {
+		if (point().distance(player.point()) < 10) {
 			eaten = true;
 			return false;
 		}
