@@ -527,7 +527,7 @@ public class GhostTest extends TestTools {
 			} else {
 
 				for (Ghost.Mode mode : Ghost.Mode.values()) {
-					Ghost.MODE = mode;
+					Ghost.setMode(mode);
 					assertNull(ghost.getSprite());
 				}
 
