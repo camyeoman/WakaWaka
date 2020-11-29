@@ -251,16 +251,16 @@ public class Ghost extends Agent {
 	}
 
 	/**
-	 * Draws the ghost object to the screen. If mode is FRIGHTENED
-	 * do not draw debug lines, and if the point is not a corner
-	 * center the debug lines on the center of the target square.
+	 * Draws the ghost object to the screen. If mode is FRIGHTENED or INVISIBLE
+	 * do not draw debug lines, and if the point is not a corner center the debug
+	 * lines on the center of the target square.
 	 * @param game, the game instance to draw to
 	 */
 	public void draw(Game game) {
 
 		Point target = null;
 
-		if (MODE != Mode.FRIGHTENED && MODE != null) {
+		if (MODE == Mode.SCATTER || MODE == Mode.CHASE) {
 			target = target(game.player);
 
 			if (!isCorner(target)) {
@@ -300,9 +300,9 @@ public class Ghost extends Agent {
 	/**
 	 * Returns the next direction based on the type of ghost and the current
 	 * mode. The type of ghost determines the navigation behaviour, but this
-	 * behaviour can be overidden if the mode is FRIGHTENED. To determine
-	 * the next direction sort the valid direction by their straight line
-	 * distance from the target point.
+	 * behaviour can be overidden if the mode is FRIGHTENED or INVISIBLE. To
+	 * determine the next direction, valid direction was sorted by the
+	 * straight line distance from the target point.
 	 * @param player, a player object
 	 * @return the next valid direction
 	 */
@@ -317,7 +317,7 @@ public class Ghost extends Agent {
 			});
 		}
 
-		if (MODE == Mode.FRIGHTENED) {
+		if (MODE == Mode.FRIGHTENED || MODE == Mode.INVISIBLE) {
 			int random = new Random().nextInt(valid.size());
 			return valid.get(random);
 		} else  {
