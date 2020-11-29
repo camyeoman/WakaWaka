@@ -187,7 +187,7 @@ public class GameTest extends TestTools {
 
 		app = new App("src/test/resources/testUI.json");
 		game = app.game;
-		Ghost.MODE = Ghost.Mode.FRIGHTENED;
+		Ghost.setMode(Ghost.Mode.FRIGHTENED);
 
 		// place super fruit under player
 		GameObject superFruit = new GameObject(player.x,player.y,Sprite.superFruit);
@@ -232,12 +232,12 @@ public class GameTest extends TestTools {
 		Ghost whim = new Ghost(0, 0, Sprite.whim);
 
 		// kill ghosts
-		Ghost.MODE = Ghost.Mode.FRIGHTENED;
+		Ghost.setMode(Ghost.Mode.FRIGHTENED);
 		ambusher.evolve(player);
 		ignorant.evolve(player);
 		chaser.evolve(player);
 		whim.evolve(player);
-		Ghost.MODE = Ghost.Mode.SCATTER;
+		Ghost.setMode(Ghost.Mode.SCATTER);
 
 		// add to game ghost list
 		game.ghosts.add(ambusher);

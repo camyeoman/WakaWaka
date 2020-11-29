@@ -21,6 +21,7 @@ interface lambdaTest<T, U, V> {
 }
 
 public class AgentTest extends TestTools {
+
 	static {
 		Configuration config = new Configuration("src/test/resources/config1.json");
 		Agent.SETUP(config);
@@ -193,8 +194,8 @@ public class AgentTest extends TestTools {
 	}
 
 	/**
-	 * Test the list that valid directions contains all the valid directions
-	 * for a agent in a given position.
+	 * Test the list that valid directions contains all the valid directions for
+	 * a agent in a given position.
 	 */
 	@Test
 	public void validDirections() {
