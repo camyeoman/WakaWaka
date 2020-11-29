@@ -4,6 +4,7 @@ package ghost;
  * Player represents the player character 'waka'.
  */
 public class Player extends Agent {
+
 	/**
 	 * The direction set by user input, to be queued
 	 */
@@ -57,6 +58,7 @@ public class Player extends Agent {
 	 * @return a Sprite representing current state
 	 */
 	public Sprite getSprite(int frames) {
+
 		if (frames > 0 && frames % 8 == 0) {
 			open = !open;
 		}
@@ -74,6 +76,7 @@ public class Player extends Agent {
 		}
 
 		return sprite;
+
 	}
 
 	// Active methods
@@ -82,8 +85,10 @@ public class Player extends Agent {
 	 * Updates the player direction and position. If the queued direction
 	 * is valid, it is set as the current direction. If the direction is
 	 * valid the player is moved in said direction.
+	 * @param keyCode, integer associated with keyboard key
 	 */
 	public void evolve(int keyCode) {
+
 		keyboardInput(keyCode);
 
 		if (validDirection(queuedDirection)) {
@@ -97,6 +102,7 @@ public class Player extends Agent {
 			this.x = point.x;
 			this.y = point.y;
 		}
+
 	}
 
 	/**
@@ -105,7 +111,7 @@ public class Player extends Agent {
 	 * @param game, the game instance
 	 */
 	public void TIC(Game game) {
-		game.PLAYER.evolve(game.app.keyCode);
+		game.player.evolve(game.app.keyCode);
 		game.app.keyCode = 0;
 	}
 
@@ -126,6 +132,7 @@ public class Player extends Agent {
 	 * @return if the keyCode given was a valid
 	 */
 	public boolean keyboardInput(int keyCode) {
+
 		int current = (direction == null) ? 0 : direction.KEY_CODE;
 
 		if (direction != null || keyCode != current) {
@@ -149,5 +156,7 @@ public class Player extends Agent {
 
 		// if the keyCode is valid
 		return keyCode >= 37 && keyCode <= 40;
+
 	}
+
 }
