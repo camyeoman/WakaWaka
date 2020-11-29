@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Super class to Player and Ghost. Interprets the game map and deals with
+ * Super class to Player and Ghost. Interprets the game map and handles
  * basic movement.
  */
 public class Agent extends Coordinate {

@@ -95,6 +95,7 @@ public class GameObject extends Coordinate {
 
 	/**
 	 * Queues frightened mode.
+	 * @param game, the game instance
 	 */
 	public static void superFruit(Game game) {
 		game.modeControl.queueMode(Ghost.Mode.FRIGHTENED);
@@ -102,6 +103,7 @@ public class GameObject extends Coordinate {
 
 	/**
 	 * Adds one to game points.
+	 * @param game, the game instance
 	 */
 	public static void fruit(Game game) {
 		game.points++;
@@ -109,6 +111,7 @@ public class GameObject extends Coordinate {
 
 	/**
 	 * Queues frightened mode.
+	 * @param game, the game instance
 	 */
 	public static void soda(Game game) {
 		game.modeControl.queueMode(Ghost.Mode.INVISIBLE);
