@@ -1,12 +1,32 @@
 package ghost;
-import java.util.List;
-import java.util.ArrayList;
 
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Manage the modes for the game.
+ */
 public class ModeController {
+
+	/**
+	 * The queue of Node object representing modes.
+	 */
 	private List<Node> modeQueue;
+
+	/**
+	 * The given list of modeLengths containing the number of seconds for each
+	 * mode.
+	 */
 	final List<Integer> modeLengths;
 
+	/**
+	 * The duration of the frightened mode.
+	 */
 	final int frightenedDuration;
+
+	/**
+	 * The duration of the invisible mode.
+	 */
 	final int invisibleDuration;
 
 	/**
@@ -15,6 +35,7 @@ public class ModeController {
 	* @param config, configuration obejct
 	*/
 	public ModeController(Configuration config) {
+
 		this.frightenedDuration = config.frightenedDuration;
 		this.invisibleDuration = 10;
 
@@ -22,38 +43,45 @@ public class ModeController {
 		this.modeQueue = new ArrayList<>();
 
 		buildQueue();
+
 	}
 
 	/**
 	 * Initialises mode queue using the modeLengths given in the constructor.
 	 */
 	public void buildQueue() {
+
 		for (int i=0; i < modeLengths.size(); i++) {
 			Ghost.Mode mode = (i % 2 == 0) ? Ghost.Mode.SCATTER : Ghost.Mode.CHASE;
 			modeQueue.add(new Node(modeLengths.get(i), mode));
 		}
+
 	}
 
 	/**
 	 * Adds specified mode to the beginning of the queue with duration as
 	 * specified in the constructor with the frightenedDuration attribute.
+	 * @param mode, the mode to be queued (is either FRIGHTENED or INVISIBLE)
 	 */
 	public void queueMode(Ghost.Mode mode) {
+
 		if (mode == Ghost.Mode.FRIGHTENED) {
 			modeQueue.add(0, new Node(frightenedDuration, mode));
 		} else if (mode == Ghost.Mode.INVISIBLE) {
 			modeQueue.add(0, new Node(invisibleDuration, mode));
 		}
+
 	}
 
 
 	/**
-	 * Updates the mode que, representing a single frame having elapsed.
-	 * When the que is empty, rebuild it, and if a given mode is over remove
-	 * it from the queue. Return the current mode.
+	 * Updates the mode que, representing a single frame having elapsed.  When
+	 * the que is empty, rebuild it, and if a given mode is over remove it from
+	 * the queue. Return the current mode.
 	 * @return the current mode of the game
 	 */
 	public Ghost.Mode update() {
+
 		Node node = modeQueue.get(0);
 
 		if (!node.tic()) {
@@ -65,6 +93,7 @@ public class ModeController {
 		}
 
 		return node.mode;
+
 	}
 
 	/**
@@ -75,8 +104,19 @@ public class ModeController {
 		return modeQueue.toString();
 	}
 
+	/**
+	 * A node class representing the duration and type of a mode.
+	 */
 	class Node {
+
+		/**
+		 * Number of frames left for a node.
+		 */
 		private int framesLeft;
+
+		/**
+		 * The mode of the node.
+		 */
 		final Ghost.Mode mode;
 
 		/**
@@ -107,5 +147,7 @@ public class ModeController {
 		public String toString() {
 			return framesLeft + " " + mode;
 		}
+
 	}
+
 }
