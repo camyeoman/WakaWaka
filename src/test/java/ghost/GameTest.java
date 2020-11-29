@@ -198,6 +198,7 @@ public class GameTest extends TestTools {
 		app.setup();
 		app.delay(10);
 		app.dispose();
+
 	}
 
 	@Test
@@ -253,6 +254,7 @@ public class GameTest extends TestTools {
 		app.delay(10);
 		//game.drawGame();
 		app.dispose();
+
 	}
 
 	@Test
