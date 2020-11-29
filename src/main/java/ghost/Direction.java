@@ -1,5 +1,8 @@
 package ghost;
 
+/**
+ * Enum representing direction.
+ */
 public enum Direction {
 
 	up(38),
@@ -12,6 +15,10 @@ public enum Direction {
 	 */
 	final int KEY_CODE;
 
+	/**
+	 * Assign keyCode to direction.
+	 * @param KEY_CODE, the keyCode associated with a direction
+	 */
 	Direction(int KEY_CODE) {
 		this.KEY_CODE = KEY_CODE;
 	}
