@@ -111,6 +111,7 @@ public class Ghost extends Agent {
 
 	/**
 	 * Sets chaser.
+	 * @param chaser, chaser ghost object to set
 	 */
 	public static void setChaser(Ghost chaser) {
 		CHASER = chaser;
@@ -118,6 +119,7 @@ public class Ghost extends Agent {
 
 	/**
 	 * Sets mode.
+	 * @param mode, mode to set
 	 */
 	public static void setMode(Mode mode) {
 		MODE = mode;
