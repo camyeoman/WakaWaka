@@ -75,6 +75,8 @@ public class GameObjectTest {
 		int x = game.player.getX();
 		int y = game.player.getY();
 
+		Ghost ghost = game.ghosts.get(0);
+
 		GameObject superFruit = new GameObject(x, y, Sprite.superFruit);
 		GameObject fruit = new GameObject(x, y, Sprite.fruit);
 		GameObject soda = new GameObject(x, y, Sprite.soda);
@@ -92,7 +94,8 @@ public class GameObjectTest {
 
 		GameObject.TIC(game);
 		game.ticGame();
-		assertEquals(Ghost.MODE, Ghost.Mode.FRIGHTENED);
+		// assert is frightened sprite, to verify the mode
+		assertEquals(ghost.getSprite(), Sprite.frightened);
 
 		// test soda interaction
 		game.gameObjects = new ArrayList<>();
@@ -100,7 +103,8 @@ public class GameObjectTest {
 
 		GameObject.TIC(game);
 		game.ticGame();
-		assertEquals(Ghost.MODE, Ghost.Mode.INVISIBLE);
+		// assert is invisible sprite, to verify the mode
+		assertEquals(ghost.getSprite(), Sprite.invisible);
 
 	}
 
