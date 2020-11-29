@@ -2,7 +2,7 @@ package ghost;
 
 /**
  * Provides core functionality of an object which has an x and y coordinate,
- * with the required getter methods. Agent and GameObject both extend this.
+ * with the required getter methods.
  */
 public class Coordinate {
 
@@ -18,6 +18,8 @@ public class Coordinate {
 
 	/**
 	 * Initialise a coordinate object with an x and y coordinates.
+	 * @param x, integer x coordinate
+	 * @param y, integer y coordinate
 	 */
 	public Coordinate(int x, int y) {
 		this.x = x;
