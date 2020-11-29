@@ -22,7 +22,7 @@ import java.io.Reader;
 import java.io.File;
 
 /**
- * Parse and store data from files.
+ * Parse data from files and store it as a Configuration object.
  */
 public class Configuration {
 
