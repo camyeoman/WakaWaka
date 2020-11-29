@@ -1,8 +1,24 @@
 package ghost;
 
+/**
+ * Provides core functionality of an object which has an x and y coordinate,
+ * with the required getter methods. Agent and GameObject both extend this.
+ */
 public class Coordinate {
-	protected int x, y;
 
+	/**
+	 * The stored x coordinate.
+	 */
+	protected int x;
+
+	/**
+	 * The stored y coordinate.
+	 */
+	protected int y;
+
+	/**
+	 * Initialise a coordinate object with an x and y coordinates.
+	 */
 	public Coordinate(int x, int y) {
 		this.x = x;
 		this.y = y;
@@ -50,4 +66,5 @@ public class Coordinate {
 	public Point point() {
 		return new Point(x, y);
 	}
+
 }
