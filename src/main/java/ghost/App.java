@@ -62,6 +62,7 @@ public class App extends PApplet {
 
 	/**
 	 * Create instance of App.
+	 * @param args, commandline arguments
 	 */
 	public static void main(String[] args) {
 		PApplet.main("ghost.App");
