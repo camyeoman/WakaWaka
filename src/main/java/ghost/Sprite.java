@@ -47,6 +47,8 @@ public enum Sprite {
 
 	/**
 	 * Initialise file path and sprite.
+	 * @param name, the name of the image
+	 * @param type, the catagory of sprite
 	 */
 	Sprite(String name, String type) {
 		this.filePath = "src/main/resources/" + name + ".png";
