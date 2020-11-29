@@ -8,7 +8,14 @@ import processing.core.PImage;
  */
 public class App extends PApplet {
 
+	/**
+	 * Height of game window.
+	 */
 	static final int HEIGHT = 576;
+
+	/**
+	 * Width of game window.
+	 */
 	static final int WIDTH = 448;
 
 	/**
@@ -53,6 +60,9 @@ public class App extends PApplet {
 		game.run();
 	}
 
+	/**
+	 * Create instance of App.
+	 */
 	public static void main(String[] args) {
 		PApplet.main("ghost.App");
 	}
